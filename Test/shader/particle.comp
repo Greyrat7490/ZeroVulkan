@@ -1,0 +1,59 @@
+#version 450
+
+struct Particle
+{
+    vec4 pos;
+    vec4 vel;
+    vec4 color;
+    float size;
+    float lifeTime;
+};
+
+layout( std430, binding = 0 ) buffer ParticleBuffer 
+{
+   Particle particles[ ];
+};
+
+layout ( binding = 1 ) uniform UBO 
+{
+    vec4 startColor;
+    vec4 endColor;
+    vec4 emitPos;
+	float startSize;
+	float endSize;
+    float lifeTime;
+    float spawnDelay;
+	float deltaTime;
+} ubo;
+
+shared float delayTimer;
+
+void main() 
+{
+    uint index = gl_GlobalInvocationID.x;
+
+    delayTimer += ubo.deltaTime;
+
+    if( particles[index].lifeTime > 0.0 )
+    {
+        particles[index].pos.xyz += particles[index].vel.xyz * ubo.deltaTime;
+        particles[index].size += ( ubo.endSize - ubo.startSize ) * ubo.deltaTime / particles[index].lifeTime;
+        particles[index].color += ( ubo.endColor - ubo.startColor ) * ubo.deltaTime / particles[index].lifeTime;
+        
+        particles[index].lifeTime -= ubo.deltaTime;
+    }
+    else
+    {
+        particles[index].color = vec4( 0.0 );
+
+        if( delayTimer > ubo.spawnDelay * index )
+        {
+            particles[index].lifeTime = ubo.lifeTime;
+            particles[index].size = ubo.startSize;
+            particles[index].pos = ubo.emitPos;
+            particles[index].color = ubo.startColor;
+
+            delayTimer = 0.0;
+        }
+    }
+}

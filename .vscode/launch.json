@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "c++ debug",
+            "request": "launch",
+            "type": "cppdbg",
+            "program": "${workspaceFolder}/build/debug/Test",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
