@@ -14,6 +14,8 @@ namespace ZeroVulkan
 	public:
 		ZDevice(const ZDevice&) = delete;
 
+        static void clear() { get().clearImpl(); }
+        
 		static ZDevice& get()
 		{
 			static ZDevice d;
@@ -157,6 +159,7 @@ namespace ZeroVulkan
 		void createInstanceImpl();
 		void getPhysicalDevicesImpl();
 		void createCommandPoolImpl();
+        void clearImpl();
 	};
 }
 

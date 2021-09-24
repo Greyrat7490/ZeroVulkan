@@ -4,8 +4,8 @@
 #include <vector>
 #include <stdio.h>
 #include <string>
+#include <utils.h>
 #include "Device.h"
-#include "tools.h"
 
 namespace ZeroVulkan
 {

@@ -1,9 +1,7 @@
-#include <cstdint>
 #include <vector>
+#include <vulkan/vulkan_core.h>
 #include "Window/window.h"
-#include "renderer.h"
-#include "Vulkan/ZvObject.h"
-#include "Vulkan/Scene.h"
+#include "ZRenderer.h"
 
 namespace ZeroVulkan::ZRenderer {
     uint32_t win_width, win_height;
@@ -12,6 +10,7 @@ namespace ZeroVulkan::ZRenderer {
     mat4 proj;
     
     std::vector<ZObject> objects;
+    std::vector<std::function<void(VkCommandBuffer&)>> binds;
     
     size_t createObject() {
         objects.emplace_back();
@@ -71,7 +70,7 @@ namespace ZeroVulkan::ZRenderer {
     void update(float dt) {
         for (ZObject& obj : objects) {
             obj.update(dt);
-            obj.uniform.update(0, proj, Scene::getView(), ZeroVulkan::mat4(1.f), ZeroVulkan::vec3(1.f, 1.f, 3.f));
+            obj.shaders.uniform.update(0, proj, Scene::getView(), ZeroVulkan::mat4(1.f), ZeroVulkan::vec3(1.f, 1.f, 3.f));
         }
     }
 
@@ -89,8 +88,12 @@ namespace ZeroVulkan::ZRenderer {
         proj[3][3] = 0.f;
     }
 
+    void addBindFunction(std::function<void(VkCommandBuffer&)> func) {
+        binds.push_back(func);
+    }
+
     void record() {
-        for(auto& shader : ZComputeShader::computeShaders)
+        for(auto shader : ZComputeShader::computeShaders)
             shader->buildCommandBuffer();
 
         VkCommandBufferBeginInfo commandBufferBeginInfo = {};
@@ -121,7 +124,7 @@ namespace ZeroVulkan::ZRenderer {
         scissor.extent = { win_width, win_height };
 
         int i = 0;
-        for(VkCommandBuffer cmdBuffer : ZDevice::getCommandPool()->getBuffers())
+        for (VkCommandBuffer cmdBuffer : ZDevice::getCommandPool()->getBuffers())
         {
             renderPassBeginInfo.framebuffer = ZDevice::getSwapchainFramebuffers()[i++];
             
@@ -135,14 +138,9 @@ namespace ZeroVulkan::ZRenderer {
 
             vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
-            VkDeviceSize offsets[] = { 0 };
+            for (auto bind : binds)
+                bind(cmdBuffer);   
 
-            for(const ZObject& obj : objects) {
-                obj.material.bind(cmdBuffer);
-                vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &obj.vertexBuffer, offsets);
-                vkCmdBindIndexBuffer(cmdBuffer, obj.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-                vkCmdDrawIndexed(cmdBuffer, obj.indices_count, 1, 0, 0, 0);
-            }
             vkCmdEndRenderPass(cmdBuffer);
 
             res = vkEndCommandBuffer(cmdBuffer);
@@ -251,5 +249,14 @@ namespace ZeroVulkan::ZRenderer {
             printf("Queue wait idle ERROR: %d\n", res);
         
         ZDevice::getCurFrame() = (ZDevice::getCurFrame() + 1) % ZDevice::MAX_FRAMES_IN_FLIGHT;
+    }
+
+    void clear() {
+        vkDeviceWaitIdle(ZDevice::getDevice());
+        
+        binds.clear();
+        objects.clear();
+        
+        ZDevice::clear();
     }
 }

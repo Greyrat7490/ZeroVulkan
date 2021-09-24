@@ -1,9 +1,9 @@
 #ifndef ZERO_VULKAN_H_
 #define ZERO_VULKAN_H_
 
-#include "renderer.h"
-#include "Vulkan/ZvObject.h"
-#include "Vulkan/types.h"
+#include "ZRenderer/ZRenderer.h"
+#include "ZObject/ZObject.h"
+#include "types.h"
 
 namespace ZeroVulkan {
     void init();

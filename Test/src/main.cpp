@@ -6,7 +6,6 @@ int main()
     
     size_t obj_id = ZeroVulkan::ZRenderer::createObject();
  
-
     float dt = 0.f;
     bool quit = false;
     while (!quit) 
@@ -21,5 +20,7 @@ int main()
 
     ZeroVulkan::clear();
 
+    printf("successfully cleared!\n");
+    
     return 0;
 }

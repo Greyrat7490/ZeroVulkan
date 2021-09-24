@@ -1,11 +1,13 @@
 #include <assert.h>
-#include "Material.h"
-#include "tools.h"
+#include <vulkan/vulkan_core.h>
+#include "Vulkan/ComputeShader.h"
+#include "ZShaders.h"
+#include "utils.h"
 
 namespace ZeroVulkan
 {
     // TODO handle relative and absolute path
-    ZMaterial::ZMaterial(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
+    ZShaders::ZShaders(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
     {
         vertexLayout = new ZVertexLayout();
         descSetLayout = new ZDescriptorSetLayout();
@@ -22,10 +24,10 @@ namespace ZeroVulkan
         createShaderModule( getRootDir() + "/" + vertexShaderRelPath, &shaderModuleVert);
         createShaderModule( getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
         
-        printf("component: ZMaterial\n");
+        printf("component: ZShaders\n");
     }
 
-    ZMaterial::~ZMaterial()
+    ZShaders::~ZShaders()
     {
         delete vertexLayout;
         delete descSetLayout;
@@ -40,15 +42,15 @@ namespace ZeroVulkan
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
 
-        printf("destroyed ZMaterial\n");
+        printf("destroyed ZShaders\n");
     }
 
-    void ZMaterial::update(float deltaTime)
+    void ZShaders::update(float deltaTime)
     {
         counter += deltaTime;
     }
 
-    void ZMaterial::create(ZUniform* uniform, bool debug, bool triangleTopology)
+    void ZShaders::create(bool debug, bool triangleTopology)
     {
         descSetLayout->createLayout();
         descPool->addDescriptorLayout(descSetLayout);
@@ -70,10 +72,10 @@ namespace ZeroVulkan
             {
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                descriptorSet->addDescriptorInfo(i, uniform->getBufferInfo());
+                descriptorSet->addDescriptorInfo(i, uniform.getBufferInfo());
                 break;
             default:
-                printf("DescriptorTyp is still not supported\n");
+                printf("DescriptorTyp is not yet supported\n");
                 break;
             }
         }
@@ -112,7 +114,7 @@ namespace ZeroVulkan
         }
     }
 
-    void ZMaterial::setShader(const std::string& shaderName, shaderType type)
+    void ZShaders::setShader(const std::string& shaderName, shaderType type)
     {
         printf("shader: %s\n", ("Test/shader/compiled/" + shaderName).c_str());
 
@@ -125,17 +127,40 @@ namespace ZeroVulkan
             createShaderModule("Test/shader/compiled/" + shaderName, &shaderModuleFrag);
             break;
         case shaderType::COMPUTE:
-            printf("You cannot set a compute shader for a material\n");
+            printf("Computer Shader are not yet supported\n");
             break;
         default:
-            printf("unknowShaderType\n");
+            printf("unknown ShaderType\n");
             break;
         }
     }
     
-    void ZMaterial::bind(VkCommandBuffer& cmdBuffer) const
-    {
+    void ZShaders::bind(VkCommandBuffer& cmdBuffer) {
+        prepair();
+            
         vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet->descSet, 0, 0);
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    }
+    
+    void ZShaders::prepair() {
+        if (!ready){
+            vertexLayout->addLocation(0, ZType::VEC3, 0);
+            vertexLayout->addLocation(1, ZType::VEC3, sizeof(vec3));
+            vertexLayout->createBinding(2 * sizeof(vec3));
+
+            descSetLayout->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+
+            ZUniformLayout uniformLayout = ZUniformLayout( {
+                sizeof(mat4),
+                sizeof(mat4),
+                sizeof(mat4),
+                sizeof(vec3),
+            } );
+            
+            uniform.create(&uniformLayout);
+            create(false);
+            
+            ready = true;
+        }
     }
 }

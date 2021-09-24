@@ -1,13 +1,8 @@
-#include "ZvObject.h"
-#include "Device.h"
+#include "ZMesh.h"
+#include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan {
-    void ZObject::update(float dt) {
-    }
-
-    ZObject::ZObject()
-        : material( ZMaterial("Test/shader/compiled/phong.vert.spv", "Test/shader/compiled/phong.frag.spv") )
-    {
+    ZMesh::ZMesh() {
         vertices = {
               0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
               0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -41,24 +36,24 @@ namespace ZeroVulkan {
         };
         indices_count = indices.size();
 
-
+        
         createAndUploadBuffer(ZDevice::getDevice(), vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer, m_vertexMemory);
         createAndUploadBuffer(ZDevice::getDevice(), indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer, m_indexMemory);
-        
-        material.vertexLayout->addLocation(0, ZType::VEC3, 0);
-        material.vertexLayout->addLocation(1, ZType::VEC3, sizeof(vec3));
-        material.vertexLayout->createBinding(2 * sizeof(vec3));
+    }
 
-        material.descSetLayout->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-
-        ZUniformLayout uniformLayout = ZUniformLayout( {
-            sizeof(mat4),
-            sizeof(mat4),
-            sizeof(mat4),
-            sizeof(vec3),
-        } );
+    void ZMesh::bind(VkCommandBuffer& cmdBuffer) {
+        VkDeviceSize offsets[] = { 0 };
         
-        uniform.create(&uniformLayout);
-        material.create(&uniform, false);
+        vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, offsets);
+        vkCmdBindIndexBuffer(cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(cmdBuffer, indices_count, 1, 0, 0, 0);
+    }
+
+    ZMesh::~ZMesh() {
+        vkDestroyBuffer(ZDevice::getDevice(), vertexBuffer, nullptr);       
+        vkFreeMemory(ZDevice::getDevice(), m_vertexMemory, nullptr);
+
+        vkDestroyBuffer(ZDevice::getDevice(), indexBuffer, nullptr);       
+        vkFreeMemory(ZDevice::getDevice(), m_indexMemory, nullptr);
     }
 }

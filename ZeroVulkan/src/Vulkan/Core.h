@@ -15,7 +15,6 @@
 #include "Vertex.h"
 #include "Memory.h"
 #include "Surface.h"
-#include "Material.h"
 #include "Pipeline.h"
 #include "Swapchain.h"
 #include "RenderPass.h"

@@ -4,6 +4,40 @@ namespace ZeroVulkan
 {
 	struct ZDevice::QueueFamilyIndices ZDevice::queueFamilyIndices;
 
+    void ZDevice::clearImpl() {
+		vkDeviceWaitIdle(m_dev);
+        
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+			vkDestroyFence(m_dev, m_inFlightFences[i], nullptr);
+
+		vkDestroySemaphore(m_dev, m_semaphoreImgAvailable, nullptr);
+		vkDestroySemaphore(m_dev, m_semaphoreRenderingDone, nullptr);
+
+		delete getCommandPool();
+
+		for (uint32_t i = 0; i < m_swapchainImageViews.size(); i++ )
+			vkDestroyFramebuffer(m_dev, m_swapchainFramebuffers[i], nullptr);
+
+		vkDestroyImageView(m_dev, m_depthImageView, nullptr);
+		vkDestroyImage(m_dev, m_depthImage, nullptr);
+		vkFreeMemory(m_dev, m_depthImageMemory, nullptr);
+
+		vkDestroyRenderPass(m_dev, m_renderPass, nullptr);
+
+		vkDestroySampler(m_dev, m_sampler, nullptr);
+
+		for (uint32_t i = 0; i < m_swapchainImageViews.size(); i++)
+			vkDestroyImageView(m_dev, m_swapchainImageViews[i], nullptr);
+
+		vkDestroySwapchainKHR(m_dev, m_swapchain, nullptr);
+		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+		vkDestroyDevice(m_dev, nullptr);
+
+		vkDestroyInstance(m_instance, nullptr);
+
+		delete[] m_physicalDevices;
+    }
+    
 	ZDevice::ZDevice()
 	{
 		createInstanceImpl();

@@ -29,7 +29,7 @@ lib_release_objs = $(patsubst $(lib_folder)/%.cpp, build/release/obj/$(lib_name)
 out_debug_objs = $(patsubst $(out_folder)/%.cpp, build/debug/obj/$(out_name)/%.o, $(out_src_files))
 out_release_objs = $(patsubst $(out_folder)/%.cpp, build/release/obj/$(out_name)/%.o, $(out_src_files))
 
-.PHONY: all clean release debug run
+.PHONY: all clean release debug run test
 
 all: release
 
@@ -44,8 +44,15 @@ debug: LIB_CPPFLAGS += -g -O0 -D Z_DEBUG
 debug: OUT_CPPFLAGS += -g -O0 -D Z_DEBUG
 debug: $(out_debug)
 
-run: release
+test: release
+	@echo ""
+	@echo "running release version..."
 	$(out_release)
+
+run: debug
+	@echo ""
+	@echo "running debug version..."
+	$(out_debug)
 
 
 # create output executable

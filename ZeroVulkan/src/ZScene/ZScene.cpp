@@ -1,4 +1,4 @@
-#include "Scene.h"
+#include "ZScene.h"
 
 namespace ZeroVulkan::Scene {
     mat4 view;

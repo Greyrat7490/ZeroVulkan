@@ -1,9 +1,10 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
+#include <functional>
 #include "Vulkan/Core.h"
-#include "Vulkan/Scene.h"
-#include "Vulkan/ZvObject.h"
+#include "ZScene/ZScene.h"
+#include "ZObject/ZObject.h"
 
 namespace ZeroVulkan::ZRenderer {
     void printVulkanInfos();
@@ -12,6 +13,8 @@ namespace ZeroVulkan::ZRenderer {
 
     void updateProj();
 
+    void addBindFunction(std::function<void(VkCommandBuffer&)> func);
+    
     void record();
 
     void initRenderer();
@@ -23,6 +26,8 @@ namespace ZeroVulkan::ZRenderer {
     void update(float dt);
 
     size_t createObject();
+
+    void clear();
 }
 
 #endif // RENDERER_H_

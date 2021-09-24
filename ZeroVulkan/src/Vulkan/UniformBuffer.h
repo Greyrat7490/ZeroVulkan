@@ -52,6 +52,7 @@ namespace ZeroVulkan
 		inline VkDeviceSize getBufferSize() const { return m_uniformSize; }
 		inline VkDeviceSize getDynamicAlignment() const { return m_dynamicAlignment; }
 	
+        // TODO: better update function. Maybe something like a Struct as argument with references to 
 		template<typename T, typename... Ts>
 		void update(uint32_t offset, T first, Ts&&... ubo);
 
@@ -137,9 +138,12 @@ namespace ZeroVulkan
 
 	inline ZUniform::~ZUniform()
 	{
-		vkUnmapMemory(ZDevice::getDevice(), m_memory);
+        printf("~uniform\n");
+		// vkUnmapMemory(ZDevice::getDevice(), m_memory);
 		vkDestroyBuffer(ZDevice::getDevice(), m_buffer, nullptr);
 		vkFreeMemory(ZDevice::getDevice(), m_memory, nullptr);
+
+        printf("Destroyed uniformBuffer\n");
 	};
 
 	template<typename T, typename... Ts>
