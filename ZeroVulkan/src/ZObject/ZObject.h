@@ -5,9 +5,11 @@
 #include "ZMesh/ZMesh.h"
 
 namespace ZeroVulkan {
+    class ZScene;
+    
     class ZObject {
     public:
-        ZObject();
+        ZObject(ZScene* attachedScene);
         ZObject(const ZShaders& shaders, const ZMesh& mesh);
  
         void update(float dt);
@@ -21,6 +23,8 @@ namespace ZeroVulkan {
     private:
         ZMesh mesh;
         bool binded = false;
+
+        ZScene* attachedScene;
     };
 }
 

@@ -7,6 +7,7 @@
 #include "RenderPass.h"
 #include "SyncObjects.h"
 #include "CommandBuffer.h"
+#include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan
 {
@@ -23,9 +24,18 @@ namespace ZeroVulkan
             vkGetPhysicalDeviceSurfacePresentModesKHR(ZDevice::getPhysicalDev()[0], ZDevice::getSurface(), &presentModeCount, availablePresentModes.data());
         }
 
-        ZDevice::getSwapchainPresentMode() = VK_PRESENT_MODE_FIFO_KHR;
+#ifdef Z_DEBUG
+        printf("availablePresentModes:");
+        for (const VkPresentModeKHR availablePresentMode : availablePresentModes)
+            printf(" %d", availablePresentMode);
+        
+        printf("\n");
+#endif
 
-        for (const auto& availablePresentMode : availablePresentModes)
+        // ZDevice::getSwapchainPresentMode() = VK_PRESENT_MODE_FIFO_KHR;
+        ZDevice::getSwapchainPresentMode() = VK_PRESENT_MODE_IMMEDIATE_KHR;
+
+        for (const VkPresentModeKHR availablePresentMode : availablePresentModes)
         {
             if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
                 ZDevice::getSwapchainPresentMode() = availablePresentMode;

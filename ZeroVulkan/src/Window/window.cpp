@@ -8,14 +8,11 @@ namespace ZeroVulkan::ZWindow
 {
     xcb_window_t window;
     xcb_connection_t* connection;
-
     xcb_intern_atom_reply_t* wm_del_win;
-
 
     xcb_window_t getWindow() { return window; }
     xcb_connection_t* getConnection() { return connection; }
-    
-    
+ 
     void createWindow() {
         connection = xcb_connect(nullptr, nullptr);
 
@@ -59,6 +56,8 @@ namespace ZeroVulkan::ZWindow
         xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, protocols_reply->atom, 4, 32, 1, &(wm_del_win->atom));
         free(protocols_reply);
 
+        setTitle("default title");
+        
         xcb_map_window(connection, window);
         xcb_flush(connection);
     }
@@ -67,11 +66,10 @@ namespace ZeroVulkan::ZWindow
     bool handleEvents() {
         xcb_generic_event_t* e;
 
-        while ( ( e = xcb_poll_for_event(connection) ) ) {
+        if ( ( e = xcb_poll_for_event(connection) ) ) {
             switch (e->response_type & ~0x80) {
-                case XCB_EXPOSE:
-                    // xcb_flush(connection);
-                    break;
+                // case XCB_EXPOSE:
+                    // break;
                 case XCB_CLIENT_MESSAGE:
                     if ( ( (xcb_client_message_event_t*)e )->data.data32[0] == wm_del_win->atom ) {
                         free(e);
@@ -87,13 +85,31 @@ namespace ZeroVulkan::ZWindow
                 default:
                     break;
             }
+
+            free(e);
         }
 
-        free(e);
         return false;
     }
-
+    
     void clear() {
         xcb_disconnect(connection);
+    }
+
+    
+    vec2 getSize() {
+        xcb_connection_t* connection = ZWindow::getConnection();
+        xcb_window_t window = ZWindow::getWindow();
+        
+        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry (connection, window);
+        xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (connection, geomCookie, nullptr);
+    
+        return vec2(geom->width, geom->height);
+    }
+
+    void setTitle(const std::string& title) {
+        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window,
+            XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.size(), title.data());
+        xcb_flush(connection);
     }
 }

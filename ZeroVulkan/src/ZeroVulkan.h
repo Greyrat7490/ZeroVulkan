@@ -3,7 +3,8 @@
 
 #include "ZRenderer/ZRenderer.h"
 #include "ZObject/ZObject.h"
-#include "types.h"
+#include "ZMesh/ZMesh.h"
+#include "ZShaders/ZShaders.h"
 
 namespace ZeroVulkan {
     void init();
@@ -14,4 +15,4 @@ namespace ZeroVulkan {
     void update(float dt);
 }
 
-#endif // ifndef ZERO_VULKAN_H_
+#endif // ZERO_VULKAN_H_

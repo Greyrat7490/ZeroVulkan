@@ -1,23 +1,15 @@
+#include <cstdint>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "Window/window.h"
 #include "ZRenderer.h"
 
 namespace ZeroVulkan::ZRenderer {
-    uint32_t win_width, win_height;
     VkViewport viewport;
     VkRect2D scissor;
-    mat4 proj;
-    
-    std::vector<ZObject> objects;
-    std::vector<std::function<void(VkCommandBuffer&)>> binds;
-    
-    size_t createObject() {
-        objects.emplace_back();
-        record();
-        return objects.size() - 1;
-    }
-    
+
+    vec2 winSize;
+       
     void printVulkanInfos() {
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -26,8 +18,7 @@ namespace ZeroVulkan::ZRenderer {
 
         std::cout << "<< Layers >>" << std::endl;
         std::cout << "\tLayer Count: " << layerCount << std::endl;
-        for(uint32_t i = 0; i < layerCount; i++)
-        {
+        for(uint32_t i = 0; i < layerCount; i++) {
             std::cout << "\tlayerName: " << layers[i].layerName << std::endl;
             std::cout << "\tspecVersion: " << layers[i].specVersion << std::endl;
             std::cout << "\timplementationVersion: " << layers[i].implementationVersion << std::endl;
@@ -46,8 +37,7 @@ namespace ZeroVulkan::ZRenderer {
         std::cout << "<< Extensions >>" << std::endl;
         std::cout << "\tExtensionCount: " << extensionCount << std::endl;
 
-        for(uint32_t i = 0; i < extensionCount; i++) 
-        {
+        for(uint32_t i = 0; i < extensionCount; i++) {
             std::cout << "\tName " << extensions[i].extensionName << std::endl;
             std::cout << "\tSpec Version " << extensions[i].specVersion << "\n" << std::endl;
         }
@@ -56,44 +46,13 @@ namespace ZeroVulkan::ZRenderer {
         delete[] extensions;
     }
 
-    void updateWindowSize() {
-        xcb_connection_t* connection = ZWindow::getConnection();
-        xcb_window_t window = ZWindow::getWindow();
-        
-        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry (connection, window);
-        xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (connection, geomCookie, nullptr);
-
-        win_width = geom->width;
-        win_height = geom->height;
-    }
 
     void update(float dt) {
-        for (ZObject& obj : objects) {
-            obj.update(dt);
-            obj.shaders.uniform.update(0, proj, Scene::getView(), ZeroVulkan::mat4(1.f), ZeroVulkan::vec3(1.f, 1.f, 3.f));
-        }
-    }
-
-    void updateProj() {
-        float aspect = (float)win_width / (float)win_height;
-        float fovY = 70.f;
-        float farValue = 30.f;
-        float nearValue = 0.001f;
-        
-        proj[0][0] = 1.f/ (aspect * std::tan(radian(fovY / 2.f)));
-        proj[1][1] = -1.f / std::tan(radian(fovY / 2.f));// -1.f to flip y_axis
-        proj[2][2] = farValue / (nearValue - farValue);
-        proj[2][3] = -1.f;
-        proj[3][2] = (farValue * nearValue) / (nearValue - farValue);
-        proj[3][3] = 0.f;
-    }
-
-    void addBindFunction(std::function<void(VkCommandBuffer&)> func) {
-        binds.push_back(func);
+        ZScene::current().update(dt);
     }
 
     void record() {
-        for(auto shader : ZComputeShader::computeShaders)
+        for (auto shader : ZComputeShader::computeShaders)
             shader->buildCommandBuffer();
 
         VkCommandBufferBeginInfo commandBufferBeginInfo = {};
@@ -109,19 +68,19 @@ namespace ZeroVulkan::ZRenderer {
         renderPassBeginInfo.pNext = nullptr;
         renderPassBeginInfo.renderPass = ZDevice::getRenderPass();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
-        renderPassBeginInfo.renderArea.extent = { win_width, win_height };
+        renderPassBeginInfo.renderArea.extent = { (uint32_t)winSize[0], (uint32_t)winSize[1] };
         renderPassBeginInfo.clearValueCount = 2;
         renderPassBeginInfo.pClearValues = clearValues;
 
         viewport.x = 0.f;
         viewport.y = 0.f;
-        viewport.width = (float)win_width;
-        viewport.height = (float)win_height;
+        viewport.width = winSize[0];
+        viewport.height = winSize[1];
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
         scissor.offset = { 0, 0 };
-        scissor.extent = { win_width, win_height };
+        scissor.extent = { (uint32_t)winSize[0], (uint32_t)winSize[1] };
 
         int i = 0;
         for (VkCommandBuffer cmdBuffer : ZDevice::getCommandPool()->getBuffers())
@@ -138,8 +97,7 @@ namespace ZeroVulkan::ZRenderer {
 
             vkCmdSetScissor(cmdBuffer, 0, 1, &scissor);
 
-            for (auto bind : binds)
-                bind(cmdBuffer);   
+            ZScene::current().bind(cmdBuffer);
 
             vkCmdEndRenderPass(cmdBuffer);
 
@@ -150,14 +108,14 @@ namespace ZeroVulkan::ZRenderer {
     }
 
     void initRenderer() {
-        updateWindowSize();
-        // default view
-        Scene::setView(ZeroVulkan::vec3(-2.f, 1.f, 0.7f), ZeroVulkan::vec3(0.f, 0.f, 0.f));
-        updateProj();
-
+        // create a default scene
+        ZScene::create();
+        
+        updateWinSize();
+        
         createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());
         checkSurfaceSupport();
-        createSwapchain(win_width, win_height);
+        createSwapchain(winSize[0], winSize[1]);
         createRenderPass();
         createSwapchainImgViews();
         initDepthBuffering();
@@ -174,7 +132,7 @@ namespace ZeroVulkan::ZRenderer {
 
         vkFreeCommandBuffers(ZDevice::getDevice(), ZDevice::getCommandPool()->getPool(), (uint32_t)ZDevice::getCommandPool()->getBuffers().size(), ZDevice::getCommandPool()->getBuffers().data());
 
-        for(uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
+        for (uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
             vkDestroyFramebuffer(ZDevice::getDevice(), ZDevice::getSwapchainFramebuffers()[i], nullptr);
 
         vkDestroyImageView(ZDevice::getDevice(), ZDevice::getDepthImageView(), nullptr);
@@ -183,15 +141,15 @@ namespace ZeroVulkan::ZRenderer {
 
         vkDestroyRenderPass(ZDevice::getDevice(), ZDevice::getRenderPass(), nullptr);
 
-        for(uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
+        for (uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
             vkDestroyImageView(ZDevice::getDevice(), ZDevice::getSwapchainImageViews()[i], nullptr);
 
         VkSwapchainKHR oldSwapchain = ZDevice::getSwapchain();
 
-        updateWindowSize();
-        createSwapchain(win_width, win_height);
+        updateWinSize();
+        ZScene::current().updateProj();
+        createSwapchain(winSize[0], winSize[1]);
         VkExtent2D& extent = ZDevice::getSwapchainExtent();
-        updateProj();
 
         createSwapchainImgViews();
         createRenderPass();
@@ -210,7 +168,7 @@ namespace ZeroVulkan::ZRenderer {
 
         res = vkAcquireNextImageKHR(ZDevice::getDevice(), ZDevice::getSwapchain(), UINT64_MAX, ZDevice::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
 
-        if(res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+        if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
             refreshSwapchain();
 
         VkPipelineStageFlags waitStageMask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -227,7 +185,7 @@ namespace ZeroVulkan::ZRenderer {
         submitInfo.pSignalSemaphores = &ZDevice::getSemaphoreRenderingDone();
 
         res = vkQueueSubmit(ZDevice::getQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-        if(res != VK_SUCCESS)
+        if (res != VK_SUCCESS)
             printf("queue submit ERROR: %d\n", res);
             
         VkPresentInfoKHR presentInfo = {};
@@ -238,10 +196,10 @@ namespace ZeroVulkan::ZRenderer {
         presentInfo.pSwapchains = &ZDevice::getSwapchain();
         presentInfo.pImageIndices = &imgIndex;
 
-        if(vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)
+        if (vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)
             refreshSwapchain();
 
-        for(auto& shader : ZComputeShader::computeShaders)
+        for (auto& shader : ZComputeShader::computeShaders)
             shader->submit(ZDevice::getQueue());
     
         res = vkQueueWaitIdle(ZDevice::getQueue());
@@ -251,12 +209,14 @@ namespace ZeroVulkan::ZRenderer {
         ZDevice::getCurFrame() = (ZDevice::getCurFrame() + 1) % ZDevice::MAX_FRAMES_IN_FLIGHT;
     }
 
+    void updateWinSize() {
+        winSize = ZWindow::getSize();
+    }
+    
     void clear() {
         vkDeviceWaitIdle(ZDevice::getDevice());
         
-        binds.clear();
-        objects.clear();
-        
+        ZScene::clear();
         ZDevice::clear();
     }
 }

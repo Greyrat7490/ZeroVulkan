@@ -8,13 +8,7 @@
 
 namespace ZeroVulkan::ZRenderer {
     void printVulkanInfos();
-
-    void updateWindowSize();
-
-    void updateProj();
-
-    void addBindFunction(std::function<void(VkCommandBuffer&)> func);
-    
+   
     void record();
 
     void initRenderer();
@@ -25,9 +19,9 @@ namespace ZeroVulkan::ZRenderer {
 
     void update(float dt);
 
-    size_t createObject();
-
     void clear();
+
+    void updateWinSize();
 }
 
 #endif // RENDERER_H_
