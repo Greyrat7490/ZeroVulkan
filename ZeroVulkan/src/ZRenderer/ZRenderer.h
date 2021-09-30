@@ -12,9 +12,9 @@ namespace ZeroVulkan::ZRenderer {
     void record();
 
     void initRenderer();
-
-    void refreshSwapchain();
-
+   
+    void resizing();
+    
     void drawFrame();
 
     void update(float dt);

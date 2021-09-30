@@ -32,7 +32,10 @@ namespace ZeroVulkan
         printf("\n");
 #endif
 
-        // ZDevice::getSwapchainPresentMode() = VK_PRESENT_MODE_FIFO_KHR;
+        // VK_PRESENT_MODE_FIFO_KHR(VSync) causes stuttering on the whole system, which seems to be a NVidia driver bug
+        // same happens with vkcube and VK_PRESENT_MODE_FIFO_KHR
+        // https://forums.developer.nvidia.com/t/hangs-freezes-when-vulkan-v-sync-vk-present-mode-fifo-khr-is-enabled/67751/15
+        // https://www.reddit.com/r/vulkan/comments/gblf3g/catastrophic_desktop_performance_issues_with/
         ZDevice::getSwapchainPresentMode() = VK_PRESENT_MODE_IMMEDIATE_KHR;
 
         for (const VkPresentModeKHR availablePresentMode : availablePresentModes)

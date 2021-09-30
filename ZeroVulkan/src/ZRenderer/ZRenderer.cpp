@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <ctime>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "Window/window.h"
@@ -9,7 +10,9 @@ namespace ZeroVulkan::ZRenderer {
     VkRect2D scissor;
 
     vec2 winSize;
-       
+    clock_t lastResize;
+    bool resized = true;
+
     void printVulkanInfos() {
         uint32_t layerCount;
         vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
@@ -102,7 +105,7 @@ namespace ZeroVulkan::ZRenderer {
             vkCmdEndRenderPass(cmdBuffer);
 
             res = vkEndCommandBuffer(cmdBuffer);
-            if(res != VK_SUCCESS)
+            if (res != VK_SUCCESS)
                 printf("end command buffer ERROR: %d\n", res);
         }
     }
@@ -146,14 +149,15 @@ namespace ZeroVulkan::ZRenderer {
 
         VkSwapchainKHR oldSwapchain = ZDevice::getSwapchain();
 
+
         updateWinSize();
         ZScene::current().updateProj();
-        createSwapchain(winSize[0], winSize[1]);
-        VkExtent2D& extent = ZDevice::getSwapchainExtent();
 
+        createSwapchain(winSize[0], winSize[1]);
         createSwapchainImgViews();
         createRenderPass();
         initDepthBuffering();
+        VkExtent2D& extent = ZDevice::getSwapchainExtent();
         createFramebuffers(extent.width, extent.height);
         ZDevice::getCommandPool()->createCommandBuffers((uint32_t) ZDevice::getSwapchainImages().size());
         record();
@@ -161,16 +165,40 @@ namespace ZeroVulkan::ZRenderer {
         vkDestroySwapchainKHR(ZDevice::getDevice(), oldSwapchain, nullptr);
     }
 
-
+    void resizing() {
+        lastResize = clock();
+        resized = false;
+    }
+    
     void drawFrame() {
         uint32_t imgIndex;
         VkResult res;
+        
+        if (!resized) {
+            // TODO is 200ms even on slower machines good
+            // only refresh swapchain if the window was not resized for 200ms
+            // otherwise would cause serious stuttering and even temporarily freezing of your system
+            if ( ( (float)(clock() - lastResize) / CLOCKS_PER_SEC ) >= 0.2f ) {
+                refreshSwapchain();
+                resized = true;
+            }
+            
+            return;
+        }
 
         res = vkAcquireNextImageKHR(ZDevice::getDevice(), ZDevice::getSwapchain(), UINT64_MAX, ZDevice::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
 
-        if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+        // resize errors should be handled at the beginning, so this should catch rather all kinds of errors
+        if (res != VK_SUCCESS) {
+            // not sure if still resize errors could occure so print if this happens and find out why exactly
+            if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+                printf("\n\nWARNING: still resize error (TODO: find out why)\n\n");
+                
+            printf("AcquireNextImage ERROR: %d\n", res);
             refreshSwapchain();
-
+            return;
+        }
+                
         VkPipelineStageFlags waitStageMask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo;
@@ -197,7 +225,7 @@ namespace ZeroVulkan::ZRenderer {
         presentInfo.pImageIndices = &imgIndex;
 
         if (vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)
-            refreshSwapchain();
+            return;
 
         for (auto& shader : ZComputeShader::computeShaders)
             shader->submit(ZDevice::getQueue());
@@ -212,7 +240,7 @@ namespace ZeroVulkan::ZRenderer {
     void updateWinSize() {
         winSize = ZWindow::getSize();
     }
-    
+ 
     void clear() {
         vkDeviceWaitIdle(ZDevice::getDevice());
         

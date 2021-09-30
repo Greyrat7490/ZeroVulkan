@@ -23,8 +23,6 @@ namespace ZeroVulkan
 
         createShaderModule( getRootDir() + "/" + vertexShaderRelPath, &shaderModuleVert);
         createShaderModule( getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
-        
-        printf("component: ZShaders\n");
     }
 
     ZShaders::~ZShaders()

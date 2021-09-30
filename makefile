@@ -44,12 +44,12 @@ debug: LIB_CPPFLAGS += -g -O0 -D Z_DEBUG
 debug: OUT_CPPFLAGS += -g -O0 -D Z_DEBUG
 debug: $(out_debug)
 
-test: release
+run: release
 	@echo ""
 	@echo "running release version..."
 	$(out_release)
 
-run: debug
+test: debug
 	@echo ""
 	@echo "running debug version..."
 	$(out_debug)
