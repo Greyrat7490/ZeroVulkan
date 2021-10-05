@@ -44,7 +44,7 @@ namespace ZeroVulkan
 	class ZUniform
 	{
 	public:
-		ZUniform() {};
+		ZUniform() = default;
 		~ZUniform();
 
 		inline VkDescriptorBufferInfo* getBufferInfo() const { return m_bufferInfo; }
@@ -86,7 +86,7 @@ namespace ZeroVulkan
 		m_dynamicAlignment = (m_dynamicAlignment + minAligment - 1) & ~(minAligment - 1);
 
 		printf("uniformDynamicAlignment: %ld\n", m_dynamicAlignment);
-		printf("minUniformBufferOffsetAlignment: %ld\n", minAligment);
+		printf("minUniformBufferOffsetAlignment: %zu\n", minAligment);
 	}
 
 	inline void ZUniform::create(ZUniformLayout* layout, uint32_t objectCount)
@@ -138,8 +138,7 @@ namespace ZeroVulkan
 
 	inline ZUniform::~ZUniform()
 	{
-        printf("~uniform\n");
-		// vkUnmapMemory(ZDevice::getDevice(), m_memory);
+        // vkUnmapMemory(ZDevice::getDevice(), m_memory);
 		vkDestroyBuffer(ZDevice::getDevice(), m_buffer, nullptr);
 		vkFreeMemory(ZDevice::getDevice(), m_memory, nullptr);
 

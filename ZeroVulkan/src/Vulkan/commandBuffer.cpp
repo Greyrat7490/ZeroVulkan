@@ -75,6 +75,6 @@ namespace ZeroVulkan
         vkFreeCommandBuffers(ZDevice::getDevice(), m_commandPool, (uint32_t) m_commandBuffers.size(), m_commandBuffers.data());
         vkDestroyCommandPool(ZDevice::getDevice(), m_commandPool, nullptr);
 
-        printf("created ZCommandPool\n");
+        printf("destroyed ZCommandPool\n");
     }
 }

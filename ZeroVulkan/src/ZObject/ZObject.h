@@ -9,22 +9,20 @@ namespace ZeroVulkan {
     
     class ZObject {
     public:
-        ZObject(ZScene* attachedScene);
-        ZObject(const ZShaders& shaders, const ZMesh& mesh);
+        ZObject();
+        ZObject(ZShaders& shaders, ZMesh& mesh);
  
         void update(float dt);
 
+        void addBindsToScene(ZScene* scene);
+        
         void setShaders(const ZShaders& shaders); 
         void setMesh(const ZMesh& mesh); 
-        void bind();
-        
+
         // TODO only temporary public to private later needs better update function for uniform
         ZShaders shaders;
     private:
         ZMesh mesh;
-        bool binded = false;
-
-        ZScene* attachedScene;
     };
 }
 

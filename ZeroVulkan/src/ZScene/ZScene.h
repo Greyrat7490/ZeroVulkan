@@ -1,5 +1,5 @@
-#ifndef SCENE_H_
-#define SCENE_H_
+#ifndef ZSCENE_H_
+#define ZSCENE_H_
 
 #include <vector>
 #include <functional>
@@ -12,19 +12,24 @@ namespace ZeroVulkan {
     class ZScene {
     public:
         ZScene();
-        ~ZScene();
+        virtual ~ZScene();
         
         static ZScene& current();
-        static ZScene& create(); 
         static void clear();
 
+        virtual void start() = 0;
+        virtual void update(float dt) = 0;
+        virtual void end() = 0;
+        
+        void postUpdate(float dt);
+        
         ZObject& createObject();
+        ZObject& createObject(ZShaders& shaders, ZMesh& mesh);
         
         void updateProj();
         void setView(vec3 orgin, vec3 lookAtPos);
-        const mat4 getView() const { return view; }
+        const mat4& getView() const { return view; }
 
-        void update(float dt);
         void bind(VkCommandBuffer& cmdBuffer);
         void addBindFunction(std::function<void(VkCommandBuffer&)> func);
     private:
@@ -33,7 +38,9 @@ namespace ZeroVulkan {
 
         mat4 proj;
         mat4 view;
+
+        void add(); 
     };
 }
 
-#endif // SCENE_H_
+#endif // ZSCENE_H_

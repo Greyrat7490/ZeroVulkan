@@ -9,11 +9,6 @@ namespace ZeroVulkan
     // TODO handle relative and absolute path
     ZShaders::ZShaders(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
     {
-        vertexLayout = new ZVertexLayout();
-        descSetLayout = new ZDescriptorSetLayout();
-        descriptorSet = new ZDescriptorSet();
-        descPool = new ZDescriptorPool();
-
         // TODO own assert
         assert(vertexShaderRelPath[0] != '/');
         assert(fragmentShaderRelPath[0] != '/');
@@ -21,27 +16,95 @@ namespace ZeroVulkan
         printf("vertexShader: %s\n", vertexShaderRelPath.c_str());
         printf("fragmentShader: %s\n", fragmentShaderRelPath.c_str());
 
-        createShaderModule( getRootDir() + "/" + vertexShaderRelPath, &shaderModuleVert);
-        createShaderModule( getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
+        createShaderModule(getRootDir() + "/" + vertexShaderRelPath, &shaderModuleVert);
+        createShaderModule(getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
     }
 
     ZShaders::~ZShaders()
     {
-        delete vertexLayout;
-        delete descSetLayout;
-        delete descPool;
+        if (stencilBuffer)
+            delete stencilBuffer;
 
-        delete stencilBuffer;
-
-        vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
-        vkDestroyPipelineLayout(ZDevice::getDevice(), pipelineLayout, nullptr);
-
+        if (ready) {
+            vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
+            vkDestroyPipelineLayout(ZDevice::getDevice(), pipelineLayout, nullptr);
+        }
 
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
 
         printf("destroyed ZShaders\n");
     }
+
+    ZShaders::ZShaders(ZShaders&& source) {
+        shaderModuleVert = source.shaderModuleVert;
+        shaderModuleFrag = source.shaderModuleFrag;
+        
+        
+        uniform = source.uniform;
+        stencilBuffer = source.stencilBuffer;
+
+        pipeline = source.pipeline;
+        pipelineLayout = source.pipelineLayout;
+
+        descPool = source.descPool;
+        descSetLayout = source.descSetLayout;
+        descriptorSet = source.descriptorSet;
+
+        vertexLayout = source.vertexLayout;
+
+        counter = source.counter;
+
+
+        ready = false;
+        
+
+        source.shaderModuleVert = nullptr;
+        source.shaderModuleFrag = nullptr;
+        source.stencilBuffer = nullptr;
+        source.pipeline = nullptr;
+        source.pipelineLayout = nullptr;
+        source.descriptorSet = nullptr;
+        source.counter = 0;
+
+        puts("moved shaders");
+    }
+
+    ZShaders& ZShaders::operator=(ZShaders&& source) {
+        shaderModuleVert = source.shaderModuleVert;
+        shaderModuleFrag = source.shaderModuleFrag;
+        
+        
+        uniform = source.uniform;
+        stencilBuffer = source.stencilBuffer;
+
+        pipeline = source.pipeline;
+        pipelineLayout = source.pipelineLayout;
+
+        descPool = source.descPool;
+        descSetLayout = source.descSetLayout;
+        descriptorSet = source.descriptorSet;
+
+        vertexLayout = source.vertexLayout;
+
+        counter = source.counter;
+
+
+        ready = false;
+        
+
+        source.shaderModuleVert = nullptr;
+        source.shaderModuleFrag = nullptr;
+        source.stencilBuffer = nullptr;
+        source.pipeline = nullptr;
+        source.pipelineLayout = nullptr;
+        source.descriptorSet = nullptr;
+        source.counter = 0;
+
+        puts("moved shaders (assignment op)");
+        return *this;
+    }
+
 
     void ZShaders::update(float deltaTime)
     {
@@ -50,27 +113,27 @@ namespace ZeroVulkan
 
     void ZShaders::create(bool debug, bool triangleTopology)
     {
-        descSetLayout->createLayout();
-        descPool->addDescriptorLayout(descSetLayout);
+        descSetLayout.createLayout();
+        descPool.addDescriptorLayout(&descSetLayout);
 
         if (debug)
         {
             stencilBuffer = new ZStencilBuffer();
-            descPool->addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
-            descPool->create(2);
+            descPool.addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
+            descPool.create(2);
         }
         else
-            descPool->create();
+            descPool.create();
 
-        descriptorSet->setLayout(descSetLayout);
+        descriptorSet.setLayout(&descSetLayout);
 
-        for (uint32_t i = 0; i < descSetLayout->getBindings().size(); i++)
+        for (uint32_t i = 0; i < descSetLayout.getBindings().size(); i++)
         {
-            switch(descSetLayout->getBindings()[i].descriptorType)
+            switch(descSetLayout.getBindings()[i].descriptorType)
             {
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                descriptorSet->addDescriptorInfo(i, uniform.getBufferInfo());
+                descriptorSet.addDescriptorInfo(i, uniform.getBufferInfo());
                 break;
             default:
                 printf("DescriptorTyp is not yet supported\n");
@@ -78,16 +141,16 @@ namespace ZeroVulkan
             }
         }
 
-        descriptorSet->create(descPool->descriptorPool);
+        descriptorSet.create(descPool.descriptorPool);
 
         if(debug)
         {
-            stencilBuffer->createDescSet(descPool->descriptorPool);
-            stencilBuffer->createPipelines(vertexLayout, shaderModuleVert, shaderModuleFrag, &descSetLayout->layout, 1);
+            stencilBuffer->createDescSet(descPool.descriptorPool);
+            stencilBuffer->createPipelines(&vertexLayout, shaderModuleVert, shaderModuleFrag, &descSetLayout.layout, 1);
         }
         else
         {
-            createPipelineLayout(pipelineLayout, &descSetLayout->layout, 1);
+            createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
 
             if(triangleTopology)
             {
@@ -96,7 +159,7 @@ namespace ZeroVulkan
                     pipelineLayout,
                     shaderModuleVert,
                     shaderModuleFrag,
-                    vertexLayout
+                    &vertexLayout
                 );
             }
             else
@@ -106,10 +169,12 @@ namespace ZeroVulkan
                     pipelineLayout,
                     shaderModuleVert,
                     shaderModuleFrag,
-                    vertexLayout
+                    &vertexLayout
                 );
             }
         }
+        
+        puts("created shaders");
     }
 
     void ZShaders::setShader(const std::string& shaderName, shaderType type)
@@ -136,17 +201,17 @@ namespace ZeroVulkan
     void ZShaders::bind(VkCommandBuffer& cmdBuffer) {
         prepair();
             
-        vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet->descSet, 0, 0);
+        vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
     
     void ZShaders::prepair() {
         if (!ready){
-            vertexLayout->addLocation(0, ZType::VEC3, 0);
-            vertexLayout->addLocation(1, ZType::VEC3, sizeof(vec3));
-            vertexLayout->createBinding(2 * sizeof(vec3));
+            vertexLayout.addLocation(0, ZType::VEC3, 0);
+            vertexLayout.addLocation(1, ZType::VEC3, sizeof(vec3));
+            vertexLayout.createBinding(2 * sizeof(vec3));
 
-            descSetLayout->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+            descSetLayout.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
 
             ZUniformLayout uniformLayout = ZUniformLayout( {
                 sizeof(mat4),

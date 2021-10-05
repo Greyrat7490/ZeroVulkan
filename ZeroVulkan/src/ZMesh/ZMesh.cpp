@@ -34,26 +34,51 @@ namespace ZeroVulkan {
             4, 7, 6,
             6, 5, 4
         };
-        indices_count = indices.size();
+    }
 
+    ZMesh::ZMesh(ZMesh&& source) {
+        vertices.swap(source.vertices);
+        indices.swap(source.indices);
+        ready = false;        
         
+        puts("moved ZMesh");
+    }
+
+    ZMesh& ZMesh::operator=(ZMesh&& source) {
+        vertices.swap(source.vertices);
+        indices.swap(source.indices);
+        ready = false;        
+        
+        puts("moved ZMesh (assignment op)");
+
+        return *this;
+    }
+
+    void ZMesh::prepair() {
         createAndUploadBuffer(ZDevice::getDevice(), vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer, m_vertexMemory);
         createAndUploadBuffer(ZDevice::getDevice(), indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer, m_indexMemory);
     }
-
+    
     void ZMesh::bind(VkCommandBuffer& cmdBuffer) {
+        if (!ready) {
+            prepair();
+            ready = true;
+        }
+            
         VkDeviceSize offsets[] = { 0 };
         
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, offsets);
         vkCmdBindIndexBuffer(cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(cmdBuffer, indices_count, 1, 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer, indices.size(), 1, 0, 0, 0);
     }
 
     ZMesh::~ZMesh() {
-        vkDestroyBuffer(ZDevice::getDevice(), vertexBuffer, nullptr);       
-        vkFreeMemory(ZDevice::getDevice(), m_vertexMemory, nullptr);
+        if (ready) {
+            vkDestroyBuffer(ZDevice::getDevice(), vertexBuffer, nullptr);       
+            vkFreeMemory(ZDevice::getDevice(), m_vertexMemory, nullptr);
 
-        vkDestroyBuffer(ZDevice::getDevice(), indexBuffer, nullptr);       
-        vkFreeMemory(ZDevice::getDevice(), m_indexMemory, nullptr);
+            vkDestroyBuffer(ZDevice::getDevice(), indexBuffer, nullptr);       
+            vkFreeMemory(ZDevice::getDevice(), m_indexMemory, nullptr);
+        }
     }
 }

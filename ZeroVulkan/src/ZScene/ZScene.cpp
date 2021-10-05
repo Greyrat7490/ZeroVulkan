@@ -1,45 +1,60 @@
+#include <assert.h>
 #include "ZScene.h"
 #include "Window/window.h"
+#include "ZMesh/ZMesh.h"
 #include "ZRenderer/ZRenderer.h"
+#include "ZShaders/ZShaders.h"
 
 namespace ZeroVulkan {
-    static std::vector<ZScene> scenes;
+    static std::vector<ZScene*> scenes;
     static size_t currenIdx;
 
     ZScene& ZScene::current() {
-        return scenes[currenIdx];
+        assert(scenes.size());
+        return *scenes[currenIdx];
     }
     
     ZScene::ZScene() {
         setView(ZeroVulkan::vec3(-2.f, 1.f, 0.7f), ZeroVulkan::vec3(0.f, 0.f, 0.f));
         updateProj();
+        add();
     }
 
     ZScene::~ZScene() {
         objects.clear();
         binds.clear();
 
-        printf("Destroyed a ZScene");
+        printf("Destroyed a ZScene\n");
     }
 
     void ZScene::clear() {
-        scenes.clear();       
+        for (ZScene* scene : scenes)
+            delete scene;
     }
     
-    ZScene& ZScene::create() {
+    void ZScene::add() {
         if (!scenes.size()) 
             currenIdx = 0;
             
-        scenes.emplace_back();
-        return scenes.back();
+        scenes.push_back(this);
+
+        puts("added a scene");
     }
     
     ZObject& ZScene::createObject() {
-        objects.emplace_back(this);
+        objects.emplace_back();
+        objects.back().addBindsToScene(this);
         ZRenderer::record();
         return objects.back();
     }
     
+    ZObject& ZScene::createObject(ZShaders& shaders, ZMesh& mesh) {
+        objects.emplace_back(shaders, mesh);
+        objects.back().addBindsToScene(this);
+        ZRenderer::record();
+        return objects.back();
+    }
+
     void ZScene::updateProj() {
         vec2 ws = ZWindow::getSize();
         
@@ -67,7 +82,7 @@ namespace ZeroVulkan {
         view[3] =vec4(-dot(right, origin), -dot(up, origin), -dot(direction, origin), 1);
     }
 
-    void ZScene::update(float dt) {
+    void ZScene::postUpdate(float dt) {
         for (ZObject& obj : objects) {
             obj.update(dt);
             obj.shaders.uniform.update(0, proj, view, ZeroVulkan::mat4(1.f), ZeroVulkan::vec3(1.f, 1.f, 3.f));

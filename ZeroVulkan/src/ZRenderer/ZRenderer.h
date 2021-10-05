@@ -17,6 +17,8 @@ namespace ZeroVulkan::ZRenderer {
     
     void drawFrame();
 
+    void start();
+    void end();
     void update(float dt);
 
     void clear();

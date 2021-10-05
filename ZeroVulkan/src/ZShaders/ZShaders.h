@@ -1,5 +1,5 @@
-#ifndef H_MATERIAL
-#define H_MATERIAL
+#ifndef ZSHADERS_H_
+#define ZSHADERS_H_
 
 #include <string>
 #include <vulkan/vulkan_core.h>
@@ -18,7 +18,10 @@ namespace ZeroVulkan
     public:
         ZShaders(const std::string& vertexShaderName, const std::string& fragmentShaderName);
         ZShaders(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::string& texturePath);
-        virtual ~ZShaders();
+        ~ZShaders();
+        ZShaders(ZShaders&& source);
+
+        ZShaders& operator=(ZShaders&& source);
 
         void update(float deltaTime);
 
@@ -35,19 +38,18 @@ namespace ZeroVulkan
         VkPipeline pipeline = nullptr;
         VkPipelineLayout pipelineLayout = nullptr;
 
-        ZDescriptorPool* descPool = nullptr;
-        ZDescriptorSetLayout* descSetLayout = nullptr;
-        ZDescriptorSet* descriptorSet = nullptr;
+        ZDescriptorPool descPool;
+        ZDescriptorSetLayout descSetLayout;
+        ZDescriptorSet descriptorSet;
 
-        ZVertexLayout* vertexLayout = nullptr;
+        ZVertexLayout vertexLayout;
 
         float counter = 0; // for shader animations
     private:
         VkShaderModule shaderModuleVert = nullptr;
         VkShaderModule shaderModuleFrag = nullptr;
-        bool binded = false;
         bool ready = false;
     };
 }
 
-#endif // H_MATERIAL
+#endif // ZSHADERS_H_

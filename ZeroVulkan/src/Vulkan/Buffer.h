@@ -2,6 +2,7 @@
 #define H_BUFFER
 
 #include <stdio.h>
+#include <cstring>
 #include "Device.h"
 #include "Memory.h"
 #include "CommandBuffer.h"

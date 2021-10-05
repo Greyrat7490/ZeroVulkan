@@ -1,7 +1,6 @@
 #include <cstdint>
 #include <ctime>
 #include <vector>
-#include <vulkan/vulkan_core.h>
 #include "Window/window.h"
 #include "ZRenderer.h"
 
@@ -52,8 +51,17 @@ namespace ZeroVulkan::ZRenderer {
 
     void update(float dt) {
         ZScene::current().update(dt);
+        ZScene::current().postUpdate(dt);
     }
 
+    void start() {
+        ZScene::current().start();
+    }
+
+    void end() {
+        ZScene::current().end();
+    }
+    
     void record() {
         for (auto shader : ZComputeShader::computeShaders)
             shader->buildCommandBuffer();
@@ -111,9 +119,6 @@ namespace ZeroVulkan::ZRenderer {
     }
 
     void initRenderer() {
-        // create a default scene
-        ZScene::create();
-        
         updateWinSize();
         
         createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());

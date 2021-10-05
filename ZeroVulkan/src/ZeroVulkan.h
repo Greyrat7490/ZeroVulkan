@@ -8,11 +8,8 @@
 
 namespace ZeroVulkan {
     void init();
+    void run();
     void clear();
-    
-    void draw();
-    bool handleInput();
-    void update(float dt);
 }
 
 #endif // ZERO_VULKAN_H_
