@@ -1,22 +1,14 @@
-#include "Window/window.h"
-#include "ZShaders/ZShaders.h"
 #include "ZeroVulkan.h"
-#include <chrono>
-#include <string>
-
 #include "scene.h"
 
-int main() 
+int main()
 {
-    ZeroVulkan::init();
+    ZeroVulkan::ZProject test;
 
     ZeroVulkan::ZWindow::setTitle("Test");
-    
-    TestScene* scene = new TestScene;
+    ZeroVulkan::ZScene::create<TestScene>();
 
-    ZeroVulkan::run();
-
-    ZeroVulkan::clear();
+    test.run();
 
     return 0;
 }

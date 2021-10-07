@@ -1,4 +1,5 @@
 #include <assert.h>
+#include "ZObject/ZObject.h"
 #include "ZScene.h"
 #include "Window/window.h"
 #include "ZMesh/ZMesh.h"
@@ -7,19 +8,22 @@
 
 namespace ZeroVulkan {
     static std::vector<ZScene*> scenes;
-    static size_t currenIdx;
+    static size_t currenIdx = 0;
 
     ZScene& ZScene::current() {
-        assert(scenes.size());
+        assert(currenIdx < scenes.size());
         return *scenes[currenIdx];
     }
     
     ZScene::ZScene() {
         setView(ZeroVulkan::vec3(-2.f, 1.f, 0.7f), ZeroVulkan::vec3(0.f, 0.f, 0.f));
         updateProj();
-        add();
     }
 
+    size_t ZScene::getSceneCount() {
+        return scenes.size();
+    }
+    
     ZScene::~ZScene() {
         objects.clear();
         binds.clear();
@@ -31,13 +35,12 @@ namespace ZeroVulkan {
         for (ZScene* scene : scenes)
             delete scene;
     }
-    
+ 
     void ZScene::add() {
         if (!scenes.size()) 
             currenIdx = 0;
-            
-        scenes.push_back(this);
 
+        scenes.push_back(this);
         puts("added a scene");
     }
     

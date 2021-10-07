@@ -1,33 +1,48 @@
 #include "ZeroVulkan.h"
-#include "Window/window.h"
+#include "ZObject/ZObject.h"
 #include "ZRenderer/ZRenderer.h"
 
 namespace ZeroVulkan {
-    void init() {
+    uint8_t ZProject::m_counter;
+    
+    ZProject::ZProject() {
+        if (m_counter) {
+            puts("ERROR: you can only have one instance of ZProject");
+            exit(1);
+        }
+        
 #ifdef Z_DEBUG
         ZRenderer::printVulkanInfos();
 #endif
         ZWindow::createWindow();
         ZRenderer::initRenderer();
+        
+        m_counter++;
     }
 
-    void clear() {
+    ZProject::~ZProject() {
         ZWindow::clear();
         ZRenderer::clear();
 
-        printf("successfully cleared!\n");
+        puts("successfully cleared!");
     }
  
-    void run() {
+    void ZProject::run() {
         float drawTimer = 0.f;
         float fixedDeltaTime = 0.002f; // 2ms
         float accumulator = 0.f;
         uint32_t fps = 0;
         bool quit = false;
 
-
+        if (!ZScene::getSceneCount()) {
+            puts("ERROR: no ZScene created so you cannot draw anything\n"
+                 "  use 'ZScene::create<YourZSceneClass>();' to create one");
+            return;
+        }
+        
         ZRenderer::start();
         
+
         auto last = std::chrono::high_resolution_clock::now();
         while (!quit) 
         {

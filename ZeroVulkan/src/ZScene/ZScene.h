@@ -13,9 +13,12 @@ namespace ZeroVulkan {
     public:
         ZScene();
         virtual ~ZScene();
-        
+ 
+        template<typename ZSceneClass>
+        static ZScene* create();
         static ZScene& current();
         static void clear();
+        static size_t getSceneCount();
 
         virtual void start() = 0;
         virtual void update(float dt) = 0;
@@ -39,8 +42,15 @@ namespace ZeroVulkan {
         mat4 proj;
         mat4 view;
 
-        void add(); 
+        void add();
     };
+
+    template<typename ZSceneClass>
+    ZScene* ZScene::create() {
+        ZSceneClass* scene = new ZSceneClass;
+        scene->add();
+        return scene;
+    }
 }
 
 #endif // ZSCENE_H_

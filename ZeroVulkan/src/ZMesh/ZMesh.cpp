@@ -1,52 +1,24 @@
 #include "ZMesh.h"
+#include <cstring>
 #include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan {
-    ZMesh::ZMesh() {
-        vertices = {
-              0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-              0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-             -0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-             -0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-            
-              0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-              0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
-        };
-        
-        indices = {
-            0, 1, 2,
-            2, 3, 0,
-
-            5, 1, 0,
-            0, 4, 5,
-
-            6, 3, 2,
-            6, 7, 3,
-
-            5, 2, 1,
-            5, 6, 2,
-
-            0, 3, 4,
-            7, 4, 3,
-
-            4, 7, 6,
-            6, 5, 4
-        };
+    ZMesh::ZMesh(float* vertices, uint32_t vertices_count, uint32_t* indices, uint32_t indices_count) {
+        setVertices(vertices, vertices_count);
+        setIndices(indices, indices_count);
     }
-
+    
     ZMesh::ZMesh(ZMesh&& source) {
-        vertices.swap(source.vertices);
-        indices.swap(source.indices);
+        m_vertices.swap(source.m_vertices);
+        m_indices.swap(source.m_indices);
         ready = false;        
         
         puts("moved ZMesh");
     }
 
     ZMesh& ZMesh::operator=(ZMesh&& source) {
-        vertices.swap(source.vertices);
-        indices.swap(source.indices);
+        m_vertices.swap(source.m_vertices);
+        m_indices.swap(source.m_indices);
         ready = false;        
         
         puts("moved ZMesh (assignment op)");
@@ -54,9 +26,19 @@ namespace ZeroVulkan {
         return *this;
     }
 
+    void ZMesh::setVertices(float* vertices, uint32_t vertices_count) {
+        m_vertices.resize(vertices_count);
+        memcpy(m_vertices.data(), vertices, vertices_count * sizeof(float));
+    }
+    
+    void ZMesh::setIndices(uint32_t* indices, uint32_t indices_count) {
+        m_indices.resize(indices_count);
+        memcpy(m_indices.data(), indices, indices_count * sizeof(uint32_t));
+    }
+    
     void ZMesh::prepair() {
-        createAndUploadBuffer(ZDevice::getDevice(), vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer, m_vertexMemory);
-        createAndUploadBuffer(ZDevice::getDevice(), indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer, m_indexMemory);
+        createAndUploadBuffer(ZDevice::getDevice(), m_vertices, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexBuffer, m_vertexMemory);
+        createAndUploadBuffer(ZDevice::getDevice(), m_indices, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indexBuffer, m_indexMemory);
     }
     
     void ZMesh::bind(VkCommandBuffer& cmdBuffer) {
@@ -69,7 +51,7 @@ namespace ZeroVulkan {
         
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, offsets);
         vkCmdBindIndexBuffer(cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(cmdBuffer, indices.size(), 1, 0, 0, 0);
+        vkCmdDrawIndexed(cmdBuffer, m_indices.size(), 1, 0, 0, 0);
     }
 
     ZMesh::~ZMesh() {

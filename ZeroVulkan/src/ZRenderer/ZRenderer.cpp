@@ -59,7 +59,8 @@ namespace ZeroVulkan::ZRenderer {
     }
 
     void end() {
-        ZScene::current().end();
+        if (ZScene::getSceneCount())
+            ZScene::current().end();
     }
     
     void record() {

@@ -1,15 +1,23 @@
 #ifndef ZERO_VULKAN_H_
 #define ZERO_VULKAN_H_
 
-#include "ZRenderer/ZRenderer.h"
+#include "Window/window.h"
 #include "ZObject/ZObject.h"
 #include "ZMesh/ZMesh.h"
 #include "ZShaders/ZShaders.h"
+#include "ZScene/ZScene.h"
 
 namespace ZeroVulkan {
-    void init();
-    void run();
-    void clear();
+    class ZProject {
+    public:
+        ZProject();
+        ~ZProject();
+
+        void run();
+    private:
+        // to check if only 1 instance of ZProject exists
+        static uint8_t m_counter;
+    };
 }
 
 #endif // ZERO_VULKAN_H_
