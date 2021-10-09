@@ -9,7 +9,8 @@
 
 namespace ZeroVulkan
 {
-	enum class shaderType
+#define SHADER_TYPE_COUNT 3
+	enum class ZShaderType
 	{
 		VERTEX,
 		FRAGMENT,

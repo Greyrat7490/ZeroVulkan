@@ -1,10 +1,10 @@
 #include <assert.h>
-#include "ZObject/ZObject.h"
 #include "ZScene.h"
-#include "Window/window.h"
 #include "ZMesh/ZMesh.h"
+#include "Window/window.h"
+#include "ZObject/ZObject.h"
 #include "ZRenderer/ZRenderer.h"
-#include "ZShaders/ZShaders.h"
+#include "ZShaderSet/ZShaderSet.h"
 
 namespace ZeroVulkan {
     static std::vector<ZScene*> scenes;
@@ -46,14 +46,14 @@ namespace ZeroVulkan {
     
     ZObject& ZScene::createObject() {
         objects.emplace_back();
-        objects.back().addBindsToScene(this);
+        objects.back().addToScene(this);
         ZRenderer::record();
         return objects.back();
     }
     
-    ZObject& ZScene::createObject(ZShaders& shaders, ZMesh& mesh) {
+    ZObject& ZScene::createObject(ZShaderSet& shaders, ZMesh& mesh) {
         objects.emplace_back(shaders, mesh);
-        objects.back().addBindsToScene(this);
+        objects.back().addToScene(this);
         ZRenderer::record();
         return objects.back();
     }
@@ -86,10 +86,8 @@ namespace ZeroVulkan {
     }
 
     void ZScene::postUpdate(float dt) {
-        for (ZObject& obj : objects) {
+        for (ZObject& obj : objects)
             obj.update(dt);
-            obj.shaders.uniform.update(0, proj, view, ZeroVulkan::mat4(1.f), ZeroVulkan::vec3(1.f, 1.f, 3.f));
-        }
     }
 
     void ZScene::addBindFunction(std::function<void(VkCommandBuffer&)> func) {

@@ -20,7 +20,7 @@ namespace ZeroVulkan
 		void createDescSet(const VkDescriptorPool& descriptorPool);
 		void createPipelines(ZVertexLayout* vertexLayout, VkShaderModule& shaderModuleVert, VkShaderModule& shaderModuleFrag, VkDescriptorSetLayout* descLayouts, uint32_t layoutsCount);
 
-		inline void updateUniform(mat4 projection, mat4 view, mat4 model) {m_uniform->update(0, projection, view, model); }
+		inline void updateUniform() { m_uniform->update(); }
 
 		inline const VkPipelineLayout& getPipelineLayout() const { return m_stencilLayout; }
 		inline const VkPipeline& getPipeline() const { return m_stencil; }

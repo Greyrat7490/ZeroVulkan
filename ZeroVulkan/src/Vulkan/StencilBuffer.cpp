@@ -230,11 +230,11 @@ namespace ZeroVulkan
 	void ZStencilBuffer::createUniform()
 	{
 		m_uniform = new ZUniform();
-		m_uniformLayout = new ZUniformLayout( {
-			sizeof(mat4),
-			sizeof(mat4),
-			sizeof(mat4)
-		} );
+		m_uniformLayout = new ZUniformLayout;
+        m_uniformLayout->addComponent(ZType::MAT4);
+        m_uniformLayout->addComponent(ZType::MAT4);
+        m_uniformLayout->addComponent(ZType::MAT4);
+		
 		m_uniform->create(m_uniformLayout);
 	}
 

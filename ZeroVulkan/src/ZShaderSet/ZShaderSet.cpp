@@ -1,13 +1,14 @@
+#include <any>
 #include <assert.h>
-#include <vulkan/vulkan_core.h>
 #include "Vulkan/ComputeShader.h"
-#include "ZShaders.h"
+#include "Vulkan/Shader.h"
+#include "ZShaderSet.h"
 #include "utils.h"
 
 namespace ZeroVulkan
 {
     // TODO handle relative and absolute path
-    ZShaders::ZShaders(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
+    ZShaderSet::ZShaderSet(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
     {
         // TODO own assert
         assert(vertexShaderRelPath[0] != '/');
@@ -20,7 +21,7 @@ namespace ZeroVulkan
         createShaderModule(getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
     }
 
-    ZShaders::~ZShaders()
+    ZShaderSet::~ZShaderSet()
     {
         if (stencilBuffer)
             delete stencilBuffer;
@@ -36,82 +37,61 @@ namespace ZeroVulkan
         printf("destroyed ZShaders\n");
     }
 
-    ZShaders::ZShaders(ZShaders&& source) {
-        shaderModuleVert = source.shaderModuleVert;
-        shaderModuleFrag = source.shaderModuleFrag;
-        
-        
-        uniform = source.uniform;
+    ZShaderSet::ZShaderSet(ZShaderSet&& source) {
+        uniform = std::move(source.uniform);
+        uniformLayout = std::move(source.uniformLayout);
         stencilBuffer = source.stencilBuffer;
-
         pipeline = source.pipeline;
         pipelineLayout = source.pipelineLayout;
-
         descPool = source.descPool;
         descSetLayout = source.descSetLayout;
         descriptorSet = source.descriptorSet;
-
         vertexLayout = source.vertexLayout;
-
-        counter = source.counter;
-
+        shaderModuleVert = source.shaderModuleVert;
+        shaderModuleFrag = source.shaderModuleFrag;
 
         ready = false;
-        
 
-        source.shaderModuleVert = nullptr;
-        source.shaderModuleFrag = nullptr;
         source.stencilBuffer = nullptr;
         source.pipeline = nullptr;
         source.pipelineLayout = nullptr;
-        source.descriptorSet = nullptr;
-        source.counter = 0;
+        source.shaderModuleVert = nullptr;
+        source.shaderModuleFrag = nullptr;
 
         puts("moved shaders");
     }
 
-    ZShaders& ZShaders::operator=(ZShaders&& source) {
-        shaderModuleVert = source.shaderModuleVert;
-        shaderModuleFrag = source.shaderModuleFrag;
-        
-        
-        uniform = source.uniform;
+    ZShaderSet& ZShaderSet::operator=(ZShaderSet&& source) {
+        uniform = std::move(source.uniform);
+        uniformLayout = std::move(source.uniformLayout);
         stencilBuffer = source.stencilBuffer;
-
         pipeline = source.pipeline;
         pipelineLayout = source.pipelineLayout;
-
         descPool = source.descPool;
         descSetLayout = source.descSetLayout;
         descriptorSet = source.descriptorSet;
-
         vertexLayout = source.vertexLayout;
-
-        counter = source.counter;
-
+        shaderModuleVert = source.shaderModuleVert;
+        shaderModuleFrag = source.shaderModuleFrag;
 
         ready = false;
-        
 
-        source.shaderModuleVert = nullptr;
-        source.shaderModuleFrag = nullptr;
         source.stencilBuffer = nullptr;
         source.pipeline = nullptr;
         source.pipelineLayout = nullptr;
-        source.descriptorSet = nullptr;
-        source.counter = 0;
+        source.shaderModuleVert = nullptr;
+        source.shaderModuleFrag = nullptr;
 
-        puts("moved shaders (assignment op)");
+        puts("moved shaders (=)");
         return *this;
     }
 
 
-    void ZShaders::update(float deltaTime)
-    {
-        counter += deltaTime;
+    void ZShaderSet::update() {
+        uniform.update();
     }
 
-    void ZShaders::create(bool debug, bool triangleTopology)
+    void ZShaderSet::create(bool debug, bool triangleTopology)
     {
         descSetLayout.createLayout();
         descPool.addDescriptorLayout(&descSetLayout);
@@ -177,52 +157,42 @@ namespace ZeroVulkan
         puts("created shaders");
     }
 
-    void ZShaders::setShader(const std::string& shaderName, shaderType type)
+    void ZShaderSet::setShader(const std::string& shaderName, ZShaderType type)
     {
         printf("shader: %s\n", ("Test/shader/compiled/" + shaderName).c_str());
 
+        static_assert(SHADER_TYPE_COUNT == 3, "Exhaustive use of ZShaderType (add cases)");
+        
         switch(type)
         {
-        case shaderType::VERTEX:
+        case ZShaderType::VERTEX:
             createShaderModule("Test/shader/compiled/" + shaderName, &shaderModuleVert);
             break;
-        case shaderType::FRAGMENT:
+        case ZShaderType::FRAGMENT:
             createShaderModule("Test/shader/compiled/" + shaderName, &shaderModuleFrag);
             break;
-        case shaderType::COMPUTE:
-            printf("Computer Shader are not yet supported\n");
+        // TODO: Compute Shader support
+        case ZShaderType::COMPUTE:
+            puts("Computer Shader are not yet supported");
+            assert(false && "Computer Shader are not yet supported");
             break;
         default:
-            printf("unknown ShaderType\n");
+            puts("unknown ShaderType");
             break;
         }
     }
     
-    void ZShaders::bind(VkCommandBuffer& cmdBuffer) {
+    void ZShaderSet::bind(VkCommandBuffer& cmdBuffer) {
         prepair();
             
         vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
     
-    void ZShaders::prepair() {
-        if (!ready){
-            vertexLayout.addLocation(0, ZType::VEC3, 0);
-            vertexLayout.addLocation(1, ZType::VEC3, sizeof(vec3));
-            vertexLayout.createBinding(2 * sizeof(vec3));
-
-            descSetLayout.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-
-            ZUniformLayout uniformLayout = ZUniformLayout( {
-                sizeof(mat4),
-                sizeof(mat4),
-                sizeof(mat4),
-                sizeof(vec3),
-            } );
-            
+    void ZShaderSet::prepair() {
+        if (!ready) {
             uniform.create(&uniformLayout);
             create(false);
-            
             ready = true;
         }
     }

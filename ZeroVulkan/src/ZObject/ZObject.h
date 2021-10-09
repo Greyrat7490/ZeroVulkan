@@ -1,7 +1,7 @@
 #ifndef ZOBJECT_H_
 #define ZOBJECT_H_
 
-#include "ZShaders/ZShaders.h"
+#include "ZShaderSet/ZShaderSet.h"
 #include "ZMesh/ZMesh.h"
 
 namespace ZeroVulkan {
@@ -10,19 +10,22 @@ namespace ZeroVulkan {
     class ZObject {
     public:
         ZObject();
-        ZObject(ZShaders& shaders, ZMesh& mesh);
+        ZObject(ZShaderSet& shaders, ZMesh& mesh);
  
         void update(float dt);
 
-        void addBindsToScene(ZScene* scene);
-        
-        void setShaders(const ZShaders& shaders); 
+        void addToScene(ZScene* scene);
+        void set3DMats(mat4* proj, mat4* view) { m_proj = proj; m_view = view; }
+        void setShaders(const ZShaderSet& shaders); 
         void setMesh(const ZMesh& mesh); 
-
-        // TODO only temporary public to private later needs better update function for uniform
-        ZShaders shaders;
     private:
+        ZShaderSet shaders;
         ZMesh mesh;
+        ZScene* m_scene;
+        
+        // for 3D
+        mat4* m_proj;
+        mat4* m_view;
     };
 }
 

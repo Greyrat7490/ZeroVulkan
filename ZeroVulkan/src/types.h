@@ -8,6 +8,7 @@
 
 namespace ZeroVulkan 
 {
+#define ZTYPE_COUNT 5
 	enum class ZType
 		: uint32_t
 	{
@@ -17,6 +18,33 @@ namespace ZeroVulkan
 		VEC4,
 		MAT4
 	};
+
+    inline const char* zTypeToStr(ZType type) {
+        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add new cases)");
+        
+        switch (type)
+        {
+        case ZType::MAT4:
+            return "MAT4";
+            break;
+        case ZType::VEC4:
+            return "VEC4";
+            break;
+        case ZType::VEC3:
+            return "VEC3";
+            break;
+        case ZType::VEC2:
+            return "VEC2";
+            break;
+        case ZType::FLOAT:
+            return "FLOAT";
+            break;
+        default:
+            printf("ERROR: unknown ZType %d\n", (int)type);
+            return "\0";
+        }
+    }
+    
 
 	template<typename T, short size>
 	struct vec

@@ -3,9 +3,8 @@
 
 #include <vector>
 #include <functional>
-#include <vulkan/vulkan_core.h>
-#include "ZObject/ZObject.h"
 #include "types.h"
+#include "ZObject/ZObject.h"
 #include "Vulkan/CommandBuffer.h"
 
 namespace ZeroVulkan {
@@ -27,21 +26,22 @@ namespace ZeroVulkan {
         void postUpdate(float dt);
         
         ZObject& createObject();
-        ZObject& createObject(ZShaders& shaders, ZMesh& mesh);
+        ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
         
         void updateProj();
         void setView(vec3 orgin, vec3 lookAtPos);
+
         const mat4& getView() const { return view; }
+        const mat4& getProjection() const { return proj; }
 
         void bind(VkCommandBuffer& cmdBuffer);
         void addBindFunction(std::function<void(VkCommandBuffer&)> func);
+    protected:
+        mat4 proj;
+        mat4 view;
     private:
         std::vector<ZObject> objects;
         std::vector<std::function<void(VkCommandBuffer&)>> binds;
-
-        mat4 proj;
-        mat4 view;
-
         void add();
     };
 

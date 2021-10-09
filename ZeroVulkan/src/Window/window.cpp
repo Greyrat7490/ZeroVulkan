@@ -2,21 +2,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
+#include <assert.h>
 #include <xcb/xcb.h>
 #include <xcb/xproto.h>
 #include "ZRenderer/ZRenderer.h"
 
 namespace ZeroVulkan::ZWindow
 {
-    xcb_window_t window;
-    xcb_connection_t* connection;
-    xcb_intern_atom_reply_t* wm_del_win;
+    xcb_window_t window = 0;
+    xcb_connection_t* connection = nullptr;
+    xcb_intern_atom_reply_t* wm_del_win = nullptr;
 
     xcb_window_t getWindow() { return window; }
     xcb_connection_t* getConnection() { return connection; }
  
-    uint16_t width;
-    uint16_t height;
+    uint16_t width = 0;
+    uint16_t height = 0;
 
     void createWindow() {
         connection = xcb_connect(nullptr, nullptr);
@@ -117,6 +118,11 @@ namespace ZeroVulkan::ZWindow
     }
 
     void setTitle(const std::string& title) {
+        if (!window || !connection) {
+            puts("ERROR: no window created (you should create a ZProject object first)");
+            return;
+        }
+
         xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window,
             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.size(), title.data());
         xcb_flush(connection);

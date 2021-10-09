@@ -1,101 +1,65 @@
-#ifndef H_VERTEX
-#define H_VERTEX
+#ifndef VERTEX_H_
+#define VERTEX_H_
 
-#define VK_USE_PLATFORM_XCB_KHR
-#include <vulkan/vulkan.h>
 #include <vector>
-#include <algorithm>
+#include <vulkan/vulkan_core.h>
 #include "types.h"
 
-namespace ZeroVulkan 
-{
-    class ZVertex
-    {
-    public:
-        template<typename... Ts>
-        inline ZVertex(Ts&& ... args)
-        {
-            addVertexData(args ...);
-        }
-
-        std::vector<float> vertexData;
-    private:
-        template<typename T, typename... Ts>
-        void addVertexData(const T& first, Ts&& ... other);
-
-        template<short size>
-        void addVertexData(const vec<float, size>& v);
-
-        void addVertexData(const float f);
-
-        inline void addVertexData() {};
-    };
-
-    template<typename T, typename... Ts>
-    inline void ZVertex::addVertexData(const T& first, Ts&& ... other)
-    {
-        addVertexData(first);
-
-        addVertexData(other ...);
-    }
-
-    template<short size>
-    inline void ZVertex::addVertexData(const vec<float, size>& v)
-    {
-        vertexData.reserve(size);
-
-        for (uint32_t i = 0; i < size; i++)
-           vertexData.push_back(v[i]);
-    }
-
-    inline void ZVertex::addVertexData(const float f)
-    {
-        vertexData.push_back(f);
-    }
-
-
+namespace ZeroVulkan {
     class ZVertexLayout
     {
     public:
-        ZVertexLayout() {};
-        ~ZVertexLayout() {};
-
-        inline void addLocation(uint32_t location, ZType type, uint32_t offset);
-        inline void createBinding(uint32_t size);
+        inline void addLocation(uint32_t location, ZType type);
+        inline void createBinding();
 
         std::vector<VkVertexInputAttributeDescription> vertexAttributeDesc;
         VkVertexInputBindingDescription* bindingDescritption = nullptr;
+    private:
+        uint32_t m_offset = 0;
     };
 
-    inline void ZVertexLayout::createBinding(uint32_t size)
+
+    inline void ZVertexLayout::createBinding()
     {
         bindingDescritption = new VkVertexInputBindingDescription();
         bindingDescritption->binding = 0;
-        bindingDescritption->stride = size;
+        bindingDescritption->stride = m_offset; // m_offset = size
         bindingDescritption->inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     }
     
-    inline void ZVertexLayout::addLocation(uint32_t location, ZType type, uint32_t offset)
+    inline void ZVertexLayout::addLocation(uint32_t location, ZType type)
     {
         vertexAttributeDesc.resize(vertexAttributeDesc.size() + 1);
+        VkVertexInputAttributeDescription& desc = vertexAttributeDesc.back();
+        
+        desc.binding = 0;
+        desc.location = location;
+        desc.offset = m_offset;
 
-        vertexAttributeDesc.back().binding = 0;
-        vertexAttributeDesc.back().location = location;
-        vertexAttributeDesc.back().offset = offset;
+        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add new cases)");
 
-        switch( type )
+        switch (type)
         {
+        case ZType::MAT4:
+            puts("keep in mind mat4 takes 4 locations (4 * VEC4)");
+            desc.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            m_offset += sizeof(mat4);
+            break;
         case ZType::VEC4:
-            vertexAttributeDesc.back().format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            desc.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+            m_offset += sizeof(vec4);
             break;
         case ZType::VEC3:
-            vertexAttributeDesc.back().format = VK_FORMAT_R32G32B32_SFLOAT;
+            desc.format = VK_FORMAT_R32G32B32_SFLOAT;
+            m_offset += sizeof(vec3);
             break;
         case ZType::VEC2:
-            vertexAttributeDesc.back().format = VK_FORMAT_R32G32_SFLOAT;
+            desc.format = VK_FORMAT_R32G32_SFLOAT;
+            m_offset += sizeof(vec2);
             break;
         case ZType::FLOAT:
-            vertexAttributeDesc.back().format = VK_FORMAT_R32_SFLOAT;
+            desc.format = VK_FORMAT_R32_SFLOAT;
+            m_offset += sizeof(float);
             break;
         default:
             printf("unknown vertexAttribute (ZType) %d\n", (int)type);
@@ -103,4 +67,4 @@ namespace ZeroVulkan
     }
 }
 
-#endif // H_VERTEX
+#endif // VERTEX_H_

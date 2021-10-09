@@ -21,7 +21,7 @@ namespace ZeroVulkan {
         m_indices.swap(source.m_indices);
         ready = false;        
         
-        puts("moved ZMesh (assignment op)");
+        puts("moved ZMesh (=)");
 
         return *this;
     }

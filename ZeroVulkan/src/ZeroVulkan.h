@@ -4,7 +4,7 @@
 #include "Window/window.h"
 #include "ZObject/ZObject.h"
 #include "ZMesh/ZMesh.h"
-#include "ZShaders/ZShaders.h"
+#include "ZShaderSet/ZShaderSet.h"
 #include "ZScene/ZScene.h"
 
 namespace ZeroVulkan {

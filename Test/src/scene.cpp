@@ -1,5 +1,7 @@
 #include "scene.h"
 
+using namespace ZeroVulkan;
+
 TestScene::TestScene() { 
     puts("created test scene");
 }
@@ -7,6 +9,7 @@ TestScene::TestScene() {
 void TestScene::start() { 
     puts("test scene start");
   
+    /* ----------- init mesh ----------- */
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
          0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -39,14 +42,47 @@ void TestScene::start() {
         6, 5, 4
     };
     
+    ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
+    /* ----------------------------- */
+
+
+    /* ----------- init ShaderSet ----------- */
+    //TODO: shader parser to automaticly add Locations, Bindings and UniformComponents
+    ZShaderSet shaders("Test/shader/compiled/phong.vert.spv", "Test/shader/compiled/phong.frag.spv");
+ 
+    // setup Uniform ------------------------------
+    // TODO: really cumbersome (to templated methode maybe)
+    mat4* proj = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+    mat4* view = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+    mat4* model = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+    vec3* lightDir = std::any_cast<vec3>( shaders.uniformLayout.addComponent(ZType::VEC3) );
+
+    // add Uniform to Vertex Shader ---------------
+    shaders.descSetLayout.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
     
-    ZeroVulkan::ZShaders shaders("Test/shader/compiled/phong.vert.spv", "Test/shader/compiled/phong.frag.spv");
-    ZeroVulkan::ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
+    // setup VertexLayout -------------------------
+    shaders.vertexLayout.addLocation(0, ZType::VEC3);
+    shaders.vertexLayout.addLocation(1, ZType::VEC3);
+    shaders.vertexLayout.createBinding();
+
     
-    createObject(shaders, mesh);
+    // update Uniform values ----------------------
+    *model = mat4(1.f);
+    *lightDir = vec3(1.f, 1.f, 3.f);
+    // shaders.update(); // uniform is not yet created so this would cause an error(trigger assertion)
+    /* ------------------------------------ */
+
+    
+    
+    /* ----------- init ZObject ----------- */
+    ZObject& obj = createObject(shaders, mesh);
+    obj.set3DMats(proj, view);
+    /* ------------------------------------ */
 }
 
-void TestScene::update(float dt) {}
+void TestScene::update(float dt) { 
+    (void)dt;
+}
 
 void TestScene::end() {
     puts("test scene end");

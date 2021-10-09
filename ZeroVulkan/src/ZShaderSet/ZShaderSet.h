@@ -2,7 +2,6 @@
 #define ZSHADERS_H_
 
 #include <string>
-#include <vulkan/vulkan_core.h>
 #include "Vulkan/UniformBuffer.h"
 #include "Vulkan/Vertex.h"
 #include "Vulkan/Pipeline.h"
@@ -13,26 +12,27 @@
 
 namespace ZeroVulkan
 {
-    class ZShaders
+    class ZShaderSet
     {
     public:
-        ZShaders(const std::string& vertexShaderName, const std::string& fragmentShaderName);
-        ZShaders(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::string& texturePath);
-        ~ZShaders();
-        ZShaders(ZShaders&& source);
+        ZShaderSet(const std::string& vertexShaderName, const std::string& fragmentShaderName);
+        ZShaderSet(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::string& texturePath);
+        ~ZShaderSet();
+        ZShaderSet(ZShaderSet&& source);
 
-        ZShaders& operator=(ZShaders&& source);
+        ZShaderSet& operator=(ZShaderSet&& source);
 
-        void update(float deltaTime);
+        void update();
 
         void create(bool debug, bool triangleTopology = true);
 
-        void setShader(const std::string& shaderName, shaderType type);
+        void setShader(const std::string& shaderName, ZShaderType type);
 
         void prepair();
         void bind(VkCommandBuffer& cmdBuffer);
 
         ZUniform uniform;
+        ZUniformLayout uniformLayout;
         ZStencilBuffer* stencilBuffer = nullptr;
 
         VkPipeline pipeline = nullptr;
@@ -43,8 +43,6 @@ namespace ZeroVulkan
         ZDescriptorSet descriptorSet;
 
         ZVertexLayout vertexLayout;
-
-        float counter = 0; // for shader animations
     private:
         VkShaderModule shaderModuleVert = nullptr;
         VkShaderModule shaderModuleFrag = nullptr;
