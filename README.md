@@ -1,18 +1,113 @@
 # ZeroVulkan
 
-## 3D render API using Vulkan as backend
+## Render API using Vulkan as backend
 
 ### Goal
 * abstract the use of vulkan (zero vulkan for the user basicly)
-* Crossplatform compatible (for now only Linux)
-* for me to learn Vulkan more and to use it later in other projects
+* Cross-platform compatible
+* for me to learn Vulkan more 
+* to use it later in other projects
 
 ### Features
-* VertexShader, FragmentShader, ComputeShader (not tested)
-* uses X11(xcb) to create a window
-* create a ZObject (abstraction of a renderable Object)
-    * contains Shader, UniformBuffer, Vertices, Indices, ...
+* [x] Linux support
+* [ ] OSX support
+* [ ] Windows support
+* [ ] Shaders
+  * [x] Vertex
+  * [x] Fragment
+  * [ ] Compute (not tested)
+* [ ] create window
+  * [x] on Linux with X11(xcb)
+  * [ ] other platforms 
+* abstraction of renderable objects
+  * [x] ZObject (3D)
+  * [ ] ZObject2D
+  * [ ] Premitives
+    * [ ] line
+    * [ ] rect
+    * [ ] circle
+    * [ ] cube
+    * [ ] sphere
+ 
+### Basics
+> Your main.cpp
+```cpp
+int main () {
+   ZeroVulkan::ZProject test;
+   ZeroVulkan::ZScene::create<TestScene>();
+   test.run();
+   return 0;
+}
+```
+> create a scene
+```cpp
+class TestScene : public ZeroVulkan::ZScene 
+{
+public:
+    TestScene();
+    
+    virtual void start() override; 
+    virtual void update(float dt) override;
+    virtual void end() override;
+};
+```
+> create a mesh
+```cpp
+void TestScene::start() {
+// ...
 
-### Todo
-* Refectoring!!!!
-* draw primitives on the fly
+   // simple cube
+   float vertices[] = {
+      0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+      0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+      -0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+
+      0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+      0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
+   };
+        
+   uint32_t indices[] = {
+      0, 1, 2,
+      2, 3, 0,
+
+      5, 1, 0,
+      0, 4, 5,
+
+      6, 3, 2,
+      6, 7, 3,
+
+      5, 2, 1,
+      5, 6, 2,
+
+      0, 3, 4,
+      7, 4, 3,
+
+      4, 7, 6,
+      6, 5, 4
+   };
+    
+   ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
+// ...
+}
+```
+> create Shaders
+```cpp
+ZShaderSet shaders("Test/shader/phong.vert", "Test/shader/phong.frag");
+
+// setup Uniform ------------------------------
+mat4* proj = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+mat4* view = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+mat4* model = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
+vec3* lightDir = std::any_cast<vec3>( shaders.uniformLayout.addComponent(ZType::VEC3) );
+
+// add Uniform to Vertex Shader ---------------
+shaders.descSetLayout.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+    
+// setup VertexLayout -------------------------
+shaders.vertexLayout.addLocation(0, ZType::VEC3);
+shaders.vertexLayout.addLocation(1, ZType::VEC3);
+shaders.vertexLayout.createBinding();
+```
