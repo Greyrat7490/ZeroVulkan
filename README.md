@@ -3,8 +3,9 @@
 ## Render API using Vulkan as backend
 
 ### Goal
-* abstract the use of vulkan (zero vulkan for the user basicly)
-* Cross-platform compatible
+* abstracts the use of vulkan (zero vulkan for the user basicly)
+* cross-platform compatible
+* cache friendly
 * for me to learn Vulkan more 
 * to use it later in other projects
 
