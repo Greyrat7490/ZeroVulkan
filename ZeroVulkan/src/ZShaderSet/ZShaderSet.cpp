@@ -1,4 +1,3 @@
-#include <any>
 #include <assert.h>
 #include "Vulkan/ComputeShader.h"
 #include "Vulkan/Shader.h"
@@ -7,18 +6,14 @@
 
 namespace ZeroVulkan
 {
-    // TODO handle relative and absolute path
-    ZShaderSet::ZShaderSet(const std::string& vertexShaderRelPath, const std::string& fragmentShaderRelPath)
+    ZShaderSet::ZShaderSet(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
     {
         // TODO own assert
-        assert(vertexShaderRelPath[0] != '/');
-        assert(fragmentShaderRelPath[0] != '/');
-        
-        printf("vertexShader: %s\n", vertexShaderRelPath.c_str());
-        printf("fragmentShader: %s\n", fragmentShaderRelPath.c_str());
+        printf("vertexShader: %s\n", vertexShaderPath.c_str());
+        printf("fragmentShader: %s\n", fragmentShaderPath.c_str());
 
-        createShaderModule(getRootDir() + "/" + vertexShaderRelPath, &shaderModuleVert);
-        createShaderModule(getRootDir() + "/" + fragmentShaderRelPath, &shaderModuleFrag);
+        createShaderModule(pathToAbsolue(vertexShaderPath), &shaderModuleVert);
+        createShaderModule(pathToAbsolue(fragmentShaderPath), &shaderModuleFrag);
     }
 
     ZShaderSet::~ZShaderSet()

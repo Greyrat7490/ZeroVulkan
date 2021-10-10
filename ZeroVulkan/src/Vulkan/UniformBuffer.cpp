@@ -8,7 +8,7 @@ namespace ZeroVulkan {
         switch (type)
         {
         case ZType::MAT4:
-            m_components.push_back(std::make_pair(ZType::MAT4, mat4(1)));
+            m_components.push_back(std::make_pair(ZType::MAT4, mat4()));
             m_uniformSize += sizeof(mat4);
             break;
         case ZType::VEC4:
@@ -16,7 +16,7 @@ namespace ZeroVulkan {
             m_uniformSize += sizeof(vec4);
             break;
         case ZType::VEC3:
-            m_components.push_back(std::make_pair(ZType::VEC3, vec3(1.f, 1.f, 3.f)));
+            m_components.push_back(std::make_pair(ZType::VEC3, vec3()));
             m_uniformSize += sizeof(vec3);
             break;
         case ZType::VEC2:

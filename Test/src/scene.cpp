@@ -48,10 +48,10 @@ void TestScene::start() {
 
     /* ----------- init ShaderSet ----------- */
     //TODO: shader parser to automaticly add Locations, Bindings and UniformComponents
-    ZShaderSet shaders("Test/shader/compiled/phong.vert.spv", "Test/shader/compiled/phong.frag.spv");
+    ZShaderSet shaders("Test/shader/phong.vert", "Test/shader/phong.frag");
  
     // setup Uniform ------------------------------
-    // TODO: really cumbersome (to templated methode maybe)
+    // TODO: really cumbersome and not type save (to templated methode maybe)
     mat4* proj = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
     mat4* view = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
     mat4* model = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );

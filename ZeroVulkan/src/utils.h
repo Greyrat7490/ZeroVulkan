@@ -1,59 +1,29 @@
 #ifndef H_TOOLS
 #define H_TOOLS
-
-#include <cstdio>
 #include <string>
 #include <random>
-#include <algorithm>
-#include <fstream>
-#include <limits.h>
-#include <unistd.h>
+
+#define ASSERT_LINE(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __LINE__);
+#define ASSERT_FUNC(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __PRETTY_FUNCTION__);
 
 namespace ZeroVulkan 
 {
-    inline std::string getRootDir()
-    {
-        #ifdef __linux
-            // Linux
-            char buf[PATH_MAX];
-            if( !getcwd(buf, sizeof(buf)) ) {
-                printf("could not get current director\n");
-                return std::string(); 
-            }
-
-            return std::string(buf);
-        #else
-            // windows or other OS
-            char buf[PATH_MAX];
-            if( !_getcwd(buf, sizeof(buf)) ) {
-                printf("could not get current director\n");
-                return std::string(); 
-            }
-
-            return std::string(buf);
-        #endif
-    }
+    void zassert(bool condition, const char* msg, const char* file, const char* func);
+    void zassert(bool condition, const char* msg, const char* file, int line);
     
-    inline std::string readFile(const std::string& filepath)
-    {
-        std::ifstream file(filepath, std::ios::binary | std::ios::ate);
-        if (file)
-        {
-            size_t size = (size_t)file.tellg();
-            std::string fileBuffer;
-            fileBuffer.resize(size);
+    std::string getRootDir();
+    std::string pathToAbsolue(const std::string& path);
 
-            file.seekg(0);
-            file.read(fileBuffer.data(), size);
-            file.close();
+    bool fileExists(const std::string& path);
+    bool fileExists(const std::u16string& path);
+    
+    // create the path it does’t exists
+    void createPath(const std::string& path);
+    void createPath(const std::u16string& path);
 
-            return fileBuffer;
-        }
+    std::string readFile(const std::string& filepath);
 
-        printf("ERROR: file (%s) not found or unable to open\n", filepath.c_str());
-        return "\0";
-    }
-
+    // TODO: no singleton
     class ZRandom
     {
     public:
@@ -89,25 +59,6 @@ namespace ZeroVulkan
         std::default_random_engine m_rndEngine;
         uint32_t m_seed;
     };
-
-    inline ZRandom::ZRandom()
-    {
-        m_seed = static_cast<uint32_t>(time(nullptr));
-        m_rndEngine.seed(m_seed);
-
-        printf("created ZRandom with seed: %d\n", m_seed);
-    }
-
-    inline ZRandom::~ZRandom()
-    {
-        printf("destroyed ZRandom\n");
-    }
-
-    inline float ZRandom::rndFloatImpl(float min, float max)
-    {
-        std::uniform_real_distribution<float> rndDist(min, max);
-        return rndDist(m_rndEngine);
-    }
 }
 
 #endif // H_TOOLS
