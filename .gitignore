@@ -1,4 +1,4 @@
 .cache/
 build/
 compile_commands.json
-Test/shaders/compiled
+Test/shader/compiled
