@@ -81,7 +81,7 @@ namespace ZeroVulkan
 		//change later to a proper index
 		vkGetDeviceQueue(m_dev, 0, 0, &m_queue);
 
-		printf("created ZkDevice\n");
+		printf("created ZDevice\n");
 	}
 
 	void ZDevice::getPhysicalDevicesImpl()
@@ -95,6 +95,7 @@ namespace ZeroVulkan
 
 	void ZDevice::createInstanceImpl()
 	{
+        // TODO: disable validationLayers in release
 		const char* validationLayers[1] = {
             "VK_LAYER_KHRONOS_validation"
 		};

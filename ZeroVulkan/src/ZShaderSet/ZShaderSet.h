@@ -31,8 +31,9 @@ namespace ZeroVulkan
         void prepair();
         void bind(VkCommandBuffer& cmdBuffer);
 
-        ZUniform uniform;
         ZUniformLayout uniformLayout;
+    private:
+        ZUniform uniform;
         ZStencilBuffer* stencilBuffer = nullptr;
 
         VkPipeline pipeline = nullptr;
@@ -43,10 +44,13 @@ namespace ZeroVulkan
         ZDescriptorSet descriptorSet;
 
         ZVertexLayout vertexLayout;
-    private:
+
         VkShaderModule shaderModuleVert = nullptr;
         VkShaderModule shaderModuleFrag = nullptr;
         bool ready = false;
+
+        void parseVertShader(const std::string& path);
+        void parseFragShader(const std::string& path);
     };
 }
 
