@@ -3,7 +3,6 @@
 
 #include <vector>
 #include "Device.h"
-#include "UniformBuffer.h"
 #include "DescriptorSetLayout.h"
 
 namespace ZeroVulkan

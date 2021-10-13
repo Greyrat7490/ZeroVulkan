@@ -7,7 +7,7 @@
 class TestScene : public ZeroVulkan::ZScene 
 {
 public:
-    TestScene();
+    TestScene() = default;
     
     virtual void start() override; 
     virtual void update(float dt) override;

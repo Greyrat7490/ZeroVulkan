@@ -2,7 +2,8 @@
 #define ZSHADERS_H_
 
 #include <string>
-#include "Vulkan/UniformBuffer.h"
+#include <vector>
+#include "Vulkan/Uniform.h"
 #include "Vulkan/Vertex.h"
 #include "Vulkan/Pipeline.h"
 #include "Vulkan/StencilBuffer.h"
@@ -22,18 +23,15 @@ namespace ZeroVulkan
 
         ZShaderSet& operator=(ZShaderSet&& source);
 
-        void update();
+        ZUniform& getUniform(size_t index = 0);       
 
         void create(bool debug, bool triangleTopology = true);
 
-        void setShader(const std::string& shaderName, ZShaderType type);
+        void setShader(const std::string& path, ZShaderType type);
 
-        void prepair();
         void bind(VkCommandBuffer& cmdBuffer);
-
-        ZUniformLayout uniformLayout;
     private:
-        ZUniform uniform;
+        std::vector<ZUniform> uniforms;
         ZStencilBuffer* stencilBuffer = nullptr;
 
         VkPipeline pipeline = nullptr;
@@ -51,6 +49,9 @@ namespace ZeroVulkan
 
         void parseVertShader(const std::string& path);
         void parseFragShader(const std::string& path);
+        void parseUniforms(const std::string& file);
+        void parseVertexAttr(const std::string& file);
+        bool addComponentByStr(ZUniform& uniform, const std::string& str);
     };
 }
 

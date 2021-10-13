@@ -3,8 +3,8 @@
 #include <string>
 #include <random>
 
-#define ASSERT_LINE(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __LINE__);
-#define ASSERT_FUNC(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __PRETTY_FUNCTION__);
+#define ZASSERT_LINE(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __LINE__);
+#define ZASSERT_FUNC(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __PRETTY_FUNCTION__);
 
 namespace ZeroVulkan 
 {

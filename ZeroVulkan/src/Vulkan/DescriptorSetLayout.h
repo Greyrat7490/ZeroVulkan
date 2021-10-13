@@ -2,7 +2,6 @@
 #define H_DESC_SET_LAYOUT
 
 #include <vector>
-#include <unordered_map>
 #include <stdio.h>
 #include "Device.h"
 

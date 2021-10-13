@@ -1,7 +1,6 @@
 #include "StencilBuffer.h"
 #include "Pipeline.h"
 #include "Shader.h"
-#include "UniformBuffer.h"
 #include "DescriptorSetLayout.h"
 
 namespace ZeroVulkan
@@ -22,7 +21,6 @@ namespace ZeroVulkan
 	ZStencilBuffer::~ZStencilBuffer()
 	{
 		delete m_uniform;
-		delete m_uniformLayout;
 
 		delete m_outlineDescLayout;
 
@@ -230,12 +228,11 @@ namespace ZeroVulkan
 	void ZStencilBuffer::createUniform()
 	{
 		m_uniform = new ZUniform();
-		m_uniformLayout = new ZUniformLayout;
-        m_uniformLayout->addComponent(ZType::MAT4);
-        m_uniformLayout->addComponent(ZType::MAT4);
-        m_uniformLayout->addComponent(ZType::MAT4);
+        m_uniform->addComponent(ZType::MAT4);
+        m_uniform->addComponent(ZType::MAT4);
+        m_uniform->addComponent(ZType::MAT4);
 		
-		m_uniform->create(m_uniformLayout);
+		m_uniform->create();
 	}
 
 	void ZStencilBuffer::createDescSet(const VkDescriptorPool& descriptorPool)

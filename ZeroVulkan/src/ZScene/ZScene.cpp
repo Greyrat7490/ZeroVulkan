@@ -44,8 +44,8 @@ namespace ZeroVulkan {
         puts("added a scene");
     }
     
-    ZObject& ZScene::createObject() {
-        objects.emplace_back();
+    ZObject& ZScene::createObject(ZMesh& mesh) {
+        objects.emplace_back(mesh);
         objects.back().addToScene(this);
         ZRenderer::record();
         return objects.back();

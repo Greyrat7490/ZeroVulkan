@@ -13,29 +13,6 @@
 
 namespace ZeroVulkan
 {
-	class ZUniformLayout
-	{
-	public:
-        ZUniformLayout() = default;
-        ZUniformLayout(ZUniformLayout&& source);
-        ZUniformLayout& operator=(ZUniformLayout&& source);
-        
-	    std::any* addComponent(ZType type);
-        
-        inline VkDescriptorBufferInfo* getBufferInfo() const { return m_bufferInfo; }
-		inline uint32_t getSize() const { return m_uniformSize; }
-		inline uint32_t getComponentsCount() const { return m_components.size(); }
-
-	private:
-        friend class ZUniform;
-        
-		VkDeviceSize m_uniformSize = 0;
-        std::vector<std::pair<ZType, std::any>> m_components;
-		VkDescriptorBufferInfo* m_bufferInfo = nullptr;
-	};
-
-    
-
 	class ZUniform
 	{
 	public:
@@ -46,28 +23,46 @@ namespace ZeroVulkan
 
 		inline VkDescriptorBufferInfo* getBufferInfo() const { return m_bufferInfo; }
 		inline VkDeviceMemory& getMemory() { return m_memory; }
-		inline VkDeviceSize getBufferSize() const { return m_uniformSize; }
+		inline VkDeviceSize getBufferSize() const { return m_size; }
 		inline VkDeviceSize getDynamicAlignment() const { return m_dynamicAlignment; }
 	
 		void update();
 
+	    void addComponent(ZType type);
+        
+        template<typename T>
+        T* getComponent(size_t index);
+
 		template<typename T>
 		void dynamicUpdate(T* ubos, uint32_t objectCount);
 
-		void create(ZUniformLayout* layout, uint32_t objectCount = 1);
-		void* mappedData = nullptr;
+		void create(uint32_t objectCount = 1);
 	private:
-		ZUniformLayout* m_layout = nullptr;
+		void* m_mappedData = nullptr;
 		VkBuffer m_buffer = nullptr;
 		VkDeviceMemory m_memory = nullptr;
-		VkDeviceSize m_uniformSize = 0;
+		VkDeviceSize m_size = 0;
 		VkDescriptorBufferInfo* m_bufferInfo = nullptr;
 		VkDeviceSize m_dynamicAlignment = 0;
+        
+        std::vector<std::pair<ZType, size_t>> m_components;
 		
         bool ready = false;
         
 		void setDynamicAlignments();
 	};
+
+    
+    template<typename T>
+    inline T* ZUniform::getComponent(size_t index) {
+        if (index >= m_components.size()) {
+            printf("ERROR: uniform has only %zu components", m_components.size());
+            return nullptr;
+        }
+            
+        return (T*)((char*)m_mappedData + m_components[index].second);
+    }
+
 
 	template<typename T>//TODO: only update parts which actually changed
 	inline void ZUniform::dynamicUpdate(T* ubos, uint32_t objectCount)
@@ -79,7 +74,7 @@ namespace ZeroVulkan
 		memoryRange.memory = m_memory;
 		vkFlushMappedMemoryRanges(ZDevice::getDevice(), 1, &memoryRange);
 
-		char* mappedDataArray = (char*)mappedData;
+		char* mappedDataArray = (char*)m_mappedData;
 
 		for(uint32_t i = 0; i < objectCount; i++)
 			memcpy(&mappedDataArray[i * m_dynamicAlignment], &ubos[i], sizeof(T));

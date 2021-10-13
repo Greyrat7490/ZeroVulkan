@@ -2,7 +2,7 @@
 #define H_STENCILE_BUFFER
 
 #include <string>
-#include "UniformBuffer.h"
+#include "Uniform.h"
 #include "types.h"
 
 namespace ZeroVulkan
@@ -39,7 +39,6 @@ namespace ZeroVulkan
 		VkShaderModule m_outlineFragModule;
 
 		ZUniform* m_uniform = nullptr;
-		ZUniformLayout* m_uniformLayout = nullptr;
 
 		ZDescriptorSetLayout* m_outlineDescLayout = nullptr;
 		VkDescriptorSet m_outlineDescSet;

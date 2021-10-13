@@ -25,7 +25,7 @@ namespace ZeroVulkan {
         
         void postUpdate(float dt);
         
-        ZObject& createObject();
+        ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
         
         void updateProj();

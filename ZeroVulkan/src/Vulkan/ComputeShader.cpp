@@ -35,7 +35,6 @@ namespace ZeroVulkan
         delete descriptorPool;
         delete descriptorSet;
         delete descriptorSetLayout;
-        delete uniformLayout;
         delete uniformBuffer;
         delete storageBuffer;
 

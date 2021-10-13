@@ -7,6 +7,7 @@
 #include "DescriptorSet.h"
 #include "DescriptorPool.h"
 #include "CommandBuffer.h"
+#include "Uniform.h"
 
 namespace ZeroVulkan
 {
@@ -43,7 +44,6 @@ namespace ZeroVulkan
 		ZDescriptorSet* descriptorSet = nullptr;
 		ZDescriptorSetLayout* descriptorSetLayout = nullptr;
 
-		ZUniformLayout* uniformLayout = nullptr;
 		ZUniform* uniformBuffer = nullptr;
 		ZStorageBuffer* storageBuffer = nullptr;
 
