@@ -94,13 +94,32 @@ void TestScene::start() {
 // ...
 }
 ```
-> create Shaders
+> create shaders
 ```cpp
 ZShaderSet shaders("Test/shader/phong.vert", "Test/shader/phong.frag");
+```
+> create a 3D object (with default shader (phong shader))
+```cpp
+// ...
+// create mesh
+ZObject& obj = createObject(mesh);
+```
+> create a 3D object (with custom shader)
+```cpp
+// ...
+// create shaders and mesh
+ZObject& obj = createObject(shaders, mesh);
 
-// setup Uniform ------------------------------
-mat4* proj = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
-mat4* view = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
-mat4* model = std::any_cast<mat4>( shaders.uniformLayout.addComponent(ZType::MAT4) );
-vec3* lightDir = std::any_cast<vec3>( shaders.uniformLayout.addComponent(ZType::VEC3) );
+// get components from your uniform(s)
+mat4* proj     = obj.getUniformComponent<mat4>(0);
+mat4* view     = obj.getUniformComponent<mat4>(1);
+mat4* model    = obj.getUniformComponent<mat4>(2);
+vec3* lightDir = obj.getUniformComponent<vec3>(3);
+
+// set default values
+*model = mat4(1.f);
+*lightDir = vec3(-1.f, -1.f, 3.f);
+
+// set the matrices for 3D rendering so they will be automatically updated
+obj.set3DMats(proj, view, model);
 ```
