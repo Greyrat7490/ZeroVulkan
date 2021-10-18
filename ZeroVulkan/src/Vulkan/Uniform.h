@@ -2,6 +2,7 @@
 #define H_UNIFORM_BUFFER
 
 #include <algorithm>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 #include <memory.h>
@@ -45,7 +46,7 @@ namespace ZeroVulkan
 		VkDescriptorBufferInfo* m_bufferInfo = nullptr;
 		VkDeviceSize m_dynamicAlignment = 0;
         
-        std::vector<std::pair<ZType, size_t>> m_components;
+        std::vector<std::pair<size_t, size_t>> m_components;
 		
         bool ready = false;
         
@@ -60,6 +61,13 @@ namespace ZeroVulkan
             return nullptr;
         }
             
+        // TODO: printf human readable types
+        if (typeid(T).hash_code() != m_components[index].first) {
+            printf("ERROR: couldn't get uniform component at index %zu\n"
+                    "\t the type you passed is different to the actual type\n", index);
+            return nullptr;
+        }
+
         return (T*)((char*)m_mappedData + m_components[index].second);
     }
 
