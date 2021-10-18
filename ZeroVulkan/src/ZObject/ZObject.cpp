@@ -20,25 +20,22 @@ namespace ZeroVulkan {
         *lightDir = vec3(-1.f, -1.f, 3.f);
     }
 
-    void ZObject::update(float dt) {
-        (void)dt;
-
+    void ZObject::update(ZScene* scene) {
         ZASSERT_FUNC(m_proj && m_view, "matrices for 3D rendering are not provided");
         
-        *m_proj = m_scene->getProjection();
-        *m_view = m_scene->getView();
+        *m_proj = scene->getProjection();
+        *m_view = scene->getView();
     }
-        
-    void ZObject::addToScene(ZScene* scene) {
-        // order is important
-        scene->addBindFunction(std::bind(&ZShaderSet::bind, &m_shaders, std::placeholders::_1 ));
-        scene->addBindFunction(std::bind(&ZMesh::bind, &m_mesh, std::placeholders::_1 ));
-        m_scene = scene;
-    }
-
+    
     void ZObject::set3DMats(mat4* proj, mat4* view, mat4* model) {
         m_proj = proj;
         m_view = view;
         m_model = model;
+    }
+
+    void ZObject::bind(VkCommandBuffer& cmdBuffer) {
+        // order is important
+        m_shaders.bind(cmdBuffer);
+        m_mesh.bind(cmdBuffer);
     }
 }

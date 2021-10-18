@@ -1,6 +1,5 @@
 #include <any>
 #include <cmath>
-#include <cstddef>
 #include <fstream>
 #include <string>
 #include <vulkan/vulkan_core.h>

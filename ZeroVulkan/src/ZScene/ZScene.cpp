@@ -26,7 +26,7 @@ namespace ZeroVulkan {
     
     ZScene::~ZScene() {
         objects.clear();
-        binds.clear();
+        shaders.clear();
 
         printf("Destroyed a ZScene\n");
     }
@@ -46,14 +46,12 @@ namespace ZeroVulkan {
     
     ZObject& ZScene::createObject(ZMesh& mesh) {
         objects.emplace_back(mesh);
-        objects.back().addToScene(this);
         ZRenderer::record();
         return objects.back();
     }
     
     ZObject& ZScene::createObject(ZShaderSet& shaders, ZMesh& mesh) {
         objects.emplace_back(shaders, mesh);
-        objects.back().addToScene(this);
         ZRenderer::record();
         return objects.back();
     }
@@ -79,24 +77,22 @@ namespace ZeroVulkan {
         vec3 right = normal( cross( vec3(0.f, 0.f, 1.f), direction ) );
         vec3 up = cross(direction, right);
 
-        view[0] =vec4(right[0], up[0], direction[0], 0);
-        view[1] =vec4(right[1], up[1], direction[1], 0);
-        view[2] =vec4(right[2], up[2], direction[2], 0);
-        view[3] =vec4(-dot(right, origin), -dot(up, origin), -dot(direction, origin), 1);
+        view[0] = vec4(right[0], up[0], direction[0], 0);
+        view[1] = vec4(right[1], up[1], direction[1], 0);
+        view[2] = vec4(right[2], up[2], direction[2], 0);
+        view[3] = vec4(-dot(right, origin), -dot(up, origin), -dot(direction, origin), 1);
     }
 
-    void ZScene::postUpdate(float dt) {
+    void ZScene::postUpdate() {
         for (ZObject& obj : objects)
-            obj.update(dt);
+            obj.update(this);
     }
-
-    void ZScene::addBindFunction(std::function<void(VkCommandBuffer&)> func) {
-        binds.push_back(func);
-    }
-
     
     void ZScene::bind(VkCommandBuffer& cmdBuffer) {
-        for (auto bind : binds)
-            bind(cmdBuffer);
+        for (ZShaderSet& shader : shaders)
+            shader.bind(cmdBuffer);
+        
+        for (ZObject& obj : objects)
+            obj.bind(cmdBuffer);
     }
 }

@@ -5,7 +5,6 @@
 #include <functional>
 #include "types.h"
 #include "ZObject/ZObject.h"
-#include "Vulkan/CommandBuffer.h"
 
 namespace ZeroVulkan {
     class ZScene {
@@ -23,7 +22,7 @@ namespace ZeroVulkan {
         virtual void update(float dt) = 0;
         virtual void end() = 0;
         
-        void postUpdate(float dt);
+        void postUpdate();
         
         ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
@@ -35,13 +34,12 @@ namespace ZeroVulkan {
         const mat4& getProjection() const { return proj; }
 
         void bind(VkCommandBuffer& cmdBuffer);
-        void addBindFunction(std::function<void(VkCommandBuffer&)> func);
     protected:
         mat4 proj;
         mat4 view;
     private:
         std::vector<ZObject> objects;
-        std::vector<std::function<void(VkCommandBuffer&)>> binds;
+        std::vector<ZShaderSet> shaders;
         void add();
     };
 

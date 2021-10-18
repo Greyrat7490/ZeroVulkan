@@ -51,7 +51,7 @@ namespace ZeroVulkan::ZRenderer {
 
     void update(float dt) {
         ZScene::current().update(dt);
-        ZScene::current().postUpdate(dt);
+        ZScene::current().postUpdate();
     }
 
     void start() {
