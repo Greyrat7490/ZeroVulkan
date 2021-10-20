@@ -23,9 +23,10 @@
 * abstraction of renderable objects
   * [x] ZObject (3D)
   * [ ] ZObject2D
+  * [ ] FragShader (fullscreen fragment shader)
   * [ ] Premitives
     * [ ] line
-    * [ ] rect
+    * [x] rect
     * [ ] circle
     * [ ] cube
     * [ ] sphere
@@ -52,6 +53,14 @@ public:
     virtual void end() override;
 };
 ```
+> create premitives
+```cpp
+void TestScene::start() {
+// ...
+                  // position    width / height            color
+    createRect(vec2(0.5f, 0.5f), 0.25f, 0.25f, vec4(1.0f, 0.0f, 1.0f, 1.0f));
+// ...
+```
 > create a mesh
 ```cpp
 void TestScene::start() {
@@ -59,13 +68,14 @@ void TestScene::start() {
 
    // simple cube
    float vertices[] = {
-      0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-      0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+       // vertex coords        // color
+       0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
+       0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
       -0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
       -0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
 
-      0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-      0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
    };
