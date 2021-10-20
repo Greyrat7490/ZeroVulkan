@@ -9,7 +9,7 @@ namespace ZeroVulkan
 	{
 		m_outlineDescLayout = new ZDescriptorSetLayout();
 		m_outlineDescLayout->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-		m_outlineDescLayout->createLayout();
+		m_outlineDescLayout->create();
 		createUniform();
 
 		createShaderModule(m_outlineVertPath, &m_outlineVertModule);

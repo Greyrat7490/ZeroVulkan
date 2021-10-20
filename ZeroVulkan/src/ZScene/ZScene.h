@@ -5,6 +5,7 @@
 #include <functional>
 #include "types.h"
 #include "ZObject/ZObject.h"
+#include "ZPrimitive/ZPrimitvie.h"
 
 namespace ZeroVulkan {
     class ZScene {
@@ -27,8 +28,10 @@ namespace ZeroVulkan {
         ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
         
+        ZRect& createRect(vec2 pos, float width, float height, vec4 color);
+        
         void updateProj();
-        void setView(vec3 orgin, vec3 lookAtPos);
+        void setView(vec3 origin, vec3 lookAtPos);
 
         const mat4& getView() const { return view; }
         const mat4& getProjection() const { return proj; }
@@ -39,7 +42,7 @@ namespace ZeroVulkan {
         mat4 view;
     private:
         std::vector<ZObject> objects;
-        std::vector<ZShaderSet> shaders;
+        std::vector<ZRect> rects;
         void add();
     };
 

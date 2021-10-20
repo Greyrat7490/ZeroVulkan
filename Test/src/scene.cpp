@@ -14,7 +14,7 @@ void TestScene::start() {
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
     };
-        
+
     uint32_t indices[] = {
         0, 1, 2,
         2, 3, 0,
@@ -34,7 +34,7 @@ void TestScene::start() {
         4, 7, 6,
         6, 5, 4
     };
-    
+
     ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
 
     //TODO: shader parser to automaticly add Locations, Bindings and UniformComponents
@@ -56,6 +56,9 @@ void TestScene::start() {
     // if you just want to use the standard shader (phong shader)
     // you can simply use this:
     // createObject(mesh);
+    
+
+    createRect(vec2(0.5f, 0.5f), 0.25f, 0.25f, vec4(1.f, 0.f, 1.f, 1.f));
 }
 
 void TestScene::update(float dt) { 

@@ -284,65 +284,80 @@ namespace ZeroVulkan
 
     void ZShaderSet::create(bool debug, bool triangleTopology)
     {
-        descSetLayout.createLayout();
-        descPool.addDescriptorLayout(&descSetLayout);
-
         if (debug)
         {
             stencilBuffer = new ZStencilBuffer();
             descPool.addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
-            descPool.create(2);
-        }
-        else
-            descPool.create();
-
-        descriptorSet.setLayout(&descSetLayout);
-
-        for (uint32_t i = 0; i < descSetLayout.getBindings().size(); i++)
-        {
-            switch(descSetLayout.getBindings()[i].descriptorType)
-            {
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                descriptorSet.addDescriptorInfo(i, uniforms[i].getBufferInfo());
-                break;
-            default:
-                printf("DescriptorTyp is not yet supported\n");
-                break;
-            }
-        }
-
-        descriptorSet.create(descPool.descriptorPool);
-
-        if(debug)
-        {
             stencilBuffer->createDescSet(descPool.descriptorPool);
             stencilBuffer->createPipelines(&vertexLayout, shaderModuleVert, shaderModuleFrag, &descSetLayout.layout, 1);
         }
+
+
+        if (!descSetLayout.getBindings().empty())
+        {
+            descSetLayout.create();
+            descPool.addDescriptorLayout(&descSetLayout);
+
+            if (debug)
+                descPool.create(2);
+            else
+                descPool.create();
+
+            descriptorSet.setLayout(&descSetLayout);
+
+            // TODO: move in setLayout
+            for (uint32_t i = 0; i < descSetLayout.getBindings().size(); i++)
+            {
+                switch(descSetLayout.getBindings()[i].descriptorType)
+                {
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    descriptorSet.addDescriptorInfo(i, uniforms[i].getBufferInfo());
+                    break;
+                default:
+                    printf("DescriptorTyp is not yet supported\n");
+                    break;
+                }
+            }
+            // -----------------------
+
+            // TODO: move setLayout into create
+            descriptorSet.create(descPool.descriptorPool);
+            createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
+        }
+        else 
+        {
+            if (debug)
+            {
+                stencilBuffer = new ZStencilBuffer();
+                descPool.addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
+                descPool.create();
+                createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
+            }
+            else 
+                createPipelineLayout(pipelineLayout, nullptr, 0);
+        }
+
+
+        if(triangleTopology)
+        {
+            createGraphicsPipeline(
+                pipeline,
+                pipelineLayout,
+                shaderModuleVert,
+                shaderModuleFrag,
+                &vertexLayout
+            );
+        }
         else
         {
-            createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
-
-            if(triangleTopology)
-            {
-                createGraphicsPipeline(
-                    pipeline,
-                    pipelineLayout,
-                    shaderModuleVert,
-                    shaderModuleFrag,
-                    &vertexLayout
-                );
-            }
-            else
-            {
-                createParticleGraphicsPipeline(
-                    pipeline,
-                    pipelineLayout,
-                    shaderModuleVert,
-                    shaderModuleFrag,
-                    &vertexLayout
-                );
-            }
+            createParticleGraphicsPipeline(
+                pipeline,
+                pipelineLayout,
+                shaderModuleVert,
+                shaderModuleFrag,
+                &vertexLayout
+            );
         }
         
         ready = true;
@@ -383,7 +398,9 @@ namespace ZeroVulkan
         if (!ready)
             create(false);
             
-        vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
+        if (!descSetLayout.getBindings().empty())
+            vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
+
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 }

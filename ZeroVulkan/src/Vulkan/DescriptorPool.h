@@ -10,7 +10,7 @@ namespace ZeroVulkan
     class ZDescriptorPool
     {
     public:
-        ZDescriptorPool() {};
+        ZDescriptorPool() = default;
         ~ZDescriptorPool();
 
         VkDescriptorPool descriptorPool = nullptr;

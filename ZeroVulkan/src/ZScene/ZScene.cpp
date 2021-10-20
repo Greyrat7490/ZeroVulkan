@@ -26,7 +26,7 @@ namespace ZeroVulkan {
     
     ZScene::~ZScene() {
         objects.clear();
-        shaders.clear();
+        rects.clear();
 
         printf("Destroyed a ZScene\n");
     }
@@ -56,6 +56,14 @@ namespace ZeroVulkan {
         return objects.back();
     }
 
+
+    ZRect& ZScene::createRect(vec2 pos, float width, float height, vec4 color) {
+        rects.emplace_back(pos, width, height, color);
+        ZRenderer::record();
+        return rects.back();
+    }
+
+    
     void ZScene::updateProj() {
         vec2 ws = ZWindow::getSize();
         
@@ -89,8 +97,8 @@ namespace ZeroVulkan {
     }
     
     void ZScene::bind(VkCommandBuffer& cmdBuffer) {
-        for (ZShaderSet& shader : shaders)
-            shader.bind(cmdBuffer);
+        for (ZRect& rect : rects)
+            rect.bind(cmdBuffer);
         
         for (ZObject& obj : objects)
             obj.bind(cmdBuffer);

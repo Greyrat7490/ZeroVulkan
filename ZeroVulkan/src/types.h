@@ -595,15 +595,6 @@ namespace ZeroVulkan
 	typedef mat<float, 2, 2> mat2;
 
 
-	typedef struct ZRect
-	{
-		float left = 0.f;
-		float right = 0.f;
-		float top = 0.f;
-		float bottom = 0.f;
-	} ZRect;
-
-
 	// ostringstream caused compiler errors with const vec/mat
 	// ostringstream derives from ostream and ostream supports const vec/mat properly
 	// TODO: find out why exactly compiler errors
@@ -652,26 +643,6 @@ namespace ZeroVulkan
 		stream << m[3] << "\n}";
 		return stream;
 	}
-
-
-	inline std::ostringstream& operator<< (std::ostringstream& stream, const ZRect& r)
-	{
-		stream << "ZRect {";
-		stream << "\n\tleft:   " << r.left << ",";
-		stream << "\n\tright:  " << r.right << ",";
-		stream << "\n\ttop:    " << r.top << ",";
-		stream << "\n\tbottom: " << r.bottom << "\n}";
-		return stream;
-	}
-
-	inline std::ostringstream& operator<< (std::ostringstream& stream, const ZType& t)
-	{
-		stream << "ZType(" << (uint32_t)t << ")";
-		return stream;
-	}
-
-
-	
 
 
 	//TODO: cross for vec2 and vec4

@@ -2,3 +2,4 @@
 build/
 compile_commands.json
 Test/shader/compiled
+ZeroVulkan/shaders/compiled

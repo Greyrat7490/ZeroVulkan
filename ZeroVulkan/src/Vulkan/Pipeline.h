@@ -25,6 +25,7 @@ namespace ZeroVulkan
             printf("create pipelineLayout ERROR: %d\n", res);
     }
 
+    // TODO: merge all functions and parameterize
     inline void createGraphicsPipeline(VkPipeline& pipeline, VkPipelineLayout pipelineLayout, VkShaderModule shaderModuleVert, VkShaderModule shaderModuleFrag, ZVertexLayout* vertexLayout)
     {
         VkPipelineShaderStageCreateInfo shaderStageCreateInfoVert;
@@ -47,14 +48,14 @@ namespace ZeroVulkan
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { shaderStageCreateInfoVert, shaderStageCreateInfoFrag };
 
-        VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
+        VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
         vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.pNext = nullptr;
-        vertexInputStateCreateInfo.flags = 0;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        if (vertexLayout && !vertexLayout->vertexAttributeDesc.empty()) {
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+            vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
+            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
+            vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        }
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -199,11 +200,13 @@ namespace ZeroVulkan
 
         VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
         vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
-
+        if (vertexLayout && !vertexLayout->vertexAttributeDesc.empty()) {
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+            vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
+            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
+            vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        }
+        
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssemblyStateCreateInfo.pNext = nullptr;
@@ -355,10 +358,12 @@ namespace ZeroVulkan
 
         VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
         vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        if (vertexLayout && !vertexLayout->vertexAttributeDesc.empty()) {
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+            vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
+            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
+            vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        }
 
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -509,15 +514,15 @@ namespace ZeroVulkan
 
         VkPipelineShaderStageCreateInfo shaderStages[] = { shaderStageCreateInfoVert, shaderStageCreateInfoFrag };
 
-        VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
+        VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo = {};
         vertexInputStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputStateCreateInfo.pNext = nullptr;
-        vertexInputStateCreateInfo.flags = 0;
-        vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
-        vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
-        vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
-        vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
-
+        if (vertexLayout && !vertexLayout->vertexAttributeDesc.empty()) {
+            vertexInputStateCreateInfo.vertexBindingDescriptionCount = 1;
+            vertexInputStateCreateInfo.pVertexBindingDescriptions = vertexLayout->bindingDescritption;
+            vertexInputStateCreateInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexLayout->vertexAttributeDesc.size());
+            vertexInputStateCreateInfo.pVertexAttributeDescriptions = vertexLayout->vertexAttributeDesc.data();
+        }
+            
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo;
         inputAssemblyStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         inputAssemblyStateCreateInfo.pNext = nullptr;

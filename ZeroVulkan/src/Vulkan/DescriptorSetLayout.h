@@ -27,7 +27,7 @@ namespace ZeroVulkan
 
 		inline void addBinding(uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
 
-		inline void createLayout();
+		inline void create();
 
 		VkDescriptorSetLayout layout = nullptr;
 
@@ -52,7 +52,7 @@ namespace ZeroVulkan
 		m_bindings.emplace_back(LayoutBinding);
 	}
 
-	void ZDescriptorSetLayout::createLayout()
+	void ZDescriptorSetLayout::create()
 	{
 		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
