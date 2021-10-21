@@ -47,7 +47,6 @@ namespace ZeroVulkan {
 		source.m_buffer = nullptr;
 		source.m_memory = nullptr;
 		source.m_size = 0;
-		source.m_bufferInfo = nullptr;
 		source.m_dynamicAlignment = 0;
 
         puts("moved uniform");
@@ -68,7 +67,6 @@ namespace ZeroVulkan {
 		source.m_buffer = nullptr;
 		source.m_memory = nullptr;
 		source.m_size = 0;
-		source.m_bufferInfo = nullptr;
 		source.m_dynamicAlignment = 0;
         
         puts("moved uniform (=)");
@@ -102,10 +100,9 @@ namespace ZeroVulkan {
 				m_memory
 			);
 
-			m_bufferInfo = new VkDescriptorBufferInfo;
-			m_bufferInfo->offset = 0;
-			m_bufferInfo->range = m_size;
-			m_bufferInfo->buffer = m_buffer;
+			m_bufferInfo.offset = 0;
+			m_bufferInfo.range = m_size;
+			m_bufferInfo.buffer = m_buffer;
 		}
 		else
 		{
@@ -123,10 +120,9 @@ namespace ZeroVulkan {
 				m_memory
 			);
 
-			m_bufferInfo = new VkDescriptorBufferInfo;
-			m_bufferInfo->offset = 0;
-			m_bufferInfo->range = m_dynamicAlignment;
-			m_bufferInfo->buffer = m_buffer;
+			m_bufferInfo.offset = 0;
+			m_bufferInfo.range = m_dynamicAlignment;
+			m_bufferInfo.buffer = m_buffer;
 		}
 
 		vkMapMemory(ZDevice::getDevice(), m_memory, 0, m_size, 0, &m_mappedData);

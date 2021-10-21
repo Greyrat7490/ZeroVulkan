@@ -22,8 +22,9 @@ namespace ZeroVulkan
         ZUniform& operator=(ZUniform&& source);
 		~ZUniform();
 
-		inline VkDescriptorBufferInfo* getBufferInfo() const { return m_bufferInfo; }
-		inline VkDeviceMemory& getMemory() { return m_memory; }
+        // TODO: not really optimal
+		inline VkDescriptorBufferInfo* getBufferInfo() { return &m_bufferInfo; }
+		inline VkDeviceMemory getMemory() const { return m_memory; }
 		inline VkDeviceSize getBufferSize() const { return m_size; }
 		inline VkDeviceSize getDynamicAlignment() const { return m_dynamicAlignment; }
 	
@@ -43,7 +44,7 @@ namespace ZeroVulkan
 		VkBuffer m_buffer = nullptr;
 		VkDeviceMemory m_memory = nullptr;
 		VkDeviceSize m_size = 0;
-		VkDescriptorBufferInfo* m_bufferInfo = nullptr;
+		VkDescriptorBufferInfo m_bufferInfo;
 		VkDeviceSize m_dynamicAlignment = 0;
         
         std::vector<std::pair<size_t, size_t>> m_components;

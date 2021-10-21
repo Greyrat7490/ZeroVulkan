@@ -11,7 +11,7 @@
 
 namespace ZeroVulkan
 {
-    void trimFile(std::string& file) {        
+    void trimFile(std::string& file) {
         // because of windows style EOL(\n\r)
         size_t pos = file.find('\r');
         while (pos != file.npos) {
@@ -103,8 +103,8 @@ namespace ZeroVulkan
                 trimWord(bindingStr);
                 size_t binding = std::stoll(bindingStr);
                 
-                descSetLayout.addBinding(binding, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
                 uniforms.emplace_back();
+                descSetLayout.addBinding(binding, uniforms.back().getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
                 
                 printf("(binding = %zu) uniform\n", binding);
                 // ------------------------------------------
@@ -214,9 +214,6 @@ namespace ZeroVulkan
 
     ZShaderSet::~ZShaderSet()
     {
-        if (stencilBuffer)
-            delete stencilBuffer;
-
         if (ready) {
             vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
             vkDestroyPipelineLayout(ZDevice::getDevice(), pipelineLayout, nullptr);
@@ -230,7 +227,7 @@ namespace ZeroVulkan
 
     ZShaderSet::ZShaderSet(ZShaderSet&& source) {
         uniforms.swap(source.uniforms);
-        stencilBuffer = source.stencilBuffer;
+        // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
         pipelineLayout = source.pipelineLayout;
         descPool = source.descPool;
@@ -242,7 +239,7 @@ namespace ZeroVulkan
 
         ready = false;
 
-        source.stencilBuffer = nullptr;
+        // source.stencilBuffer = nullptr;
         source.pipeline = nullptr;
         source.pipelineLayout = nullptr;
         source.shaderModuleVert = nullptr;
@@ -253,7 +250,7 @@ namespace ZeroVulkan
 
     ZShaderSet& ZShaderSet::operator=(ZShaderSet&& source) {
         uniforms.swap(source.uniforms);
-        stencilBuffer = source.stencilBuffer;
+        // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
         pipelineLayout = source.pipelineLayout;
         descPool = source.descPool;
@@ -265,7 +262,7 @@ namespace ZeroVulkan
 
         ready = false;
 
-        source.stencilBuffer = nullptr;
+        // source.stencilBuffer = nullptr;
         source.pipeline = nullptr;
         source.pipelineLayout = nullptr;
         source.shaderModuleVert = nullptr;
@@ -282,61 +279,20 @@ namespace ZeroVulkan
         return uniforms[index];
     }       
 
-    void ZShaderSet::create(bool debug, bool triangleTopology)
+    void ZShaderSet::create(bool triangleTopology)
     {
-        if (debug)
-        {
-            stencilBuffer = new ZStencilBuffer();
-            descPool.addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
-            stencilBuffer->createDescSet(descPool.descriptorPool);
-            stencilBuffer->createPipelines(&vertexLayout, shaderModuleVert, shaderModuleFrag, &descSetLayout.layout, 1);
-        }
-
-
         if (!descSetLayout.getBindings().empty())
         {
             descSetLayout.create();
             descPool.addDescriptorLayout(&descSetLayout);
 
-            if (debug)
-                descPool.create(2);
-            else
-                descPool.create();
+            descPool.create();
 
-            descriptorSet.setLayout(&descSetLayout);
-
-            // TODO: move in setLayout
-            for (uint32_t i = 0; i < descSetLayout.getBindings().size(); i++)
-            {
-                switch(descSetLayout.getBindings()[i].descriptorType)
-                {
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                    descriptorSet.addDescriptorInfo(i, uniforms[i].getBufferInfo());
-                    break;
-                default:
-                    printf("DescriptorTyp is not yet supported\n");
-                    break;
-                }
-            }
-            // -----------------------
-
-            // TODO: move setLayout into create
-            descriptorSet.create(descPool.descriptorPool);
+            descriptorSet.create(&descSetLayout, descPool.descriptorPool);
             createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
         }
         else 
-        {
-            if (debug)
-            {
-                stencilBuffer = new ZStencilBuffer();
-                descPool.addDescriptorLayout(stencilBuffer->getOutlineDescSetLayout());
-                descPool.create();
-                createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
-            }
-            else 
-                createPipelineLayout(pipelineLayout, nullptr, 0);
-        }
+            createPipelineLayout(pipelineLayout, nullptr, 0);
 
 
         if(triangleTopology)
@@ -396,7 +352,7 @@ namespace ZeroVulkan
  
     void ZShaderSet::bind(VkCommandBuffer& cmdBuffer) {
         if (!ready)
-            create(false);
+            create();
             
         if (!descSetLayout.getBindings().empty())
             vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);

@@ -7,14 +7,16 @@ namespace ZeroVulkan
 {
 	ZStencilBuffer::ZStencilBuffer()
 	{
-		m_outlineDescLayout = new ZDescriptorSetLayout();
-		m_outlineDescLayout->addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-		m_outlineDescLayout->create();
 		createUniform();
+
+        m_outlineDescLayout = new ZDescriptorSetLayout();
+
+		m_outlineDescLayout->addBinding(0, m_uniform->getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+		m_outlineDescLayout->create();
 
 		createShaderModule(m_outlineVertPath, &m_outlineVertModule);
 		createShaderModule(m_outlineFragPath, &m_outlineFragModule);
-		
+
         printf("created ZStencilBuffer\n");
 	}
 

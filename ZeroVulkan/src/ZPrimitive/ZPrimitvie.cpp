@@ -25,14 +25,13 @@ namespace ZeroVulkan
         *uniform.getComponent<vec2>(1) = vec2(width, height);
         *uniform.getComponent<vec4>(2) = color;
 
-        descSetLayout.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+        descSetLayout.addBinding(0, uniform.getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
         descSetLayout.create();
+
         descPool.addDescriptorLayout(&descSetLayout);
         descPool.create();
- 
-        descriptorSet.setLayout(&descSetLayout);
-        descriptorSet.addDescriptorInfo(0, uniform.getBufferInfo());
-        descriptorSet.create(descPool.descriptorPool);
+
+        descriptorSet.create(&descSetLayout, descPool.descriptorPool);
         
         createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
         createGraphicsPipeline(

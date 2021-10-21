@@ -25,14 +25,14 @@ namespace ZeroVulkan
 
         ZUniform& getUniform(size_t index = 0);       
 
-        void create(bool debug, bool triangleTopology = true);
+        void create(bool triangleTopology = true);
 
         void setShader(const std::string& path, ZShaderType type);
 
         void bind(VkCommandBuffer& cmdBuffer);
     private:
         std::vector<ZUniform> uniforms;
-        ZStencilBuffer* stencilBuffer = nullptr;
+        // ZStencilBuffer* stencilBuffer = nullptr;
 
         VkPipeline pipeline = nullptr;
         VkPipelineLayout pipelineLayout = nullptr;

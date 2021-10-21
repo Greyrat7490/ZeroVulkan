@@ -37,7 +37,6 @@ void TestScene::start() {
 
     ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
 
-    //TODO: shader parser to automaticly add Locations, Bindings and UniformComponents
     ZShaderSet shaders("Test/shader/phong.vert", "Test/shader/phong.frag");
 
     ZObject& obj = createObject(shaders, mesh);
