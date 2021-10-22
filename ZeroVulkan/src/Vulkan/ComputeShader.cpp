@@ -43,6 +43,9 @@ namespace ZeroVulkan
 
     void ZComputeShader::create()
     {
+        // TODO parameterize
+        createShaderModule("Test/shader/compiled/particle.comp.spv", &shaderModule);
+        
         VkPipelineLayoutCreateInfo layoutCreateInfo = {};
         layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         layoutCreateInfo.pSetLayouts = &descriptorSetLayout->layout;
@@ -54,10 +57,22 @@ namespace ZeroVulkan
         if (res != VK_SUCCESS) 
             printf("create pipelineLayout ERROR: %d\n", res);
 
-        // TODO parameterize
-        createShaderModule("Test/shader/compiled/particle.comp.spv", &shaderModule);
+        VkPipelineShaderStageCreateInfo shaderStage = {};
+        shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shaderStage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+        shaderStage.module = shaderModule;
+        shaderStage.pName = "main";
 
-        createComputePipeline(pipeline, pipelineLayout, shaderModule);
+        VkComputePipelineCreateInfo pipelineCreateInfo = {};
+        pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+        pipelineCreateInfo.stage = shaderStage;
+        pipelineCreateInfo.layout = pipelineLayout;
+        pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+        pipelineCreateInfo.basePipelineIndex = -1;
+
+        res = vkCreateComputePipelines(ZDevice::getDevice(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline);
+        if (res != VK_SUCCESS)
+            printf("create computer pipline ERROR: %d\n", res); 
     }
 
     void ZComputeShader::buildCommandBuffer()

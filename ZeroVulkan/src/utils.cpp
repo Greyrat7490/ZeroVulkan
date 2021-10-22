@@ -1,14 +1,19 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <fstream>
 #include <filesystem>
 #include <limits.h>
 #include <string>
 #include <unistd.h>
+#include <random>
 
 namespace ZeroVulkan 
 {
+    static uint32_t seed = static_cast<uint32_t>(time(nullptr));
+    std::mt19937 gen(seed);
+    
     void zassert(bool condition, const char* msg, const char* file, const char* func) {
         if (!condition) {
             printf("ASSERT FAILED\n  file: %s\n  func: %s\n  msg: %s\n", file, func, msg);
@@ -90,22 +95,18 @@ namespace ZeroVulkan
     }
 
 
-    ZRandom::ZRandom()
-    {
-        m_seed = static_cast<uint32_t>(time(nullptr));
-        m_rndEngine.seed(m_seed);
-
-        printf("created ZRandom with seed: %d\n", m_seed);
+    float rndFloat() { return gen(); }
+    float rndFloat(float min, float max) {
+        std::uniform_real_distribution<float> dist(min, max);
+        return dist(gen);
     }
 
-    ZRandom::~ZRandom()
-    {
-        printf("destroyed ZRandom\n");
+    int rndInt() { return gen(); }
+    int rndInt(int min, int max) {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(gen);
     }
 
-    float ZRandom::rndFloatImpl(float min, float max)
-    {
-        std::uniform_real_distribution<float> rndDist(min, max);
-        return rndDist(m_rndEngine);
-    }
+    uint32_t getRndSeed() { return seed; }
+    void setRndSeed(uint32_t newSeed) { seed = newSeed; }
 }

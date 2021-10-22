@@ -1,7 +1,6 @@
 #ifndef H_TOOLS
 #define H_TOOLS
 #include <string>
-#include <random>
 
 #define ZASSERT_LINE(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __LINE__);
 #define ZASSERT_FUNC(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __PRETTY_FUNCTION__);
@@ -23,42 +22,14 @@ namespace ZeroVulkan
 
     std::string readFile(const std::string& filepath);
 
-    // TODO: no singleton
-    class ZRandom
-    {
-    public:
-        ZRandom(const ZRandom&) = delete;
+    float rndFloat(float min, float max);    
+    float rndFloat();
 
-        inline static ZRandom& get()
-        {
-            static ZRandom s_random;
-            return s_random;
-        }
-
-        inline static  float rndFloat( float min, float max )
-        {
-            return get().rndFloatImpl( min, max );
-        }
-
-        inline static void setSeed( uint32_t seed )
-        {
-            get().m_seed = seed;
-        }
-
-        static uint32_t getSeed()
-        {
-            return get().m_seed;
-        }
-
-    private:
-        ZRandom();
-        ~ZRandom();
-
-        float rndFloatImpl( float min, float max );
-
-        std::default_random_engine m_rndEngine;
-        uint32_t m_seed;
-    };
+    int rndInt(int min, int max);    
+    int rndInt();
+    
+    uint32_t getRndSeed();
+    void setRndSeed(uint32_t seed);
 }
 
 #endif // H_TOOLS
