@@ -33,14 +33,11 @@ namespace ZeroVulkan
 
         descriptorSet.create(&descSetLayout, descPool.descriptorPool);
         
-        createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
-        createGraphicsPipeline(
-            pipeline,
-            pipelineLayout,
-            shaderModuleVert,
-            shaderModuleFrag,
-            nullptr
-        );
+        pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
+        // TODO: move setLayout into create
+        pipeline.setLayout(&descSetLayout.layout, 1);
+        pipeline.setTopolgy(true);
+        pipeline.create();
     }
 
 
@@ -51,7 +48,6 @@ namespace ZeroVulkan
         m_height = source.m_height;
 
         pipeline = source.pipeline;
-        pipelineLayout = source.pipelineLayout;
 
         uniform = std::move(source.uniform);
         descPool = source.descPool;
@@ -71,7 +67,6 @@ namespace ZeroVulkan
         m_height = source.m_height;
 
         pipeline = source.pipeline;
-        pipelineLayout = source.pipelineLayout;
 
         uniform = std::move(source.uniform);
         descPool = source.descPool;
@@ -86,16 +81,12 @@ namespace ZeroVulkan
     }
     
     ZRect::~ZRect() {
-        vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
-        vkDestroyPipelineLayout(ZDevice::getDevice(), pipelineLayout, nullptr);
-
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
     }
     
     void ZRect::bind(VkCommandBuffer& cmdBuffer) {
-        vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
-        vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        pipeline.bind(cmdBuffer, &descriptorSet);
         vkCmdDraw(cmdBuffer, 6, 1, 0, 0);
     }
 }

@@ -43,7 +43,16 @@ namespace ZeroVulkan
 
     void ZComputeShader::create()
     {
-        createPipelineLayout(pipelineLayout, &descriptorSetLayout->layout, 1);
+        VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.pSetLayouts = &descriptorSetLayout->layout;
+        layoutCreateInfo.setLayoutCount = 1;
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+
+        VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &pipelineLayout);
+        if (res != VK_SUCCESS) 
+            printf("create pipelineLayout ERROR: %d\n", res);
 
         // TODO parameterize
         createShaderModule("Test/shader/compiled/particle.comp.spv", &shaderModule);

@@ -11,6 +11,7 @@ namespace ZeroVulkan
 	class ZDescriptorSetLayout;
 	class ZDescriptorPool;
 
+    // TODO: merge with ZShaderSet
 	class ZStencilBuffer
 	{
 	public:

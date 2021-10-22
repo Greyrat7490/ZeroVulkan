@@ -26,9 +26,7 @@ namespace ZeroVulkan
         float m_width;
         float m_height;
 
-
-        VkPipeline pipeline = nullptr;
-        VkPipelineLayout pipelineLayout = nullptr;
+        ZPipeline pipeline;
 
         ZUniform uniform;
         ZDescriptorPool descPool;

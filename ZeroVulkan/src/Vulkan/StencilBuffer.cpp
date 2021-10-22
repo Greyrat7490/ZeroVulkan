@@ -2,6 +2,8 @@
 #include "Pipeline.h"
 #include "Shader.h"
 #include "DescriptorSetLayout.h"
+#include <cstdint>
+#include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan
 {
@@ -38,6 +40,19 @@ namespace ZeroVulkan
 		printf("destroyed ZStencilBuffer\n");
 	}
 
+    void createPipelineLayout(VkPipelineLayout pipelineLayout, VkDescriptorSetLayout* descLayouts, uint32_t descCount) {
+        VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.pSetLayouts = descLayouts;
+        layoutCreateInfo.setLayoutCount = descCount;
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+
+        VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &pipelineLayout);
+        if (res != VK_SUCCESS) 
+            printf("create pipelineLayout ERROR: %d\n", res);
+    }
+    
 	void ZStencilBuffer::createPipelines(ZVertexLayout* vertexLayout, VkShaderModule& shaderModuleVert, VkShaderModule& shaderModuleFrag, VkDescriptorSetLayout* descLayouts, uint32_t layoutsCount)
 	{
 		createPipelineLayout(m_stencilLayout, descLayouts, layoutsCount);

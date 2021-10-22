@@ -34,8 +34,7 @@ namespace ZeroVulkan
         std::vector<ZUniform> uniforms;
         // ZStencilBuffer* stencilBuffer = nullptr;
 
-        VkPipeline pipeline = nullptr;
-        VkPipelineLayout pipelineLayout = nullptr;
+        ZPipeline pipeline;
 
         ZDescriptorPool descPool;
         ZDescriptorSetLayout descSetLayout;

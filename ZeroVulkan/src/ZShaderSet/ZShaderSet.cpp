@@ -215,8 +215,6 @@ namespace ZeroVulkan
     ZShaderSet::~ZShaderSet()
     {
         if (ready) {
-            vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
-            vkDestroyPipelineLayout(ZDevice::getDevice(), pipelineLayout, nullptr);
         }
 
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
@@ -229,7 +227,6 @@ namespace ZeroVulkan
         uniforms.swap(source.uniforms);
         // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
-        pipelineLayout = source.pipelineLayout;
         descPool = source.descPool;
         descSetLayout = source.descSetLayout;
         descriptorSet = source.descriptorSet;
@@ -240,8 +237,6 @@ namespace ZeroVulkan
         ready = false;
 
         // source.stencilBuffer = nullptr;
-        source.pipeline = nullptr;
-        source.pipelineLayout = nullptr;
         source.shaderModuleVert = nullptr;
         source.shaderModuleFrag = nullptr;
 
@@ -252,7 +247,6 @@ namespace ZeroVulkan
         uniforms.swap(source.uniforms);
         // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
-        pipelineLayout = source.pipelineLayout;
         descPool = source.descPool;
         descSetLayout = source.descSetLayout;
         descriptorSet = source.descriptorSet;
@@ -263,8 +257,6 @@ namespace ZeroVulkan
         ready = false;
 
         // source.stencilBuffer = nullptr;
-        source.pipeline = nullptr;
-        source.pipelineLayout = nullptr;
         source.shaderModuleVert = nullptr;
         source.shaderModuleFrag = nullptr;
 
@@ -281,6 +273,8 @@ namespace ZeroVulkan
 
     void ZShaderSet::create(bool triangleTopology)
     {
+        (void)triangleTopology;
+        
         if (!descSetLayout.getBindings().empty())
         {
             descSetLayout.create();
@@ -289,32 +283,16 @@ namespace ZeroVulkan
             descPool.create();
 
             descriptorSet.create(&descSetLayout, descPool.descriptorPool);
-            createPipelineLayout(pipelineLayout, &descSetLayout.layout, 1);
-        }
-        else 
-            createPipelineLayout(pipelineLayout, nullptr, 0);
-
-
-        if(triangleTopology)
-        {
-            createGraphicsPipeline(
-                pipeline,
-                pipelineLayout,
-                shaderModuleVert,
-                shaderModuleFrag,
-                &vertexLayout
-            );
+            pipeline.setLayout(&descSetLayout.layout, 1);
         }
         else
-        {
-            createParticleGraphicsPipeline(
-                pipeline,
-                pipelineLayout,
-                shaderModuleVert,
-                shaderModuleFrag,
-                &vertexLayout
-            );
-        }
+           // test if necessary
+            pipeline.setLayout(nullptr, 0);
+
+        pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
+        pipeline.setVertexLayout(&vertexLayout);
+        pipeline.setTopolgy(true);
+        pipeline.create();
         
         ready = true;
         puts("created shaders");
@@ -354,9 +332,9 @@ namespace ZeroVulkan
         if (!ready)
             create();
             
-        if (!descSetLayout.getBindings().empty())
-            vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSet.descSet, 0, 0);
-
-        vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        if (descSetLayout.getBindings().empty())
+            pipeline.bind(cmdBuffer, nullptr);
+        else
+            pipeline.bind(cmdBuffer, &descriptorSet);
     }
 }
