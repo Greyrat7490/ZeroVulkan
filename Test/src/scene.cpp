@@ -38,7 +38,8 @@ void TestScene::start() {
     ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
 
     ZShaderSet shaders("Test/shader/phong.vert", "Test/shader/phong.frag");
-
+    shaders.setTopology(ZTopology::LINE);
+    
     ZObject& obj = createObject(shaders, mesh);
 
     mat4* proj     = obj.getUniformComponent<mat4>(0);
@@ -55,11 +56,12 @@ void TestScene::start() {
     // if you just want to use the standard shader (phong shader)
     // you can simply use this:
     // createObject(mesh);
-    
+ 
 
-    createRect(vec2(0.5f, 0.5f), 0.25f, 0.25f, vec4(1.f, 0.f, 1.f, 1.f));
+    ZRect& rect = createRect(vec2(0.5f, 0.5f), 0.25f, 0.25f, vec4(1.f, 0.f, 1.f, 1.f));
+    rect.setTopology(ZTopology::LINE);
 }
-
+    
 void TestScene::update(float dt) { 
     (void)dt;
 }

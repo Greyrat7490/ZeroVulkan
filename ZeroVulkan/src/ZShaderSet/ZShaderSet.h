@@ -25,9 +25,10 @@ namespace ZeroVulkan
 
         ZUniform& getUniform(size_t index = 0);       
 
-        void create(bool triangleTopology = true);
+        void create();
 
         void setShader(const std::string& path, ZShaderType type);
+        inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
 
         void bind(VkCommandBuffer& cmdBuffer);
     private:

@@ -36,10 +36,8 @@ namespace ZeroVulkan
         pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
         // TODO: move setLayout into create
         pipeline.setLayout(&descSetLayout.layout, 1);
-        pipeline.setTopolgy(true);
         pipeline.create();
     }
-
 
     ZRect::ZRect(ZRect&& source) {
         m_color = source.m_color;

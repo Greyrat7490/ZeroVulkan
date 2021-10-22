@@ -45,6 +45,14 @@ namespace ZeroVulkan
         }
     }
     
+#define ZTOPOLOGY_COUNT 3
+    enum class ZTopology 
+        : uint32_t
+    {
+        TRIANGLE,
+        LINE,
+        POINT
+    };
 
 	template<typename T, short size>
 	struct vec

@@ -18,14 +18,17 @@ namespace ZeroVulkan
         void setLayout(const VkDescriptorSetLayout* descriptorLayouts, uint32_t descriptorLayoutCount);
         void setShaders(VkShaderModule shaderModuleVert, VkShaderModule shaderModuleFrag);
         void setVertexLayout(ZVertexLayout* vertexLayout);
-        void setTopolgy(bool triangle);
+        void setTopolgy(ZTopology topology);
         
         void create();
+        void recreate();
 
         // TODO: move descSet into pipeline
         void bind(VkCommandBuffer& cmdBuffer, ZDescriptorSet* descSet);
         
     private:
+        bool ready = false;
+        
         VkPipeline pipeline = nullptr;
         VkPipelineLayout layout = nullptr;
         

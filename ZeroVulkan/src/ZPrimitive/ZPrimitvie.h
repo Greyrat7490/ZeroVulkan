@@ -18,6 +18,7 @@ namespace ZeroVulkan
         ZRect& operator=(ZRect&& source);
          ~ZRect();
          
+        inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
          
         void bind(VkCommandBuffer& cmdBuffer);
     private:

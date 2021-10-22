@@ -214,9 +214,6 @@ namespace ZeroVulkan
 
     ZShaderSet::~ZShaderSet()
     {
-        if (ready) {
-        }
-
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
 
@@ -271,10 +268,8 @@ namespace ZeroVulkan
         return uniforms[index];
     }       
 
-    void ZShaderSet::create(bool triangleTopology)
+    void ZShaderSet::create()
     {
-        (void)triangleTopology;
-        
         if (!descSetLayout.getBindings().empty())
         {
             descSetLayout.create();
@@ -291,7 +286,6 @@ namespace ZeroVulkan
 
         pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
         pipeline.setVertexLayout(&vertexLayout);
-        pipeline.setTopolgy(true);
         pipeline.create();
         
         ready = true;
@@ -327,7 +321,7 @@ namespace ZeroVulkan
             break;
         }
     }
- 
+
     void ZShaderSet::bind(VkCommandBuffer& cmdBuffer) {
         if (!ready)
             create();

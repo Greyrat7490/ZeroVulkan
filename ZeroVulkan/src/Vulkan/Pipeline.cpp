@@ -1,4 +1,5 @@
 #include "Pipeline.h"
+#include "Window/window.h"
 
 namespace ZeroVulkan {
     ZPipeline::ZPipeline() {
@@ -69,42 +70,62 @@ namespace ZeroVulkan {
         }
     }
 
-    // TODO: topology type
-    void ZPipeline::setTopolgy(bool triangle) {
-        if (triangle)
-            inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        else {
-            inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-            rasterizationState.cullMode = VK_CULL_MODE_NONE;
+    void ZPipeline::setTopolgy(ZTopology topology) {
+        static_assert(ZTOPOLOGY_COUNT == 3, "exhaustive use of ZTopology (added cases to switch)");
+        
+        switch (topology) {
+            case ZTopology::TRIANGLE:
+                inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+                rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+                break;
+            case ZTopology::LINE:
+                inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+                rasterizationState.cullMode = VK_CULL_MODE_NONE;
+                break;
+            case ZTopology::POINT:
+                inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+                rasterizationState.cullMode = VK_CULL_MODE_NONE;
+                break;
+            default:
+                puts("unreachable");
+                exit(1);
         }
-        
-        // points, line
-        // rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_NONE;
-        
-        // triangle, outline 
-        // rasterizationStateCreateInfo.cullMode = VK_CULL_MODE_BACK_BIT;
+
+        if (ready)
+            recreate();
     }
     
     void ZPipeline::bind(VkCommandBuffer& cmdBuffer, ZDescriptorSet* descSet) {
+        if (!ready)
+            create();
+            
         if (layout && descSet)
             vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descSet->descSet, 0, 0);
 
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
+    
+    void ZPipeline::recreate() {
+        vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
+        create();
+    }
+
     void ZPipeline::create()
     {
+        vec2 winSize = ZWindow::getSize();
+        
         VkViewport viewport;
         viewport.x = 0.f;
         viewport.y = 0.f;
-        viewport.width = (float) 800;         // TODO parameterize
-        viewport.height = (float) 600;        // TODO parameterize
+        viewport.width = winSize[0];
+        viewport.height = winSize[1];
         viewport.minDepth = 0.f;
         viewport.maxDepth = 1.f;
 
         VkRect2D scissor;
         scissor.offset = { 0, 0 };
-        scissor.extent = { 800, 600 };          // TODO parameterize
+        scissor.extent = { (uint32_t) winSize[0], (uint32_t) winSize[1] };
 
         VkPipelineViewportStateCreateInfo viewportStateCreateInfo;
         viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -189,5 +210,7 @@ namespace ZeroVulkan {
         VkResult res = vkCreateGraphicsPipelines(ZDevice::getDevice(), VK_NULL_HANDLE, 1, &pipelineCreateInfo, nullptr, &pipeline);
         if (res != VK_SUCCESS)
             printf("create graphicsPiplines ERROR: %d\n", res);
+
+        ready = true;
     }
 }
