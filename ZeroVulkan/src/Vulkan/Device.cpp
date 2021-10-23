@@ -49,8 +49,8 @@ namespace ZeroVulkan
 		devQueueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		devQueueCreateInfo.pNext = nullptr;
 		devQueueCreateInfo.flags = 0;
-		devQueueCreateInfo.queueFamilyIndex = 0;    // choose proper index
-		devQueueCreateInfo.queueCount = 1;// check how many queues are avaible
+		devQueueCreateInfo.queueFamilyIndex = 0;    //TODO: choose proper index
+		devQueueCreateInfo.queueCount = 1;          //TODO: check how many queues are avaible
 		devQueueCreateInfo.pQueuePriorities = queuePriority;
 
 		VkPhysicalDeviceFeatures usedFeatures = {};
@@ -95,10 +95,15 @@ namespace ZeroVulkan
 
 	void ZDevice::createInstanceImpl()
 	{
-        // TODO: disable validationLayers in release
-		const char* validationLayers[1] = {
+#ifdef Z_DEBUG
+		const char* layerNames[1] = {
             "VK_LAYER_KHRONOS_validation"
 		};
+        const uint32_t layerCount = 1;
+#else
+		const char** layerNames = nullptr;
+        const uint32_t layerCount = 0;
+#endif
 
 		const char* KHRSurfaceExtension[2] = {
 			"VK_KHR_surface", "VK_KHR_xcb_surface"
@@ -106,21 +111,18 @@ namespace ZeroVulkan
 
 		VkApplicationInfo appInfo = {};
 
-		//discripes the type of the Struct ( because of a void* -> needs discription )
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "first App";
 		appInfo.applicationVersion = VK_MAKE_VERSION( 0, 0, 1 );
 		appInfo.pEngineName = "ZeroVulkan";
 		appInfo.engineVersion = VK_MAKE_VERSION( 0, 0, 1 );
-		//min. requirement of API-Version
 		appInfo.apiVersion = VK_API_VERSION_1_0;
 
 		VkInstanceCreateInfo instanceInfo = {};
 		instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		instanceInfo.pApplicationInfo = &appInfo;
-		//Layers are some steps you can put between proccess` (i.e. err-handling, profiling, ...)
-		instanceInfo.enabledLayerCount = 1;
-		instanceInfo.ppEnabledLayerNames = validationLayers;
+		instanceInfo.enabledLayerCount = layerCount;
+		instanceInfo.ppEnabledLayerNames = layerNames;
 		instanceInfo.enabledExtensionCount = 2;
 		instanceInfo.ppEnabledExtensionNames = KHRSurfaceExtension;
 

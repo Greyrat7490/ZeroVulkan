@@ -9,6 +9,7 @@
 
 namespace ZeroVulkan
 {
+    // TODO: no singleton
 	class ZDevice
 	{
 	public:
