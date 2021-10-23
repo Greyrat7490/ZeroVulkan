@@ -9,8 +9,8 @@ namespace ZeroVulkan
 {
 	union ZDescriptorInfo
 	{
-        VkDescriptorImageInfo* imageInfo;
-        VkDescriptorBufferInfo* bufferInfo;
+        const VkDescriptorImageInfo* imageInfo;
+        const VkDescriptorBufferInfo* bufferInfo;
 	};
 
 	class ZDescriptorSetLayout
@@ -22,8 +22,8 @@ namespace ZeroVulkan
 		inline const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const { return m_bindings; }
 		inline const std::vector<ZDescriptorInfo>& getDescInfos() const { return m_descInfos; }
 
-        inline void addBinding(uint32_t binding, VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
-        inline void addBinding(uint32_t binding, VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
+        inline void addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
+        inline void addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
 
 		inline void create();
 
@@ -39,7 +39,7 @@ namespace ZeroVulkan
 		vkDestroyDescriptorSetLayout(ZDevice::getDevice(), layout, nullptr);
 	}
 
-	void ZDescriptorSetLayout::addBinding(uint32_t binding, VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
+	void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
 	{
 		VkDescriptorSetLayoutBinding layoutBinding = {};
 		layoutBinding.binding = binding;
@@ -55,7 +55,7 @@ namespace ZeroVulkan
         m_descInfos.push_back(info);
 	}
 
-	void ZDescriptorSetLayout::addBinding(uint32_t binding, VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
+	void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
 	{
 		VkDescriptorSetLayoutBinding layoutBinding = {};
 		layoutBinding.binding = binding;

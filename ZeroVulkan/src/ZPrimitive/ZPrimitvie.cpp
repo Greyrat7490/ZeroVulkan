@@ -25,18 +25,14 @@ namespace ZeroVulkan
         *uniform.getComponent<vec2>(1) = vec2(width, height);
         *uniform.getComponent<vec4>(2) = color;
 
-        descSetLayout.addBinding(0, uniform.getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
-        descSetLayout.create();
+        pipeline.addBinding(0, uniform.getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
 
-        descPool.addDescriptorLayout(&descSetLayout);
+        descPool.addDescriptorLayout(pipeline.getDescLayout());
         descPool.create();
 
-        descriptorSet.create(&descSetLayout, descPool.descriptorPool);
-        
         pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
-        // TODO: move setLayout into create
-        pipeline.setLayout(&descSetLayout.layout, 1);
         pipeline.create();
+        pipeline.createDescSet(descPool);
     }
 
     ZRect::ZRect(ZRect&& source) {
@@ -49,8 +45,6 @@ namespace ZeroVulkan
 
         uniform = std::move(source.uniform);
         descPool = source.descPool;
-        descSetLayout = source.descSetLayout;
-        descriptorSet = source.descriptorSet;
 
         shaderModuleVert = source.shaderModuleVert;
         shaderModuleFrag = source.shaderModuleFrag;
@@ -68,8 +62,6 @@ namespace ZeroVulkan
 
         uniform = std::move(source.uniform);
         descPool = source.descPool;
-        descSetLayout = source.descSetLayout;
-        descriptorSet = source.descriptorSet;
 
         shaderModuleVert = source.shaderModuleVert;
         shaderModuleFrag = source.shaderModuleFrag;
@@ -84,7 +76,7 @@ namespace ZeroVulkan
     }
     
     void ZRect::bind(VkCommandBuffer& cmdBuffer) {
-        pipeline.bind(cmdBuffer, &descriptorSet);
+        pipeline.bind(cmdBuffer);
         vkCmdDraw(cmdBuffer, 6, 1, 0, 0);
     }
 }

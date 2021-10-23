@@ -31,8 +31,6 @@ namespace ZeroVulkan
 
         ZUniform uniform;
         ZDescriptorPool descPool;
-        ZDescriptorSetLayout descSetLayout;
-        ZDescriptorSet descriptorSet;
 
         VkShaderModule shaderModuleVert = nullptr;
         VkShaderModule shaderModuleFrag = nullptr;

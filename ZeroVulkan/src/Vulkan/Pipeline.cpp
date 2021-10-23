@@ -27,18 +27,22 @@ namespace ZeroVulkan {
         vkDestroyPipelineLayout(ZDevice::getDevice(), layout, nullptr);
     }
     
-    void ZPipeline::setLayout(const VkDescriptorSetLayout* descriptorLayouts, uint32_t descriptorLayoutCount)
+    void ZPipeline::setLayout()
     {
-        VkPipelineLayoutCreateInfo layoutCreateInfo = {};
-        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        layoutCreateInfo.pSetLayouts = descriptorLayouts;
-        layoutCreateInfo.setLayoutCount = descriptorLayoutCount;
-        layoutCreateInfo.pushConstantRangeCount = 0;
-        layoutCreateInfo.pPushConstantRanges = nullptr;
+        if (!descSetLayout.getBindings().empty()) {
+            descSetLayout.create();
+            
+            VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+            layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+            layoutCreateInfo.pSetLayouts = &descSetLayout.layout;
+            layoutCreateInfo.setLayoutCount = 1;
+            layoutCreateInfo.pushConstantRangeCount = 0;
+            layoutCreateInfo.pPushConstantRanges = nullptr;
 
-        VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &layout);
-        if (res != VK_SUCCESS) 
-            printf("create pipelineLayout ERROR: %d\n", res);
+            VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &layout);
+            if (res != VK_SUCCESS) 
+                printf("create pipelineLayout ERROR: %d\n", res);
+        }
     }
 
     void ZPipeline::setShaders(VkShaderModule shaderModuleVert, VkShaderModule shaderModuleFrag) {
@@ -95,16 +99,24 @@ namespace ZeroVulkan {
             recreate();
     }
     
-    void ZPipeline::bind(VkCommandBuffer& cmdBuffer, ZDescriptorSet* descSet) {
+    void ZPipeline::bind(VkCommandBuffer& cmdBuffer) {
         if (!ready)
             create();
             
-        if (layout && descSet)
-            vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descSet->descSet, 0, 0);
+        if (layout && descriptorSet.descSet)
+            vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSet.descSet, 0, 0);
 
         vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
+    void ZPipeline::addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags) {
+        descSetLayout.addBinding(binding, bufferInfo, descriptorType, stageFlags);
+    }
+
+    void ZPipeline::addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags) {
+        descSetLayout.addBinding(binding, imageInfo, descriptorType, stageFlags);
+    }
+    
     
     void ZPipeline::recreate() {
         vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
@@ -113,6 +125,8 @@ namespace ZeroVulkan {
 
     void ZPipeline::create()
     {
+        setLayout();
+        
         vec2 winSize = ZWindow::getSize();
         
         VkViewport viewport;
@@ -212,5 +226,9 @@ namespace ZeroVulkan {
             printf("create graphicsPiplines ERROR: %d\n", res);
 
         ready = true;
+    }
+
+    void ZPipeline::createDescSet(ZDescriptorPool& pool) {
+        descriptorSet.create(&descSetLayout, pool.descriptorPool);
     }
 }

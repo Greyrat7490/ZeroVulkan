@@ -104,7 +104,7 @@ namespace ZeroVulkan
                 size_t binding = std::stoll(bindingStr);
                 
                 uniforms.emplace_back();
-                descSetLayout.addBinding(binding, uniforms.back().getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
+                pipeline.addBinding(binding, uniforms.back().getBufferInfo(), VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT);
                 
                 printf("(binding = %zu) uniform\n", binding);
                 // ------------------------------------------
@@ -225,8 +225,6 @@ namespace ZeroVulkan
         // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
         descPool = source.descPool;
-        descSetLayout = source.descSetLayout;
-        descriptorSet = source.descriptorSet;
         vertexLayout = source.vertexLayout;
         shaderModuleVert = source.shaderModuleVert;
         shaderModuleFrag = source.shaderModuleFrag;
@@ -245,8 +243,6 @@ namespace ZeroVulkan
         // stencilBuffer = source.stencilBuffer;
         pipeline = source.pipeline;
         descPool = source.descPool;
-        descSetLayout = source.descSetLayout;
-        descriptorSet = source.descriptorSet;
         vertexLayout = source.vertexLayout;
         shaderModuleVert = source.shaderModuleVert;
         shaderModuleFrag = source.shaderModuleFrag;
@@ -270,23 +266,13 @@ namespace ZeroVulkan
 
     void ZShaderSet::create()
     {
-        if (!descSetLayout.getBindings().empty())
-        {
-            descSetLayout.create();
-            descPool.addDescriptorLayout(&descSetLayout);
-
-            descPool.create();
-
-            descriptorSet.create(&descSetLayout, descPool.descriptorPool);
-            pipeline.setLayout(&descSetLayout.layout, 1);
-        }
-        else
-           // test if necessary
-            pipeline.setLayout(nullptr, 0);
+        descPool.addDescriptorLayout(pipeline.getDescLayout());
+        descPool.create();
 
         pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
         pipeline.setVertexLayout(&vertexLayout);
         pipeline.create();
+        pipeline.createDescSet(descPool);
         
         ready = true;
         puts("created shaders");
@@ -326,9 +312,6 @@ namespace ZeroVulkan
         if (!ready)
             create();
             
-        if (descSetLayout.getBindings().empty())
-            pipeline.bind(cmdBuffer, nullptr);
-        else
-            pipeline.bind(cmdBuffer, &descriptorSet);
+        pipeline.bind(cmdBuffer);
     }
 }

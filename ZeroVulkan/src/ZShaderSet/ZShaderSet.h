@@ -38,8 +38,6 @@ namespace ZeroVulkan
         ZPipeline pipeline;
 
         ZDescriptorPool descPool;
-        ZDescriptorSetLayout descSetLayout;
-        ZDescriptorSet descriptorSet;
 
         ZVertexLayout vertexLayout;
 

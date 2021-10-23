@@ -22,8 +22,7 @@ namespace ZeroVulkan
         ZUniform& operator=(ZUniform&& source);
 		~ZUniform();
 
-        // TODO: not really optimal
-		inline VkDescriptorBufferInfo* getBufferInfo() { return &m_bufferInfo; }
+        inline const VkDescriptorBufferInfo* getBufferInfo() { return &m_bufferInfo; }
 		inline VkDeviceMemory getMemory() const { return m_memory; }
 		inline VkDeviceSize getBufferSize() const { return m_size; }
 		inline VkDeviceSize getDynamicAlignment() const { return m_dynamicAlignment; }
