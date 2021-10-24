@@ -1,5 +1,6 @@
 #include "Pipeline.h"
 #include "Window/window.h"
+#include "RenderPass.h"
 
 namespace ZeroVulkan {
     ZPipeline::ZPipeline() {
@@ -216,7 +217,7 @@ namespace ZeroVulkan {
         pipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
         pipelineCreateInfo.pDynamicState = &pipelineDynamicStateCreateInfo;
         pipelineCreateInfo.layout = layout;
-        pipelineCreateInfo.renderPass = ZDevice::getRenderPass();
+        pipelineCreateInfo.renderPass = *RenderPass::getRenderPass();
         pipelineCreateInfo.subpass = 0;
         pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineCreateInfo.basePipelineIndex = -1;

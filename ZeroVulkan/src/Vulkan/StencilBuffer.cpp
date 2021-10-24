@@ -2,8 +2,7 @@
 #include "Pipeline.h"
 #include "Shader.h"
 #include "DescriptorSetLayout.h"
-#include <cstdint>
-#include <vulkan/vulkan_core.h>
+#include "RenderPass.h"
 
 namespace ZeroVulkan
 {
@@ -189,7 +188,7 @@ namespace ZeroVulkan
 		pipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
 		pipelineCreateInfo.pDynamicState = &pipelineDynamicStateCreateInfo;
 		pipelineCreateInfo.layout = m_stencilLayout;
-		pipelineCreateInfo.renderPass = ZDevice::getRenderPass();
+		pipelineCreateInfo.renderPass = *RenderPass::getRenderPass();
 		pipelineCreateInfo.subpass = 0;
 		pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
 		pipelineCreateInfo.basePipelineIndex = -1;

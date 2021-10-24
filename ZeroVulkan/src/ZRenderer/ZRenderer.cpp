@@ -1,13 +1,15 @@
 #include <cstdint>
 #include <ctime>
 #include <vector>
+#include <vulkan/vulkan_core.h>
+#include "Vulkan/Swapchain.h"
 #include "Window/window.h"
 #include "ZRenderer.h"
 
 namespace ZeroVulkan::ZRenderer {
     VkViewport viewport;
     VkRect2D scissor;
-
+    
     vec2 winSize;
     clock_t lastResize;
     bool resized = true;
@@ -78,7 +80,7 @@ namespace ZeroVulkan::ZRenderer {
         VkRenderPassBeginInfo renderPassBeginInfo;
         renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassBeginInfo.pNext = nullptr;
-        renderPassBeginInfo.renderPass = ZDevice::getRenderPass();
+        renderPassBeginInfo.renderPass = *RenderPass::getRenderPass();
         renderPassBeginInfo.renderArea.offset = { 0, 0 };
         renderPassBeginInfo.renderArea.extent = { (uint32_t)winSize[0], (uint32_t)winSize[1] };
         renderPassBeginInfo.clearValueCount = 2;
@@ -97,7 +99,7 @@ namespace ZeroVulkan::ZRenderer {
         int i = 0;
         for (VkCommandBuffer cmdBuffer : ZDevice::getCommandPool()->getBuffers())
         {
-            renderPassBeginInfo.framebuffer = ZDevice::getSwapchainFramebuffers()[i++];
+            renderPassBeginInfo.framebuffer = Swapchain::getSwapchainFramebuffers()[i++];
             
             VkResult res = vkBeginCommandBuffer(cmdBuffer, &commandBufferBeginInfo);
             if (res != VK_SUCCESS)
@@ -122,53 +124,29 @@ namespace ZeroVulkan::ZRenderer {
     void initRenderer() {
         updateWinSize();
         
-        createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());
-        checkSurfaceSupport();
-        createSwapchain(winSize[0], winSize[1]);
-        createRenderPass();
-        createSwapchainImgViews();
-        initDepthBuffering();
-        createFramebuffers(ZDevice::getSwapchainExtent().width, ZDevice::getSwapchainExtent().height);
-        ZDevice::createCommandPool();
-        ZDevice::getCommandPool()->createCommandBuffers(static_cast<uint32_t>(ZDevice::getSwapchainImages().size()));
+        ZDevice::init();
+        Surface::createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());
+        Surface::checkSurfaceSupport();
+        Swapchain::create(winSize[0], winSize[1]);
+        ZDevice::getCommandPool()->createCommandBuffers(static_cast<uint32_t>(Swapchain::getSwapchainImages().size()));
         createSampler();
-        createSyncObjects(ZDevice::MAX_FRAMES_IN_FLIGHT);   
+        // SyncObjects::create(ZDevice::MAX_FRAMES_IN_FLIGHT);
+        SyncObjects::create(0);
     }
 
-    void refreshSwapchain()
+    void refresh()
     {
         vkDeviceWaitIdle(ZDevice::getDevice());
 
-        vkFreeCommandBuffers(ZDevice::getDevice(), ZDevice::getCommandPool()->getPool(), (uint32_t)ZDevice::getCommandPool()->getBuffers().size(), ZDevice::getCommandPool()->getBuffers().data());
-
-        for (uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
-            vkDestroyFramebuffer(ZDevice::getDevice(), ZDevice::getSwapchainFramebuffers()[i], nullptr);
-
-        vkDestroyImageView(ZDevice::getDevice(), ZDevice::getDepthImageView(), nullptr);
-        vkDestroyImage(ZDevice::getDevice(), ZDevice::getDepthImage(), nullptr);
-        vkFreeMemory(ZDevice::getDevice(), ZDevice::getDepthImageMemory(), nullptr);
-
-        vkDestroyRenderPass(ZDevice::getDevice(), ZDevice::getRenderPass(), nullptr);
-
-        for (uint32_t i = 0; i < ZDevice::getSwapchainImageViews().size(); i++)
-            vkDestroyImageView(ZDevice::getDevice(), ZDevice::getSwapchainImageViews()[i], nullptr);
-
-        VkSwapchainKHR oldSwapchain = ZDevice::getSwapchain();
-
-
         updateWinSize();
         ZScene::current().updateProj();
+        
+        vkFreeCommandBuffers(ZDevice::getDevice(), ZDevice::getCommandPool()->getPool(), (uint32_t)ZDevice::getCommandPool()->getBuffers().size(), ZDevice::getCommandPool()->getBuffers().data());
 
-        createSwapchain(winSize[0], winSize[1]);
-        createSwapchainImgViews();
-        createRenderPass();
-        initDepthBuffering();
-        VkExtent2D& extent = ZDevice::getSwapchainExtent();
-        createFramebuffers(extent.width, extent.height);
-        ZDevice::getCommandPool()->createCommandBuffers((uint32_t) ZDevice::getSwapchainImages().size());
+        Swapchain::refresh();
+
+        ZDevice::getCommandPool()->createCommandBuffers((uint32_t) Swapchain::getSwapchainImages().size());
         record();
-
-        vkDestroySwapchainKHR(ZDevice::getDevice(), oldSwapchain, nullptr);
     }
 
     void resizing() {
@@ -185,14 +163,14 @@ namespace ZeroVulkan::ZRenderer {
             // only refresh swapchain if the window was not resized for 200ms
             // otherwise would cause serious stuttering and even temporarily freezing of your system
             if ( ( (float)(clock() - lastResize) / CLOCKS_PER_SEC ) >= 0.2f ) {
-                refreshSwapchain();
+                refresh();
                 resized = true;
             }
             
             return;
         }
 
-        res = vkAcquireNextImageKHR(ZDevice::getDevice(), ZDevice::getSwapchain(), UINT64_MAX, ZDevice::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
+        res = vkAcquireNextImageKHR(ZDevice::getDevice(), Swapchain::getSwapchain(), UINT64_MAX, *SyncObjects::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
 
         // resize errors should be handled at the beginning, so this should catch rather all kinds of errors
         if (res != VK_SUCCESS) {
@@ -201,7 +179,7 @@ namespace ZeroVulkan::ZRenderer {
                 printf("\n\nWARNING: still resize error (TODO: find out why)\n\n");
                 
             printf("AcquireNextImage ERROR: %d\n", res);
-            refreshSwapchain();
+            refresh();
             return;
         }
                 
@@ -211,12 +189,12 @@ namespace ZeroVulkan::ZRenderer {
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.pNext = nullptr;
         submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = &ZDevice::getSemaphoreImgAvailable();
+        submitInfo.pWaitSemaphores = SyncObjects::getSemaphoreImgAvailable();
         submitInfo.pWaitDstStageMask = waitStageMask;
         submitInfo.commandBufferCount = 1; //watch later 
         submitInfo.pCommandBuffers = &ZDevice::getCommandPool()->getBuffers()[imgIndex];
         submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = &ZDevice::getSemaphoreRenderingDone();
+        submitInfo.pSignalSemaphores = SyncObjects::getSemaphoreRenderingDone();
 
         res = vkQueueSubmit(ZDevice::getQueue(), 1, &submitInfo, VK_NULL_HANDLE);
         if (res != VK_SUCCESS)
@@ -225,9 +203,9 @@ namespace ZeroVulkan::ZRenderer {
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = &ZDevice::getSemaphoreRenderingDone();
+        presentInfo.pWaitSemaphores = SyncObjects::getSemaphoreRenderingDone();
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &ZDevice::getSwapchain();
+        presentInfo.pSwapchains = &Swapchain::getSwapchain();
         presentInfo.pImageIndices = &imgIndex;
 
         if (vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)
@@ -240,7 +218,7 @@ namespace ZeroVulkan::ZRenderer {
         if (res != VK_SUCCESS)
             printf("Queue wait idle ERROR: %d\n", res);
         
-        ZDevice::getCurFrame() = (ZDevice::getCurFrame() + 1) % ZDevice::MAX_FRAMES_IN_FLIGHT;
+        Swapchain::nextFrame();
     }
 
     void updateWinSize() {

@@ -57,6 +57,7 @@ namespace ZeroVulkan
 
     ZCommandPool::ZCommandPool()
     {
+        // TODO: one command pool per queueFamily?
         VkCommandPoolCreateInfo commandPoolCreateInfo;
         commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         commandPoolCreateInfo.pNext = nullptr;

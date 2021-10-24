@@ -1,47 +1,59 @@
 #include "Device.h"
+#include "SyncObjects.h"
+#include "Surface.h"
+#include "Swapchain.h"
 
-namespace ZeroVulkan
-{
-	struct ZDevice::QueueFamilyIndices ZDevice::queueFamilyIndices;
+namespace ZeroVulkan::ZDevice {
+    // -------------------
+    // Device
+    // -------------------
+    VkDevice m_dev = nullptr;
+    VkInstance m_instance = nullptr;
+    VkPhysicalDevice* m_physicalDevices = nullptr;
+    VkQueue m_queue = nullptr;
+    // -------------------
 
-    void ZDevice::clearImpl() {
+    ZCommandPool* m_commandPool = nullptr; //default commandPool ( used for graphics queue )
+    VkSampler m_sampler = nullptr;
+
+    // -------------------
+    // Device
+    // -------------------
+    VkDevice getDevice() { return m_dev; }
+    VkInstance getInstance() { return m_instance; }
+    VkPhysicalDevice* getPhysicalDev() { return m_physicalDevices; }
+    VkQueue& getQueue() { return m_queue; }
+    // -------------------
+
+
+    VkSampler& getSampler() { return m_sampler; }
+    ZCommandPool* getCommandPool() { return m_commandPool; }
+    
+    void clear() {
 		vkDeviceWaitIdle(m_dev);
-        
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-			vkDestroyFence(m_dev, m_inFlightFences[i], nullptr);
+ 
+        SyncObjects::clear();
 
-		vkDestroySemaphore(m_dev, m_semaphoreImgAvailable, nullptr);
-		vkDestroySemaphore(m_dev, m_semaphoreRenderingDone, nullptr);
-
-		delete getCommandPool();
-
-		for (uint32_t i = 0; i < m_swapchainImageViews.size(); i++ )
-			vkDestroyFramebuffer(m_dev, m_swapchainFramebuffers[i], nullptr);
-
-		vkDestroyImageView(m_dev, m_depthImageView, nullptr);
-		vkDestroyImage(m_dev, m_depthImage, nullptr);
-		vkFreeMemory(m_dev, m_depthImageMemory, nullptr);
-
-		vkDestroyRenderPass(m_dev, m_renderPass, nullptr);
+		delete m_commandPool;
 
 		vkDestroySampler(m_dev, m_sampler, nullptr);
 
-		for (uint32_t i = 0; i < m_swapchainImageViews.size(); i++)
-			vkDestroyImageView(m_dev, m_swapchainImageViews[i], nullptr);
-
-		vkDestroySwapchainKHR(m_dev, m_swapchain, nullptr);
-		vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
+        Swapchain::clear();
+        Surface::clear();
+        
 		vkDestroyDevice(m_dev, nullptr);
-
 		vkDestroyInstance(m_instance, nullptr);
 
 		delete[] m_physicalDevices;
     }
+
+    void createInstance();
+    void getPhysicalDevices();
     
-	ZDevice::ZDevice()
+	void init()
 	{
-		createInstanceImpl();
-		getPhysicalDevicesImpl();
+		createInstance();
+		getPhysicalDevices();
 
 		float queuePriority[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
@@ -82,9 +94,11 @@ namespace ZeroVulkan
 		vkGetDeviceQueue(m_dev, 0, 0, &m_queue);
 
 		printf("created ZDevice\n");
+
+        m_commandPool = new ZCommandPool();
 	}
 
-	void ZDevice::getPhysicalDevicesImpl()
+	void getPhysicalDevices()
 	{
 		uint32_t devCount;
 		vkEnumeratePhysicalDevices(m_instance, &devCount, nullptr);
@@ -93,7 +107,7 @@ namespace ZeroVulkan
 		vkEnumeratePhysicalDevices(m_instance, &devCount, m_physicalDevices);
 	}
 
-	void ZDevice::createInstanceImpl()
+	void createInstance()
 	{
 #ifdef Z_DEBUG
 		const char* layerNames[1] = {
@@ -129,10 +143,5 @@ namespace ZeroVulkan
 		VkResult res = vkCreateInstance(&instanceInfo, nullptr, &m_instance);
         if (res != VK_SUCCESS )
             printf("create instance ERROR: %d\n", res);
-	}
-
-	void ZDevice::createCommandPoolImpl()
-	{
-		m_commandPool = new ZCommandPool();
 	}
 }

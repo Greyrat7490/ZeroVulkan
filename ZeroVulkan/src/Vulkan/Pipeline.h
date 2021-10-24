@@ -4,7 +4,6 @@
 #include "Device.h"
 #include "Shader.h"
 #include "Vertex.h"
-#include "RenderPass.h"
 #include "DescriptorSetLayout.h"
 #include "DescriptorSet.h"
 #include "DescriptorPool.h"

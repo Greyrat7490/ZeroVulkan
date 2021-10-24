@@ -14,11 +14,11 @@ namespace ZeroVulkan
         ~ZCommandPool();
 
         inline VkCommandPool& getPool() { return m_commandPool; }
-        inline std::vector<VkCommandBuffer>& getBuffers() { return m_commandBuffers; }
+        inline const std::vector<VkCommandBuffer>& getBuffers() const { return m_commandBuffers; }
     
         VkCommandBuffer beginCommand();
-        void endCommand( VkQueue queue, VkCommandBuffer commandBuffer );
-        void createCommandBuffers( uint32_t bufferCount );
+        void endCommand(VkQueue queue, VkCommandBuffer commandBuffer);
+        void createCommandBuffers(uint32_t bufferCount);
     private:
         VkCommandPool m_commandPool = nullptr;
         std::vector<VkCommandBuffer> m_commandBuffers;
