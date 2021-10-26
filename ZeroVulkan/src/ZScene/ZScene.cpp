@@ -27,6 +27,7 @@ namespace ZeroVulkan {
     ZScene::~ZScene() {
         objects.clear();
         rects.clear();
+        shaders.clear();
 
         printf("Destroyed a ZScene\n");
     }
@@ -61,6 +62,13 @@ namespace ZeroVulkan {
         rects.emplace_back(pos, width, height, color);
         ZRenderer::record();
         return rects.back();
+    }
+
+
+    ZShaderSet& ZScene::createShaderSet(const std::string& vertShaderPath, const std::string& fragShaderPath) {
+        shaders.emplace_back(vertShaderPath, fragShaderPath);
+        ZRenderer::record();
+        return shaders.back();
     }
 
     
@@ -102,5 +110,19 @@ namespace ZeroVulkan {
         
         for (ZObject& obj : objects)
             obj.bind(cmdBuffer);
+
+        for (ZShaderSet& shader : shaders)
+            shader.bind(cmdBuffer);
+    }
+
+
+    void ZScene::buildComputeShaders() {
+        for (ZShaderSet& shader : shaders)
+            shader.buildComputeShader();
+    }
+
+    void ZScene::submitComputeShaders() {
+        for (ZShaderSet& shader : shaders)
+            shader.submitComputeShader();
     }
 }

@@ -7,6 +7,7 @@
 #include "Vulkan/Vertex.h"
 #include "Vulkan/Pipeline.h"
 #include "Vulkan/StencilBuffer.h"
+#include "Vulkan/ComputeShader.h"
 #include "Vulkan/DescriptorSet.h"
 #include "Vulkan/DescriptorPool.h"
 #include "Vulkan/DescriptorSetLayout.h"
@@ -27,13 +28,17 @@ namespace ZeroVulkan
 
         void create();
 
+        void setComputeShader(ZComputeShader* computeShader);
         void setShader(const std::string& path, ZShaderType type);
         inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
 
         void bind(VkCommandBuffer& cmdBuffer);
+        void buildComputeShader();
+        void submitComputeShader();
     private:
         std::vector<ZUniform> uniforms;
         // ZStencilBuffer* stencilBuffer = nullptr;
+        ZComputeShader* m_computeShader = nullptr;
 
         ZPipeline pipeline;
 

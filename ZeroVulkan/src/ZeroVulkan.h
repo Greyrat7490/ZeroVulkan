@@ -5,7 +5,9 @@
 #include "ZObject/ZObject.h"
 #include "ZMesh/ZMesh.h"
 #include "ZShaderSet/ZShaderSet.h"
+#include "Vulkan/ComputeShader.h"
 #include "ZScene/ZScene.h"
+#include "utils.h"
 
 namespace ZeroVulkan {
     class ZProject {

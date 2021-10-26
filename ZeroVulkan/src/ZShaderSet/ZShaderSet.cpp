@@ -4,8 +4,10 @@
 #include <string>
 #include <vulkan/vulkan_core.h>
 #include "Vulkan/ComputeShader.h"
+#include "Vulkan/Device.h"
 #include "Vulkan/Shader.h"
 #include "Vulkan/Uniform.h"
+#include "ZRenderer/ZRenderer.h"
 #include "ZShaderSet.h"
 #include "utils.h"
 
@@ -198,12 +200,10 @@ namespace ZeroVulkan
     
     ZShaderSet::ZShaderSet(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
     {
-        printf("vertexShader: %s\n", vertexShaderPath.c_str());
         std::string absPath = pathToAbsolue(vertexShaderPath); 
         createShaderModule(absPath, &shaderModuleVert);
         parseVertShader(absPath);
         
-        printf("fragmentShader: %s\n", fragmentShaderPath.c_str());
         absPath = pathToAbsolue(fragmentShaderPath); 
         createShaderModule(absPath, &shaderModuleFrag);
         parseFragShader(absPath);
@@ -214,15 +214,27 @@ namespace ZeroVulkan
 
     ZShaderSet::~ZShaderSet()
     {
+        if (m_computeShader)
+            delete m_computeShader;
+            
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
 
+        uniforms.clear();
+        
         printf("destroyed ZShaders\n");
+    }
+
+
+    void ZShaderSet::setComputeShader(ZComputeShader* computeShader) {
+        m_computeShader = computeShader; 
+        ZRenderer::record();
     }
 
     ZShaderSet::ZShaderSet(ZShaderSet&& source) {
         uniforms.swap(source.uniforms);
         // stencilBuffer = source.stencilBuffer;
+        m_computeShader = source.m_computeShader;
         pipeline = source.pipeline;
         descPool = source.descPool;
         vertexLayout = source.vertexLayout;
@@ -232,6 +244,7 @@ namespace ZeroVulkan
         ready = false;
 
         // source.stencilBuffer = nullptr;
+        source.m_computeShader = nullptr;
         source.shaderModuleVert = nullptr;
         source.shaderModuleFrag = nullptr;
 
@@ -241,6 +254,7 @@ namespace ZeroVulkan
     ZShaderSet& ZShaderSet::operator=(ZShaderSet&& source) {
         uniforms.swap(source.uniforms);
         // stencilBuffer = source.stencilBuffer;
+        m_computeShader = source.m_computeShader;
         pipeline = source.pipeline;
         descPool = source.descPool;
         vertexLayout = source.vertexLayout;
@@ -250,6 +264,7 @@ namespace ZeroVulkan
         ready = false;
 
         // source.stencilBuffer = nullptr;
+        source.m_computeShader = nullptr;
         source.shaderModuleVert = nullptr;
         source.shaderModuleFrag = nullptr;
 
@@ -313,5 +328,19 @@ namespace ZeroVulkan
             create();
             
         pipeline.bind(cmdBuffer);
+
+        if (m_computeShader)
+            m_computeShader->bind(cmdBuffer);
+    }
+
+
+    void ZShaderSet::buildComputeShader() {
+        if (m_computeShader)
+            m_computeShader->buildCommandBuffer();
+    }
+
+    void ZShaderSet::submitComputeShader() {
+        if (m_computeShader)
+            m_computeShader->submit(ZDevice::getQueue());
     }
 }

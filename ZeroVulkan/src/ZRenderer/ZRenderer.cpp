@@ -4,6 +4,7 @@
 #include <vulkan/vulkan_core.h>
 #include "Vulkan/Swapchain.h"
 #include "Window/window.h"
+#include "ZObject/ZObject.h"
 #include "ZRenderer.h"
 
 namespace ZeroVulkan::ZRenderer {
@@ -66,8 +67,7 @@ namespace ZeroVulkan::ZRenderer {
     }
     
     void record() {
-        for (auto shader : ZComputeShader::computeShaders)
-            shader->buildCommandBuffer();
+        ZScene::current().buildComputeShaders();
 
         VkCommandBufferBeginInfo commandBufferBeginInfo = {};
         commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -211,8 +211,7 @@ namespace ZeroVulkan::ZRenderer {
         if (vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)
             return;
 
-        for (auto& shader : ZComputeShader::computeShaders)
-            shader->submit(ZDevice::getQueue());
+        ZScene::current().submitComputeShaders();
     
         res = vkQueueWaitIdle(ZDevice::getQueue());
         if (res != VK_SUCCESS)

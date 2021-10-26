@@ -6,19 +6,16 @@
 
 namespace ZeroVulkan
 {
-    std::vector<ZComputeShader*> ZComputeShader::computeShaders;
-
     ZComputeShader::ZComputeShader(uint32_t count)
         : count(count)
     {
-        computeShaders.push_back(this);
-
         commandPool = new ZCommandPool();
         commandPool->createCommandBuffers(1);
 
         descriptorPool = new ZDescriptorPool();
         descriptorSet = new ZDescriptorSet();
         descriptorSetLayout = new ZDescriptorSetLayout();
+        uniformBuffer = new ZUniform;
 
         printf("created: ZComputeShader\n");
     }
@@ -44,7 +41,7 @@ namespace ZeroVulkan
     void ZComputeShader::create()
     {
         // TODO parameterize
-        createShaderModule("Test/shader/compiled/particle.comp.spv", &shaderModule);
+        createShaderModule(pathToAbsolue("Test/shader/particle.comp"), &shaderModule);
         
         VkPipelineLayoutCreateInfo layoutCreateInfo = {};
         layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -88,6 +85,8 @@ namespace ZeroVulkan
         vkCmdBindDescriptorSets(commandPool->getBuffers()[0], VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet->descSet, 0, 0);
         vkCmdDispatch(commandPool->getBuffers()[0], count, 1, 1);
 
+        printf("dispatched %u compute shaders\n", count);
+        
         vkEndCommandBuffer(commandPool->getBuffers()[0]);
     }
     
@@ -106,5 +105,11 @@ namespace ZeroVulkan
         VkResult res = vkQueueSubmit(queue, 1, &computeSubmitInfo, VK_NULL_HANDLE);
         if (res != VK_SUCCESS)
             printf("queue submit ERROR %d\n", res);
+    }
+
+    void ZComputeShader::bind(VkCommandBuffer& cmdBuffer) {
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &storageBuffer->storageBuffer, offsets);
+        vkCmdDraw(cmdBuffer, count, 1, 0, 0);
     }
 }

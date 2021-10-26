@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include "Vulkan/ComputeShader.h"
 #include "types.h"
 #include "ZObject/ZObject.h"
 #include "ZPrimitive/ZPrimitvie.h"
@@ -30,6 +31,8 @@ namespace ZeroVulkan {
         
         ZRect& createRect(vec2 pos, float width, float height, vec4 color);
         
+        ZShaderSet& createShaderSet(const std::string& vertShaderPath, const std::string& fragShaderPath);
+        
         void updateProj();
         void setView(vec3 origin, vec3 lookAtPos);
 
@@ -37,10 +40,13 @@ namespace ZeroVulkan {
         const mat4& getProjection() const { return proj; }
 
         void bind(VkCommandBuffer& cmdBuffer);
+        void buildComputeShaders();
+        void submitComputeShaders();
     protected:
         mat4 proj;
         mat4 view;
     private:
+        std::vector<ZShaderSet> shaders;
         std::vector<ZObject> objects;
         std::vector<ZRect> rects;
         void add();

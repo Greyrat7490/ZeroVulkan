@@ -1,8 +1,10 @@
 #version 450
 
 layout( location = 0 ) in vec4 inPos;
-layout( location = 1 ) in vec4 inColor;
-layout( location = 2 ) in float inSize;
+layout( location = 1 ) in vec4 _vel;
+layout( location = 2 ) in vec4 inColor;
+layout( location = 3 ) in float inSize;
+layout( location = 4 ) in float _lifeTime;
 
 layout( location = 0 ) out vec4 outColor;
 

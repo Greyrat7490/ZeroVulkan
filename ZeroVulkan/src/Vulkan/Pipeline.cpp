@@ -30,20 +30,21 @@ namespace ZeroVulkan {
     
     void ZPipeline::setLayout()
     {
+        VkPipelineLayoutCreateInfo layoutCreateInfo = {};
+        layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        layoutCreateInfo.pushConstantRangeCount = 0;
+        layoutCreateInfo.pPushConstantRanges = nullptr;
+
         if (!descSetLayout.getBindings().empty()) {
             descSetLayout.create();
             
-            VkPipelineLayoutCreateInfo layoutCreateInfo = {};
-            layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             layoutCreateInfo.pSetLayouts = &descSetLayout.layout;
             layoutCreateInfo.setLayoutCount = 1;
-            layoutCreateInfo.pushConstantRangeCount = 0;
-            layoutCreateInfo.pPushConstantRanges = nullptr;
-
-            VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &layout);
-            if (res != VK_SUCCESS) 
-                printf("create pipelineLayout ERROR: %d\n", res);
         }
+
+        VkResult res = vkCreatePipelineLayout(ZDevice::getDevice(), &layoutCreateInfo, nullptr, &layout);
+        if (res != VK_SUCCESS) 
+            printf("create pipelineLayout ERROR: %d\n", res);
     }
 
     void ZPipeline::setShaders(VkShaderModule shaderModuleVert, VkShaderModule shaderModuleFrag) {
@@ -121,6 +122,7 @@ namespace ZeroVulkan {
     
     void ZPipeline::recreate() {
         vkDestroyPipeline(ZDevice::getDevice(), pipeline, nullptr);
+        vkDestroyPipelineLayout(ZDevice::getDevice(), layout, nullptr);
         create();
     }
 

@@ -36,7 +36,7 @@ void main()
 
     if( particles[index].lifeTime > 0.0 )
     {
-        particles[index].pos.xyz += particles[index].vel.xyz * ubo.deltaTime;
+        particles[index].pos.xy += particles[index].vel.xy * ubo.deltaTime;
         particles[index].size += ( ubo.endSize - ubo.startSize ) * ubo.deltaTime / particles[index].lifeTime;
         particles[index].color += ( ubo.endColor - ubo.startColor ) * ubo.deltaTime / particles[index].lifeTime;
         

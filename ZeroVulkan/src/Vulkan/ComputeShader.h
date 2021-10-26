@@ -2,6 +2,7 @@
 #define H_COMPUTER_SHADER
 
 #include <vector>
+#include <vulkan/vulkan_core.h>
 #include "Device.h"
 #include "DescriptorSetLayout.h"
 #include "DescriptorSet.h"
@@ -35,6 +36,8 @@ namespace ZeroVulkan
 		void buildCommandBuffer();
 		void submit(VkQueue queue);
 
+        void bind(VkCommandBuffer& cmdBuffer);
+        
 		ZCommandPool* commandPool;
 
 		uint32_t count = 0;
@@ -50,11 +53,8 @@ namespace ZeroVulkan
 		VkPipeline pipeline = nullptr;
 		VkPipelineLayout pipelineLayout = nullptr;
 		VkShaderModule shaderModule = nullptr;
-
-		static std::vector<ZComputeShader*> computeShaders;
 	};
 
-	// watch later why linker causes error if in source file
 	template<typename ...Layout>
 	inline void ZComputeShader::createStorageBuffer(Layout&& ...components)
 	{
@@ -64,7 +64,6 @@ namespace ZeroVulkan
 
 		auto layoutArray = { components... };
 
-		uint32_t i = 0;
 		std::for_each(layoutArray.begin(), layoutArray.end(), [&](auto component) {
 			storageBuffer->storageSize += static_cast<VkDeviceSize>(component);
 		} );
