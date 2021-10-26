@@ -1,6 +1,6 @@
 # ZeroVulkan
 
-## Render API using Vulkan as backend
+## CrossPlatform Render API using Vulkan as backend
 
 ### Goal
 * abstracts the use of vulkan (zero vulkan for the user basicly)
@@ -13,10 +13,10 @@
 * [x] Linux support
 * [ ] OSX support
 * [ ] Windows support
-* [ ] Shaders
+* [x] Shaders
   * [x] Vertex
   * [x] Fragment
-  * [ ] Compute (not tested)
+  * [x] Compute (parse shader in work)
 * [ ] create window
   * [x] on Linux with X11(xcb)
   * [ ] other platforms 
