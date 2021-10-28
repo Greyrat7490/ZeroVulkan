@@ -32,6 +32,43 @@ namespace ZeroVulkan {
         }
     }
 
+    bool ZUniform::addComponentByStr(const std::string& str) {
+        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add new else if)");
+
+        if      (str == "mat4")
+        {
+            m_components.push_back(std::make_pair(typeid(mat4).hash_code(), m_size));
+            m_size += sizeof(mat4);
+        }
+        else if (str == "vec4")
+        {
+            m_components.push_back(std::make_pair(typeid(vec4).hash_code(), m_size));
+            m_size += sizeof(vec4);
+        }
+        else if (str == "vec3")
+        {
+            m_components.push_back(std::make_pair(typeid(vec3).hash_code(), m_size));
+            m_size += sizeof(vec3);
+        }
+        else if (str == "vec2")
+        {
+            m_components.push_back(std::make_pair(typeid(vec2).hash_code(), m_size));
+            m_size += sizeof(vec2);
+        }
+        else if (str == "float")
+        {
+            m_components.push_back(std::make_pair(typeid(float).hash_code(), m_size));
+            m_size += sizeof(float);
+        }
+        else
+        {
+            printf("ERROR: type '%s' is not supported\n", str.c_str());
+            return false;
+        }
+
+        return true;
+    }
+
     ZUniform::ZUniform(ZUniform&& source) {
 		m_mappedData = source.m_mappedData;
 		m_buffer = source.m_buffer;

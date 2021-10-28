@@ -94,6 +94,63 @@ namespace ZeroVulkan
         return "\0";
     }
 
+    void trimFile(std::string& file) {
+        // because of windows style EOL(\n\r)
+        size_t pos = file.find('\r');
+        while (pos != file.npos) {
+            file.erase(pos, 1);
+            pos = file.find('\r', pos);
+        }
+        
+        pos = file.find("//");
+        while (pos != file.npos) {
+            size_t end = file.find('\n', pos) + 1;
+            
+            file.erase(pos, end - pos);
+            pos = file.find("//", pos);
+        }
+
+        pos = file.find("/*");
+        while (pos != file.npos) {
+            size_t end = file.find("*/", pos) + 2;
+            
+            file.erase(pos, end - pos);
+            pos = file.find("/*", pos);
+        }
+        
+        pos = file.find('\n');
+        while (pos != file.npos) {
+            file.replace(pos, 1, " ");
+            pos = file.find('\n', pos);
+        }
+
+        pos = file.find("\t");
+        while (pos != file.npos) {
+            file.erase(pos, 1);
+            pos = file.find("\t", pos);
+        }
+        
+        pos = file.find("  ");
+        while (pos != file.npos) {
+            file.erase(pos, 1);
+            pos = file.find("  ", pos);
+        }
+    }
+    
+    void trimWord(std::string& word) {
+        size_t pos = word.find(' ');
+        while (pos != word.npos) {
+            word.erase(pos, 1);
+            pos = word.find(' ');
+        }
+
+        pos = word.find("\t");
+        while (pos != word.npos) {
+            word.erase(pos, 1);
+            pos = word.find("\t", pos);
+        }
+    }
+
 
     float rndFloat() { return gen(); }
     float rndFloat(float min, float max) {

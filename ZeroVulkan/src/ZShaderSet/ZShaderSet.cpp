@@ -13,84 +13,6 @@
 
 namespace ZeroVulkan
 {
-    void trimFile(std::string& file) {
-        // because of windows style EOL(\n\r)
-        size_t pos = file.find('\r');
-        while (pos != file.npos) {
-            file.erase(pos, 1);
-            pos = file.find('\r', pos);
-        }
-        
-        pos = file.find("//");
-        while (pos != file.npos) {
-            size_t end = file.find('\n', pos) + 1;
-            
-            file.erase(pos, end - pos);
-            pos = file.find("//", pos);
-        }
-
-        pos = file.find("/*");
-        while (pos != file.npos) {
-            size_t end = file.find("*/", pos) + 2;
-            
-            file.erase(pos, end - pos);
-            pos = file.find("/*", pos);
-        }
-        
-        pos = file.find('\n');
-        while (pos != file.npos) {
-            file.replace(pos, 1, " ");
-            pos = file.find('\n', pos);
-        }
-
-        pos = file.find("\t");
-        while (pos != file.npos) {
-            file.erase(pos, 1);
-            pos = file.find("\t", pos);
-        }
-        
-        pos = file.find("  ");
-        while (pos != file.npos) {
-            file.erase(pos, 1);
-            pos = file.find("  ", pos);
-        }
-    }
-    
-    void trimWord(std::string& word) {
-        size_t pos = word.find(' ');
-        while (pos != word.npos) {
-            word.erase(pos, 1);
-            pos = word.find(' ');
-        }
-
-        pos = word.find("\t");
-        while (pos != word.npos) {
-            word.erase(pos, 1);
-            pos = word.find("\t", pos);
-        }
-    }
-        
-    bool ZShaderSet::addComponentByStr(ZUniform& uniform, const std::string& str) {
-        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add new else if)");
-        
-        if      (str == "mat4")
-                uniform.addComponent(ZType::MAT4);
-        else if (str == "vec4")
-                uniform.addComponent(ZType::VEC4);
-        else if (str == "vec3")
-                uniform.addComponent(ZType::VEC3);
-        else if (str == "vec2")
-                uniform.addComponent(ZType::VEC2);
-        else if (str == "float")
-                uniform.addComponent(ZType::FLOAT);
-        else {
-            printf("ERROR: type '%s' is not supported\n", str.c_str());
-            return false;
-        }
-        
-        return true;
-    }
-    
     void ZShaderSet::parseUniforms(const std::string& file) {
         size_t bpos = file.find("binding");
         while (bpos != file.npos) {
@@ -130,10 +52,12 @@ namespace ZeroVulkan
                         pos++;
                     pos2 = structDef.find(' ', pos);
 
-                    if (addComponentByStr(uniforms.back(), type))
+                    if (uniforms.back().addComponentByStr(type))
                         printf("  %s\n", type.c_str());
                 }
                 // ------------------------------------------
+                
+                uniforms.back().create();
             }
 
             bpos = file.find("binding", bpos + 7);
@@ -197,19 +121,24 @@ namespace ZeroVulkan
         parseUniforms(file);
     }
 
+
+    void ZShaderSet::parseCompShader(const std::string& path) {
+        std::string file = readFile(path);
+        trimFile(file);
+        
+        parseUniforms(file);
+    }
+
     
     ZShaderSet::ZShaderSet(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
     {
         std::string absPath = pathToAbsolue(vertexShaderPath); 
-        createShaderModule(absPath, &shaderModuleVert);
+        createShaderModule(absPath, &m_vertShader);
         parseVertShader(absPath);
         
         absPath = pathToAbsolue(fragmentShaderPath); 
-        createShaderModule(absPath, &shaderModuleFrag);
+        createShaderModule(absPath, &m_fragShader);
         parseFragShader(absPath);
-
-        for (ZUniform& uniform : uniforms)
-            uniform.create();
     }
 
     ZShaderSet::~ZShaderSet()
@@ -217,8 +146,8 @@ namespace ZeroVulkan
         if (m_computeShader)
             delete m_computeShader;
             
-        vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleVert, nullptr);
-        vkDestroyShaderModule(ZDevice::getDevice(), shaderModuleFrag, nullptr);
+        vkDestroyShaderModule(ZDevice::getDevice(), m_vertShader, nullptr);
+        vkDestroyShaderModule(ZDevice::getDevice(), m_fragShader, nullptr);
 
         uniforms.clear();
         
@@ -238,15 +167,15 @@ namespace ZeroVulkan
         pipeline = source.pipeline;
         descPool = source.descPool;
         vertexLayout = source.vertexLayout;
-        shaderModuleVert = source.shaderModuleVert;
-        shaderModuleFrag = source.shaderModuleFrag;
+        m_vertShader = source.m_vertShader;
+        m_fragShader = source.m_fragShader;
 
         ready = false;
 
         // source.stencilBuffer = nullptr;
         source.m_computeShader = nullptr;
-        source.shaderModuleVert = nullptr;
-        source.shaderModuleFrag = nullptr;
+        source.m_vertShader = nullptr;
+        source.m_fragShader = nullptr;
 
         puts("moved shaders");
     }
@@ -258,15 +187,15 @@ namespace ZeroVulkan
         pipeline = source.pipeline;
         descPool = source.descPool;
         vertexLayout = source.vertexLayout;
-        shaderModuleVert = source.shaderModuleVert;
-        shaderModuleFrag = source.shaderModuleFrag;
+        m_vertShader = source.m_vertShader;
+        m_fragShader = source.m_fragShader;
 
         ready = false;
 
         // source.stencilBuffer = nullptr;
         source.m_computeShader = nullptr;
-        source.shaderModuleVert = nullptr;
-        source.shaderModuleFrag = nullptr;
+        source.m_vertShader = nullptr;
+        source.m_fragShader = nullptr;
 
         puts("moved shaders (=)");
         return *this;
@@ -284,7 +213,7 @@ namespace ZeroVulkan
         descPool.addDescriptorLayout(pipeline.getDescLayout());
         descPool.create();
 
-        pipeline.setShaders(shaderModuleVert, shaderModuleFrag);
+        pipeline.setShaders(m_vertShader, m_fragShader);
         pipeline.setVertexLayout(&vertexLayout);
         pipeline.create();
         pipeline.createDescSet(descPool);
@@ -300,16 +229,14 @@ namespace ZeroVulkan
         switch(type)
         {
         case ZShaderType::VERTEX: {
-            printf("vertexShader: %s\n", path.c_str());
             std::string absPath = pathToAbsolue(path); 
-            createShaderModule(absPath, &shaderModuleVert);
+            createShaderModule(absPath, &m_vertShader);
             parseVertShader(absPath);
         }
         break;
         case ZShaderType::FRAGMENT: {
-            printf("fragmentShader: %s\n", path.c_str());
             std::string absPath = pathToAbsolue(path); 
-            createShaderModule(absPath, &shaderModuleFrag);
+            createShaderModule(absPath, &m_fragShader);
             parseVertShader(absPath);
         }
         break;
@@ -318,7 +245,7 @@ namespace ZeroVulkan
             ZASSERT_FUNC(false, "Computer Shaders are not yet supported");
             break;
         default:
-            puts("unknown ShaderType");
+            ZASSERT_FUNC(false, "unknown ShaderType");
             break;
         }
     }

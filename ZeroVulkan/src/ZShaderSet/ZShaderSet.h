@@ -18,7 +18,7 @@ namespace ZeroVulkan
     {
     public:
         ZShaderSet(const std::string& vertexShaderName, const std::string& fragmentShaderName);
-        ZShaderSet(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::string& texturePath);
+        // ZShaderSet(const std::string& vertexShaderName, const std::string& fragmentShaderName, const std::string& texturePath);
         ~ZShaderSet();
         ZShaderSet(ZShaderSet&& source);
 
@@ -28,6 +28,7 @@ namespace ZeroVulkan
 
         void create();
 
+        // TODO: merge those two methods
         void setComputeShader(ZComputeShader* computeShader);
         void setShader(const std::string& path, ZShaderType type);
         inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
@@ -38,6 +39,9 @@ namespace ZeroVulkan
     private:
         std::vector<ZUniform> uniforms;
         // ZStencilBuffer* stencilBuffer = nullptr;
+        
+        VkShaderModule m_vertShader = nullptr;
+        VkShaderModule m_fragShader = nullptr;
         ZComputeShader* m_computeShader = nullptr;
 
         ZPipeline pipeline;
@@ -46,15 +50,14 @@ namespace ZeroVulkan
 
         ZVertexLayout vertexLayout;
 
-        VkShaderModule shaderModuleVert = nullptr;
-        VkShaderModule shaderModuleFrag = nullptr;
         bool ready = false;
 
         void parseVertShader(const std::string& path);
         void parseFragShader(const std::string& path);
+        void parseCompShader(const std::string& path);
+        
         void parseUniforms(const std::string& file);
-        void parseVertexAttr(const std::string& file);
-        bool addComponentByStr(ZUniform& uniform, const std::string& str);
+        void parseVertexAttr(const std::string& file);  
     };
 }
 

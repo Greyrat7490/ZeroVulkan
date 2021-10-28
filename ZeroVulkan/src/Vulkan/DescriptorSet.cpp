@@ -31,8 +31,6 @@ namespace ZeroVulkan {
 				writeDescSets[i].descriptorCount = 1;
 				writeDescSets[i].descriptorType = bindings[i].descriptorType;
 
-                ZASSERT_FUNC(i == bindings[i].binding, "index != bindings[index].binding");
-                
 				switch(bindings[i].descriptorType)
 				{
 				case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:

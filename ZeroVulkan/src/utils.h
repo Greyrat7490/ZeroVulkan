@@ -22,6 +22,9 @@ namespace ZeroVulkan
 
     std::string readFile(const std::string& filepath);
 
+    void trimWord(std::string& word);
+    void trimFile(std::string& file);
+    
     float rndFloat(float min, float max);    
     float rndFloat();
 

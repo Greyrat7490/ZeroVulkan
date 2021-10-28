@@ -30,6 +30,7 @@ namespace ZeroVulkan
 		void update();
 
 	    void addComponent(ZType type);
+        bool addComponentByStr(const std::string& str);
         
         template<typename T>
         T* getComponent(size_t index);
