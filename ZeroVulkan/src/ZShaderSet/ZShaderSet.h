@@ -54,10 +54,6 @@ namespace ZeroVulkan
 
         void parseVertShader(const std::string& path);
         void parseFragShader(const std::string& path);
-        void parseCompShader(const std::string& path);
-        
-        void parseUniforms(const std::string& file);
-        void parseVertexAttr(const std::string& file);  
     };
 }
 

@@ -64,8 +64,8 @@ namespace ZeroVulkan {
             ZRenderer::drawFrame();
 
 
-            if (drawTimer >= 1.f) {
-                ZeroVulkan::ZWindow::setTitle("fps: " + std::to_string(fps) + " deltaTime: " + std::to_string(1.f / fps) + "s");
+            if (drawTimer >= 0.25f) {
+                ZeroVulkan::ZWindow::setTitle("fps: " + std::to_string(fps * 4) + " deltaTime: " + std::to_string(0.25f / fps) + "s");
                 fps = 0;
                 drawTimer = 0.f;
             }
