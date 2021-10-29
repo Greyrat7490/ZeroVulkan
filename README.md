@@ -13,10 +13,11 @@
 * [x] Linux support
 * [ ] OSX support
 * [ ] Windows support
-* [x] Shaders
+* [ ] Shaders
   * [x] Vertex
   * [x] Fragment
-  * [x] Compute (parse shader in work)
+  * [x] Compute
+  * [ ] parse shader (still in work)
 * [ ] create window
   * [x] on Linux with X11(xcb)
   * [ ] other platforms 
