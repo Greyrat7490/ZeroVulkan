@@ -5,6 +5,7 @@
 #include <iostream>
 #include <ostream>
 #include <sstream>
+#include "utils.h"
 
 namespace ZeroVulkan 
 {
@@ -602,6 +603,50 @@ namespace ZeroVulkan
 
 	typedef mat<float, 2, 2> mat2;
 
+
+    inline size_t zTypeToID(ZType type) {
+        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add cases)");
+        switch (type) {
+            case ZType::MAT4:
+                return typeid(mat4).hash_code();
+                break;
+            case ZType::VEC4:
+                return typeid(vec4).hash_code();
+                break;
+            case ZType::VEC3:
+                return typeid(vec3).hash_code();
+                break;
+            case ZType::VEC2:
+                return typeid(vec2).hash_code();
+                break;
+            case ZType::FLOAT:
+                return typeid(float).hash_code();
+                break;
+            default:
+                ZASSERT_FUNC(false, "unreachable");
+                return -1; // just to get rid of warnings
+        }
+    }
+    
+    inline ZType typeIDToZType(size_t typeID) {
+        static_assert(ZTYPE_COUNT == 5, "Exhaustive use of ZType (add cases)");
+
+        if      (typeID == typeid(mat4).hash_code())
+            return ZType::MAT4;
+        else if (typeID == typeid(vec4).hash_code())
+            return ZType::VEC4;
+        else if (typeID == typeid(vec3).hash_code())
+            return ZType::VEC3;
+        else if (typeID == typeid(vec2).hash_code())
+            return ZType::VEC2;
+        else if (typeID == typeid(float).hash_code())
+            return ZType::FLOAT;
+        else
+        {
+            ZASSERT_FUNC(false, "unreachable");
+            return (ZType)0; // just to get rid of warnings
+        }
+    }
 
 	// ostringstream caused compiler errors with const vec/mat
 	// ostringstream derives from ostream and ostream supports const vec/mat properly

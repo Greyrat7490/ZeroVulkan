@@ -1,5 +1,5 @@
 #include "Uniform.h"
-#include <any>
+#include "Buffer.h"
 
 namespace ZeroVulkan {
     void ZUniform::addComponent(ZType type) {
@@ -8,23 +8,23 @@ namespace ZeroVulkan {
         switch (type)
         {
         case ZType::MAT4:
-            m_components.push_back(std::make_pair(typeid(mat4).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::MAT4, m_size));
             m_size += sizeof(mat4);
             break;
         case ZType::VEC4:
-            m_components.push_back(std::make_pair(typeid(vec4).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC4, m_size));
             m_size += sizeof(vec4);
             break;
         case ZType::VEC3:
-            m_components.push_back(std::make_pair(typeid(vec3).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC3, m_size));
             m_size += sizeof(vec3);
             break;
         case ZType::VEC2:
-            m_components.push_back(std::make_pair(typeid(vec2).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC2, m_size));
             m_size += sizeof(vec2);
             break;
         case ZType::FLOAT:
-            m_components.push_back(std::make_pair(typeid(float).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::FLOAT, m_size));
             m_size += sizeof(float);
             break;
         default:
@@ -37,27 +37,27 @@ namespace ZeroVulkan {
 
         if      (str == "mat4")
         {
-            m_components.push_back(std::make_pair(typeid(mat4).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::MAT4, m_size));
             m_size += sizeof(mat4);
         }
         else if (str == "vec4")
         {
-            m_components.push_back(std::make_pair(typeid(vec4).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC4, m_size));
             m_size += sizeof(vec4);
         }
         else if (str == "vec3")
         {
-            m_components.push_back(std::make_pair(typeid(vec3).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC3, m_size));
             m_size += sizeof(vec3);
         }
         else if (str == "vec2")
         {
-            m_components.push_back(std::make_pair(typeid(vec2).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::VEC2, m_size));
             m_size += sizeof(vec2);
         }
         else if (str == "float")
         {
-            m_components.push_back(std::make_pair(typeid(float).hash_code(), m_size));
+            m_components.push_back(std::make_pair(ZType::FLOAT, m_size));
             m_size += sizeof(float);
         }
         else

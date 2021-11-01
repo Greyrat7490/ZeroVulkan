@@ -32,9 +32,6 @@ namespace ZeroVulkan {
             poolSizes.emplace_back();
             poolSizes.back().type = descLayout->getBindings()[i].descriptorType;
             poolSizes.back().descriptorCount = 1;
-
-            printf("poolSize.type %d\n", (int)poolSizes.back().type);
-            printf("poolSize.descriptorCount %d\n", poolSizes.back().descriptorCount);
         }
     }
 }

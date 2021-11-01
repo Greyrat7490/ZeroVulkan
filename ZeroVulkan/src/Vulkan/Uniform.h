@@ -1,16 +1,10 @@
 #ifndef H_UNIFORM_BUFFER
 #define H_UNIFORM_BUFFER
 
-#include <algorithm>
 #include <typeinfo>
-#include <utility>
-#include <vector>
-#include <memory.h>
-#include <any>
-#include "Memory.h"
-#include "Buffer.h"
 #include "Device.h"
 #include "types.h"
+#include "utils.h"
 
 namespace ZeroVulkan
 {
@@ -35,6 +29,14 @@ namespace ZeroVulkan
         template<typename T>
         T* getComponent(size_t index);
 
+        /*
+         * WARNING make sure the layout you provided is correct
+         * the method is type safe as long as the provided layout is correct
+         * TODO: automatically get the layout (maybe via parsing the source code)
+         */
+        template<typename Struct>
+        inline Struct* getStruct(ZType fields[], size_t fieldsCount) const;
+
 		template<typename T>
 		void dynamicUpdate(T* ubos, uint32_t objectCount);
 
@@ -46,26 +48,68 @@ namespace ZeroVulkan
 		VkDeviceSize m_size = 0;
 		VkDescriptorBufferInfo m_bufferInfo;
 		VkDeviceSize m_dynamicAlignment = 0;
-        
-        std::vector<std::pair<size_t, size_t>> m_components;
+
+        std::vector<std::pair<ZType, size_t>> m_components;
 		
         bool ready = false;
         
 		void setDynamicAlignments();
+
+        template<typename Struct>
+        void checkStruct(ZType fields[], size_t fieldsCount) const;
 	};
 
+    template<typename Struct>
+    void ZUniform::checkStruct(ZType fields[], size_t fieldsCount) const {
+        // check size of the provided struct
+        if (m_size == sizeof(Struct))
+        {
+            // check if the provided struct has the correct amount of fields
+            if (m_components.size() == fieldsCount)
+            {
+                // check if the type of every field is correct
+                bool correct = true;
+                for (size_t i = 0; i < fieldsCount - 1; i++) {
+                    if (fields[i] != m_components[i].first) {
+                        printf("ERROR: the struct defined in the shader has not the type %s at index %zu\n", zTypeToStr(fields[i]), i);
+                        correct = false;
+                    }
+                }
+                
+                if (correct) {
+                    puts("the provided struct seems to be correct (but only if the layout you provided is correct)");
+                    return;
+                }
+            }
+            else
+                printf("ERROR: your provided layout has '%zu' fields, but the actual struct should have '%zu'\n"
+                        "\tmaybe you forgot some\n", fieldsCount, m_components.size());
+        }
+        else
+            printf("ERROR: Struct size is: '%zu', but buffer size is: '%zu'\n", sizeof(Struct), m_size);
+
+        exit(1);
+    }
+
+    template<typename Struct>
+    Struct* ZUniform::getStruct(ZType fields[], size_t fieldsCount) const {
+        checkStruct<Struct>(fields, fieldsCount);
+        return (Struct*)m_mappedData;
+    }
     
     template<typename T>
     inline T* ZUniform::getComponent(size_t index) {
         if (index >= m_components.size()) {
             printf("ERROR: uniform has only %zu components", m_components.size());
+            exit(1);
             return nullptr;
         }
             
-        // TODO: printf human readable types
-        if (typeid(T).hash_code() != m_components[index].first) {
+        size_t typeID = typeid(T).hash_code(); 
+        if (typeID != zTypeToID(m_components[index].first)) {
             printf("ERROR: couldn't get uniform component at index %zu\n"
-                    "\t the type you passed is different to the actual type\n", index);
+                    "\tthe actual type defined in the shader is '%s', but you asked for '%s'\n", index, zTypeToStr(m_components[index].first), zTypeToStr(typeIDToZType(typeID)));
+            exit(1);
             return nullptr;
         }
 
