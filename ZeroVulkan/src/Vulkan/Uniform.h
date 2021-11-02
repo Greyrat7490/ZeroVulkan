@@ -1,7 +1,7 @@
 #ifndef H_UNIFORM_BUFFER
 #define H_UNIFORM_BUFFER
 
-#include <typeinfo>
+#include <initializer_list>
 #include "Device.h"
 #include "types.h"
 #include "utils.h"
@@ -35,7 +35,7 @@ namespace ZeroVulkan
          * TODO: automatically get the layout (maybe via parsing the source code)
          */
         template<typename Struct>
-        inline Struct* getStruct(ZType fields[], size_t fieldsCount) const;
+        inline Struct* getStruct(const std::initializer_list<ZType>& fields) const;
 
 		template<typename T>
 		void dynamicUpdate(T* ubos, uint32_t objectCount);
@@ -56,24 +56,27 @@ namespace ZeroVulkan
 		void setDynamicAlignments();
 
         template<typename Struct>
-        void checkStruct(ZType fields[], size_t fieldsCount) const;
+        void checkStruct(const std::initializer_list<ZType>& fields) const;
 	};
 
     template<typename Struct>
-    void ZUniform::checkStruct(ZType fields[], size_t fieldsCount) const {
+    void ZUniform::checkStruct(const std::initializer_list<ZType>& fields) const {
         // check size of the provided struct
         if (m_size == sizeof(Struct))
         {
             // check if the provided struct has the correct amount of fields
-            if (m_components.size() == fieldsCount)
+            if (m_components.size() == fields.size())
             {
                 // check if the type of every field is correct
                 bool correct = true;
-                for (size_t i = 0; i < fieldsCount - 1; i++) {
-                    if (fields[i] != m_components[i].first) {
-                        printf("ERROR: the struct defined in the shader has not the type %s at index %zu\n", zTypeToStr(fields[i]), i);
+                size_t i = 0;
+                for (ZType field : fields) {
+                    if (field != m_components[i].first) {
+                        printf("ERROR: the struct defined in the shader has not the type %s at index %zu\n", zTypeToStr(field), i);
                         correct = false;
                     }
+
+                    i++;
                 }
                 
                 if (correct) {
@@ -83,7 +86,7 @@ namespace ZeroVulkan
             }
             else
                 printf("ERROR: your provided layout has '%zu' fields, but the actual struct should have '%zu'\n"
-                        "\tmaybe you forgot some\n", fieldsCount, m_components.size());
+                        "\tmaybe you forgot some\n", fields.size(), m_components.size());
         }
         else
             printf("ERROR: Struct size is: '%zu', but buffer size is: '%zu'\n", sizeof(Struct), m_size);
@@ -92,8 +95,8 @@ namespace ZeroVulkan
     }
 
     template<typename Struct>
-    Struct* ZUniform::getStruct(ZType fields[], size_t fieldsCount) const {
-        checkStruct<Struct>(fields, fieldsCount);
+    Struct* ZUniform::getStruct(const std::initializer_list<ZType>& fields) const {
+        checkStruct<Struct>(fields);
         return (Struct*)m_mappedData;
     }
     

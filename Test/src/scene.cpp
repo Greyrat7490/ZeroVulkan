@@ -1,8 +1,6 @@
 #include "scene.h"
 #include "types.h"
 
-using namespace ZeroVulkan;
-
 void TestScene::start() { 
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -42,15 +40,17 @@ void TestScene::start() {
 
     ZObject& obj = createObject(shaders, mesh);
 
-    mat4* proj     = obj.getUniformComponent<mat4>(0);
-    mat4* view     = obj.getUniformComponent<mat4>(1);
-    mat4* model    = obj.getUniformComponent<mat4>(2);
-    vec3* lightDir = obj.getUniformComponent<vec3>(3);
+    objUbo = obj.getUniformStruct<ObjUBO>(0, {
+        ZType::MAT4,
+        ZType::MAT4,
+        ZType::MAT4,
+        ZType::VEC3,
+    });
+    
+    objUbo->model = mat4(1.f);
+    objUbo->lightDir = vec3(-1.f, -1.f, 3.f);
 
-    *model = mat4(1.f);
-    *lightDir = vec3(-1.f, -1.f, 3.f);
-
-    obj.set3DMats(proj, view, model);
+    obj.set3DMats(&objUbo->proj, &objUbo->view, &objUbo->model);
     
 
     // if you just want to use the standard shader (phong shader)
@@ -79,7 +79,7 @@ void TestScene::start() {
     ZComputeShader* compShader = new ZComputeShader("Test/shader/particle.comp", PARTICLE_COUNT);
 
     // not 100% safe but way better than no type checking
-    ZType layout[] = {
+    psUbo = compShader->uniformBuffer.getStruct<ParticleSystemUBO>({
         ZType::VEC4,
         ZType::VEC4,
         ZType::VEC4,
@@ -88,16 +88,14 @@ void TestScene::start() {
         ZType::FLOAT,
         ZType::FLOAT,
         ZType::FLOAT,
-    };
-    
-    ubo = compShader->uniformBuffer.getStruct<ParticleSystemUBO>(layout, sizeof(layout)/sizeof(ZType));
-    ubo->startColor = { 2.f, 1.f, 1.f, 1.f };
-    ubo->endColor = { 1.f, 0.f, 1.f, 1.f };
-    ubo->startPos = { 0.f, 0.f, 0.f, 1.f };
-    ubo->startSize = 16.f;
-    ubo->endSize = 2.f;
-    ubo->lifeTime = 5.f;
-    ubo->spawnDelay = 0.25f * 3.f / PARTICLE_COUNT; // good value around: lifetime / PARTICLE_COUNT
+    });
+    psUbo->startColor = { 2.f, 1.f, 1.f, 1.f };
+    psUbo->endColor = { 1.f, 0.f, 1.f, 1.f };
+    psUbo->startPos = { 0.f, 0.f, 0.f, 1.f };
+    psUbo->startSize = 16.f;
+    psUbo->endSize = 2.f;
+    psUbo->lifeTime = 5.f;
+    psUbo->spawnDelay = 0.25f * 3.f / PARTICLE_COUNT; // good value around: lifetime / PARTICLE_COUNT
 
     for (Particle& p : particles) {
         p.color = { 1.f, 0.f, 1.f, 1.f };
@@ -117,7 +115,7 @@ void TestScene::start() {
 }
     
 void TestScene::update(float dt) { 
-    ubo->deltaTime = dt;
+    psUbo->deltaTime = dt;
 }
 
 void TestScene::end() {

@@ -3,6 +3,8 @@
 
 #include "ZShaderSet/ZShaderSet.h"
 #include "ZMesh/ZMesh.h"
+#include "types.h"
+#include <initializer_list>
 #include <random>
 
 namespace ZeroVulkan {
@@ -18,7 +20,14 @@ namespace ZeroVulkan {
 
         inline ZUniform& getUniform(size_t index = 0) { return m_shaders.getUniform(index); }
         template<typename T>
-        inline T* getUniformComponent(size_t index, size_t uniformIdx = 0);
+        inline T* getUniformComponent(size_t index, size_t uniformIdx = 0) {
+            return m_shaders.getUniform(uniformIdx).getComponent<T>(index);
+        }
+        
+        template<typename S>
+        inline S* getUniformStruct(size_t uniformIdx, const std::initializer_list<ZType>& fields) {
+            return m_shaders.getUniform(uniformIdx).getStruct<S>(fields);
+        }
         
         void setShaders(const ZShaderSet& shaders);
         void set3DMats(mat4* proj, mat4* view, mat4* model);
@@ -33,16 +42,6 @@ namespace ZeroVulkan {
         mat4* m_view;
         mat4* m_model;
     };
-
-    template<typename T>
-    inline T* ZObject::getUniformComponent(size_t index, size_t uniformIdx) { 
-        T* res = m_shaders.getUniform(uniformIdx).getComponent<T>(index);
-
-        if (res == nullptr)
-            printf("ERROR: couldn't get component of uniform with index %zu\n", uniformIdx);
-
-        return res; 
-    }
 }
 
 #endif // ZOBJECT_H_

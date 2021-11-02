@@ -4,11 +4,20 @@
 #include "ZScene/ZScene.h"
 #include "ZeroVulkan.h"
 
+using namespace ZeroVulkan;
+
+struct ObjUBO {
+    mat4 proj;
+    mat4 view;
+    mat4 model;
+    vec3 lightDir;
+};
+
 struct ParticleSystemUBO
 {
-    ZeroVulkan::vec4 startColor;
-    ZeroVulkan::vec4 endColor;
-    ZeroVulkan::vec4 startPos;
+    vec4 startColor;
+    vec4 endColor;
+    vec4 startPos;
     float startSize;
     float endSize;
     float lifeTime;
@@ -25,7 +34,8 @@ public:
     virtual void update(float dt) override;
     virtual void end() override;
     
-    ParticleSystemUBO* ubo = nullptr;
+    ParticleSystemUBO* psUbo = nullptr;
+    ObjUBO* objUbo = nullptr;
 };
 
 #endif // SCENE_H_
