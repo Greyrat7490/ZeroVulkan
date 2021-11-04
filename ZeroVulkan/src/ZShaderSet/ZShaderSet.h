@@ -25,20 +25,23 @@ namespace ZeroVulkan
         ZShaderSet& operator=(ZShaderSet&& source);
 
         ZUniform& getUniform(size_t index = 0);       
+        ZUniform& getStencilUniform(size_t index = 0);
 
         void create();
 
         // TODO: merge those two methods
         void setComputeShader(ZComputeShader* computeShader);
         void setShader(const std::string& path, ZShaderType type);
+        inline void setStencilBuffer(ZStencilBuffer* stencil) { m_stencilBuffer = stencil; }
         inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
 
         void bind(VkCommandBuffer& cmdBuffer);
+        bool bindStencil(VkCommandBuffer& cmdBuffer);
         void buildComputeShader();
         void submitComputeShader();
     private:
-        std::vector<ZUniform> uniforms;
-        // ZStencilBuffer* stencilBuffer = nullptr;
+        std::vector<ZUniform> m_uniforms;
+        ZStencilBuffer* m_stencilBuffer = nullptr;
         
         VkShaderModule m_vertShader = nullptr;
         VkShaderModule m_fragShader = nullptr;

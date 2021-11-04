@@ -51,7 +51,6 @@ namespace ZeroVulkan {
         
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, &vertexBuffer, offsets);
         vkCmdBindIndexBuffer(cmdBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(cmdBuffer, m_indices.size(), 1, 0, 0, 0);
     }
 
     ZMesh::~ZMesh() {

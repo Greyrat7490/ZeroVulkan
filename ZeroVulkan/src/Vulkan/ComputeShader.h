@@ -2,6 +2,7 @@
 #define H_COMPUTER_SHADER
 
 #include <vector>
+#include <vulkan/vulkan_core.h>
 #include "DescriptorSetLayout.h"
 #include "DescriptorSet.h"
 #include "DescriptorPool.h"
@@ -17,12 +18,15 @@ namespace ZeroVulkan
 		ZComputeShader(const char* path, uint32_t count);
 		~ZComputeShader();
 
+        inline size_t getCount() { return count; }
+
 		void create();
 
 		void buildCommandBuffer();
 		void submit(VkQueue queue);
 
         void bind(VkCommandBuffer& cmdBuffer);
+        inline void drawCmd(VkCommandBuffer& cmdBuffer) const { vkCmdDraw(cmdBuffer, count, 1, 0, 0); }
 
         // TODO: remove this and use the descriptorPool of ZShaderSet
 		ZDescriptorPool descriptorPool;

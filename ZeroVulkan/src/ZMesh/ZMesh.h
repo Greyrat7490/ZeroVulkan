@@ -16,6 +16,7 @@ namespace ZeroVulkan {
             void setIndices(uint32_t* indices, uint32_t indices_count);
             
             void bind(VkCommandBuffer& cmdBuffer);
+            inline void drawCmd(VkCommandBuffer& cmdBuffer) const { vkCmdDrawIndexed(cmdBuffer, m_indices.size(), 1, 0, 0, 0); }
             void prepair();
             
             VkBuffer vertexBuffer = nullptr;

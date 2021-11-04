@@ -10,6 +10,15 @@ namespace ZeroVulkan {
         inputAssemblyState.primitiveRestartEnable = false;
         inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
+        depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        depthStencil.depthTestEnable = true;
+        depthStencil.depthWriteEnable = true;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+        depthStencil.depthBoundsTestEnable = false;
+        depthStencil.stencilTestEnable = false;
+        depthStencil.minDepthBounds = 0.f;
+        depthStencil.maxDepthBounds = 1.f;
+
         rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         rasterizationState.polygonMode = VK_POLYGON_MODE_FILL;
         rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
@@ -101,10 +110,46 @@ namespace ZeroVulkan {
             recreate();
     }
     
+
+    void ZPipeline::setStencil(bool fill) {
+        if (fill)
+        {
+            depthStencil.depthTestEnable = true;
+            depthStencil.depthWriteEnable = true;
+            depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+            depthStencil.depthBoundsTestEnable = false;
+            depthStencil.stencilTestEnable = true;
+
+            depthStencil.back.compareOp = VK_COMPARE_OP_ALWAYS;
+            depthStencil.back.failOp = VK_STENCIL_OP_REPLACE;
+            depthStencil.back.depthFailOp = VK_STENCIL_OP_REPLACE;
+            depthStencil.back.passOp = VK_STENCIL_OP_REPLACE;
+            depthStencil.back.compareMask = 0xff;
+            depthStencil.back.writeMask = 0xff;
+            depthStencil.back.reference = 1;
+            depthStencil.front = depthStencil.back;
+        }
+        else
+        {
+            rasterizationState.polygonMode = VK_POLYGON_MODE_LINE;
+            rasterizationState.cullMode = VK_CULL_MODE_NONE;
+
+            depthStencil.depthTestEnable = false;
+            depthStencil.back.compareOp = VK_COMPARE_OP_NOT_EQUAL;
+            depthStencil.back.failOp = VK_STENCIL_OP_KEEP;
+            depthStencil.back.depthFailOp = VK_STENCIL_OP_KEEP;
+            depthStencil.back.passOp = VK_STENCIL_OP_REPLACE;
+            depthStencil.front = depthStencil.back;
+        }
+
+        if (ready)
+            recreate();
+    }
+
     void ZPipeline::bind(VkCommandBuffer& cmdBuffer) {
         if (!ready)
             create();
-            
+
         if (layout && descriptorSet.descSet)
             vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, layout, 0, 1, &descriptorSet.descSet, 0, 0);
 
@@ -193,16 +238,6 @@ namespace ZeroVulkan {
         pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         pipelineDynamicStateCreateInfo.dynamicStateCount = 2;
         pipelineDynamicStateCreateInfo.pDynamicStates = dynamicStates;
-
-        VkPipelineDepthStencilStateCreateInfo depthStencil = {};
-        depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-        depthStencil.depthTestEnable = true;
-        depthStencil.depthWriteEnable = true;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencil.depthBoundsTestEnable = false;
-        depthStencil.stencilTestEnable = false;
-        depthStencil.minDepthBounds = 0.f;
-        depthStencil.maxDepthBounds = 1.f;
 
 
         VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};

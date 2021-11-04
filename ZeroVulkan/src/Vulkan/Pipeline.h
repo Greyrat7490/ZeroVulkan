@@ -20,6 +20,8 @@ namespace ZeroVulkan
         void setShaders(VkShaderModule shaderModuleVert, VkShaderModule shaderModuleFrag);
         void setVertexLayout(ZVertexLayout* vertexLayout);
         void setTopolgy(ZTopology topology);
+        // TODO: void setPolygoneMode(ZPolygonMode mode);
+        void setStencil(bool fill);
  
         void addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
         void addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
@@ -46,6 +48,7 @@ namespace ZeroVulkan
         VkPipelineVertexInputStateCreateInfo vertexInputState = {};
         VkPipelineRasterizationStateCreateInfo rasterizationState = {};
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyState = {};
+        VkPipelineDepthStencilStateCreateInfo depthStencil = {};
     };
 }
 #endif // PIPELINE_H_

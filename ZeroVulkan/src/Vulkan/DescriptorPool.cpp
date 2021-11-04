@@ -2,7 +2,7 @@
 #include "DescriptorSetLayout.h"
 
 namespace ZeroVulkan {
-    void ZDescriptorPool::create(uint32_t maxDescCount)
+    void ZDescriptorPool::create()
     {
         if(!poolSizes.empty())
         {
@@ -10,7 +10,7 @@ namespace ZeroVulkan {
             poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
             poolInfo.pPoolSizes = poolSizes.data();
             poolInfo.poolSizeCount = poolSizes.size();
-            poolInfo.maxSets = maxDescCount;//watch later
+            poolInfo.maxSets = maxSets;//watch later
 
             VkResult res = vkCreateDescriptorPool(ZDevice::getDevice(), &poolInfo, nullptr, &descriptorPool);
             if (res != VK_SUCCESS)

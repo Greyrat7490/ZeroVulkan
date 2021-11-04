@@ -13,6 +13,12 @@ struct ObjUBO {
     vec3 lightDir;
 };
 
+struct OutlineUBO {
+    mat4 proj;
+    mat4 view;
+    mat4 model;
+};
+
 struct ParticleSystemUBO
 {
     vec4 startColor;
@@ -36,6 +42,7 @@ public:
     
     ParticleSystemUBO* psUbo = nullptr;
     ObjUBO* objUbo = nullptr;
+    OutlineUBO* outlineUbo = nullptr;
 };
 
 #endif // SCENE_H_

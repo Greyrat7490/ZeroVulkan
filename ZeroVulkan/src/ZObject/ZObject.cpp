@@ -34,8 +34,11 @@ namespace ZeroVulkan {
     }
 
     void ZObject::bind(VkCommandBuffer& cmdBuffer) {
-        // order is important
-        m_shaders.bind(cmdBuffer);
         m_mesh.bind(cmdBuffer);
+        m_shaders.bind(cmdBuffer);
+        m_mesh.drawCmd(cmdBuffer);
+
+        if (m_shaders.bindStencil(cmdBuffer))
+            m_mesh.drawCmd(cmdBuffer);
     }
 }

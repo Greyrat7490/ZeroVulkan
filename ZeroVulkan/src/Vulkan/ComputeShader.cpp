@@ -110,6 +110,5 @@ namespace ZeroVulkan
     void ZComputeShader::bind(VkCommandBuffer& cmdBuffer) {
         VkDeviceSize offsets[] = { 0 };
         vkCmdBindVertexBuffers(cmdBuffer, 0, 1, storageBuffer.getBuffer(), offsets);
-        vkCmdDraw(cmdBuffer, count, 1, 0, 0);
     }
 }

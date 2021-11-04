@@ -21,8 +21,6 @@ namespace ZeroVulkan
 		inline VkDeviceSize getBufferSize() const { return m_size; }
 		inline VkDeviceSize getDynamicAlignment() const { return m_dynamicAlignment; }
 	
-		void update();
-
 	    void addComponent(ZType type);
         bool addComponentByStr(const std::string& str);
         

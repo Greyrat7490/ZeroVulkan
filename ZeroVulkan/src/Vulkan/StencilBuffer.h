@@ -1,55 +1,43 @@
 #ifndef H_STENCILE_BUFFER
 #define H_STENCILE_BUFFER
 
-#include <string>
+#include <functional>
+#include <vector>
 #include "Uniform.h"
+#include "Pipeline.h"
+#include "Vulkan/ComputeShader.h"
+#include "Vulkan/Vertex.h"
 #include "types.h"
 
 namespace ZeroVulkan
 {
-	class ZVertexLayout;
-	class ZDescriptorSetLayout;
-	class ZDescriptorPool;
+    class ZMesh;
+    class ZComputeShader;
 
-    // TODO: merge with ZShaderSet
-	class ZStencilBuffer
-	{
-	public:
-		ZStencilBuffer();
-		~ZStencilBuffer();
+    class ZStencilBuffer
+    {
+    public:
+        ZStencilBuffer();
+        ~ZStencilBuffer();
 
-		void createDescSet(const VkDescriptorPool& descriptorPool);
-		void createPipelines(ZVertexLayout* vertexLayout, VkShaderModule& shaderModuleVert, VkShaderModule& shaderModuleFrag, VkDescriptorSetLayout* descLayouts, uint32_t layoutsCount);
+        ZUniform& getUniform(size_t index);
 
-		inline void updateUniform() { m_uniform->update(); }
+        inline void bind(VkCommandBuffer& cmdBuffer) { m_pipeline.bind(cmdBuffer); }
 
-		inline const VkPipelineLayout& getPipelineLayout() const { return m_stencilLayout; }
-		inline const VkPipeline& getPipeline() const { return m_stencil; }
+        void createDescSet(ZDescriptorPool& pool) { m_pipeline.createDescSet(pool); }
+        void create(ZDescriptorPool& descPool);
+    private:
+        VkShaderModule m_vertShader;
+        VkShaderModule m_fragShader;
 
-		inline const VkPipelineLayout& getOutlinePipelineLayout() const { return m_outlineLayout; }
-		inline const VkPipeline& getOutlinePipeline() const { return m_outline; }
-		inline const VkDescriptorSet& getOutlineDescSet() const { return m_outlineDescSet; }
-		inline const ZDescriptorSetLayout* getOutlineDescSetLayout() const { return m_outlineDescLayout; }
-	private:
-		void createUniform();
+        ZPipeline m_pipeline;
+        std::vector<ZUniform> m_uniforms;
+        ZVertexLayout m_vertexLayout;
 
-		const std::string m_outlineVertPath;
-		const std::string m_outlineFragPath;
-
-		VkShaderModule m_outlineVertModule;
-		VkShaderModule m_outlineFragModule;
-
-		ZUniform* m_uniform = nullptr;
-
-		ZDescriptorSetLayout* m_outlineDescLayout = nullptr;
-		VkDescriptorSet m_outlineDescSet;
-
-		VkPipelineLayout m_stencilLayout;
-		VkPipelineLayout m_outlineLayout;
-
-		VkPipeline m_stencil;
-		VkPipeline m_outline;
-	};
+        const ZMesh* m_mesh = nullptr;
+        const ZComputeShader* m_compShader = nullptr;
+        void createModules();
+    };
 }
 
 #endif // H_STENCILE_BUFFER
