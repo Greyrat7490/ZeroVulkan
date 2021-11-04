@@ -2,11 +2,10 @@
 #define ZPRIMITIVE_H_
 
 #include "types.h"
-#include "Vulkan/Uniform.h"
+
 #include "Vulkan/Pipeline.h"
-#include "Vulkan/DescriptorSet.h"
+#include "Vulkan/Uniform.h"
 #include "Vulkan/DescriptorPool.h"
-#include "Vulkan/DescriptorSetLayout.h"
 
 namespace ZeroVulkan 
 {

@@ -3,14 +3,18 @@
 
 #include <string>
 #include <vector>
+#include "types.h"
+
 #include "Vulkan/Uniform.h"
 #include "Vulkan/Vertex.h"
 #include "Vulkan/Pipeline.h"
-#include "Vulkan/StencilBuffer.h"
-#include "Vulkan/ComputeShader.h"
 #include "Vulkan/DescriptorSet.h"
 #include "Vulkan/DescriptorPool.h"
 #include "Vulkan/DescriptorSetLayout.h"
+
+#include "ZStencil/ZStencil.h"
+#include "ZComputeShader/ZComputeShader.h"
+
 
 namespace ZeroVulkan
 {
@@ -32,7 +36,7 @@ namespace ZeroVulkan
         // TODO: merge those two methods
         void setComputeShader(ZComputeShader* computeShader);
         void setShader(const std::string& path, ZShaderType type);
-        inline void setStencilBuffer(ZStencilBuffer* stencil) { m_stencilBuffer = stencil; }
+        inline void setStencil(ZStencil* stencil) { m_stencil = stencil; }
         inline void setTopology(ZTopology topology) { pipeline.setTopolgy(topology); }
 
         void bind(VkCommandBuffer& cmdBuffer);
@@ -41,7 +45,7 @@ namespace ZeroVulkan
         void submitComputeShader();
     private:
         std::vector<ZUniform> m_uniforms;
-        ZStencilBuffer* m_stencilBuffer = nullptr;
+        ZStencil* m_stencil = nullptr;
         
         VkShaderModule m_vertShader = nullptr;
         VkShaderModule m_fragShader = nullptr;

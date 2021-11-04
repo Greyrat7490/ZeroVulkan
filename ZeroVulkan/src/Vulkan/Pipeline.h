@@ -1,15 +1,17 @@
 #ifndef ZPIPELINE_H_
 #define ZPIPELINE_H_
 
-#include "Device.h"
-#include "Shader.h"
-#include "Vertex.h"
+#include "types.h"
+
 #include "DescriptorSetLayout.h"
 #include "DescriptorSet.h"
-#include "DescriptorPool.h"
+
 
 namespace ZeroVulkan
 {
+    class ZDescriptorPool;
+    class ZVertexLayout;
+    
     class ZPipeline {
     public:
         ZPipeline();

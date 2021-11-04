@@ -1,11 +1,6 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include <functional>
-#include "Vulkan/Core.h"
-#include "ZScene/ZScene.h"
-#include "ZObject/ZObject.h"
-
 namespace ZeroVulkan::ZRenderer {
     void printVulkanInfos();
    

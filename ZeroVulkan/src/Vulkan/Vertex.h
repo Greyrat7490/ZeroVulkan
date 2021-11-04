@@ -19,7 +19,7 @@ namespace ZeroVulkan {
     };
 
 
-    inline void ZVertexLayout::createBinding()
+    void ZVertexLayout::createBinding()
     {
         bindingDescritption = new VkVertexInputBindingDescription();
         bindingDescritption->binding = 0;
@@ -27,7 +27,7 @@ namespace ZeroVulkan {
         bindingDescritption->inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
     }
     
-    inline void ZVertexLayout::addLocation(uint32_t location, ZType type)
+    void ZVertexLayout::addLocation(uint32_t location, ZType type)
     {
         vertexAttributeDesc.resize(vertexAttributeDesc.size() + 1);
         VkVertexInputAttributeDescription& desc = vertexAttributeDesc.back();
@@ -41,7 +41,6 @@ namespace ZeroVulkan {
         switch (type)
         {
         case ZType::MAT4:
-            puts("keep in mind mat4 takes 4 locations (4 * VEC4)");
             desc.format = VK_FORMAT_R32G32B32A32_SFLOAT;
             m_offset += sizeof(mat4);
             break;
@@ -62,7 +61,7 @@ namespace ZeroVulkan {
             m_offset += sizeof(float);
             break;
         default:
-            printf("unknown vertexAttribute (ZType) %d\n", (int)type);
+            printf("unknown vertexAttribute %s\n", zTypeToStr(type));
         }
     }
 }

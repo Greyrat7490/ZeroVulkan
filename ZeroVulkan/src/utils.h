@@ -1,9 +1,11 @@
 #ifndef H_TOOLS
 #define H_TOOLS
+
 #include <string>
 
 #define ZASSERT_LINE(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __LINE__);
 #define ZASSERT_FUNC(condition, msg) ZeroVulkan::zassert(condition, msg, __FILE__, __PRETTY_FUNCTION__);
+
 
 namespace ZeroVulkan 
 {

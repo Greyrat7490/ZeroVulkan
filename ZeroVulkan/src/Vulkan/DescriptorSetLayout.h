@@ -1,5 +1,5 @@
-#ifndef H_DESC_SET_LAYOUT
-#define H_DESC_SET_LAYOUT
+#ifndef DESC_SET_LAYOUT_H_
+#define DESC_SET_LAYOUT_H_
 
 #include <vector>
 #include <stdio.h>
@@ -7,82 +7,81 @@
 
 namespace ZeroVulkan
 {
-	union ZDescriptorInfo
-	{
+    union ZDescriptorInfo
+    {
         const VkDescriptorImageInfo* imageInfo;
         const VkDescriptorBufferInfo* bufferInfo;
-	};
+    };
 
-	class ZDescriptorSetLayout
-	{
-	public:
-		ZDescriptorSetLayout() {};
-		inline ~ZDescriptorSetLayout();
+    class ZDescriptorSetLayout
+    {
+    public:
+        inline ~ZDescriptorSetLayout();
 
-		inline const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const { return m_bindings; }
-		inline const std::vector<ZDescriptorInfo>& getDescInfos() const { return m_descInfos; }
+        inline const std::vector<VkDescriptorSetLayoutBinding>& getBindings() const { return m_bindings; }
+        inline const std::vector<ZDescriptorInfo>& getDescInfos() const { return m_descInfos; }
 
         inline void addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
         inline void addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
 
-		inline void create();
+        inline void create();
 
-		VkDescriptorSetLayout layout = nullptr;
+        VkDescriptorSetLayout layout = nullptr;
 
-	private:
-		std::vector<VkDescriptorSetLayoutBinding> m_bindings;
-		std::vector<ZDescriptorInfo> m_descInfos;
-	};
+    private:
+        std::vector<VkDescriptorSetLayoutBinding> m_bindings;
+        std::vector<ZDescriptorInfo> m_descInfos;
+    };
 
-	ZDescriptorSetLayout::~ZDescriptorSetLayout()
-	{
-		vkDestroyDescriptorSetLayout(ZDevice::getDevice(), layout, nullptr);
-	}
+    ZDescriptorSetLayout::~ZDescriptorSetLayout()
+    {
+        vkDestroyDescriptorSetLayout(ZDevice::getDevice(), layout, nullptr);
+    }
 
-	void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
-	{
-		VkDescriptorSetLayoutBinding layoutBinding = {};
-		layoutBinding.binding = binding;
-		layoutBinding.descriptorType = descriptorType;
-		layoutBinding.descriptorCount = 1;
-		layoutBinding.stageFlags = stageFlags;
-		layoutBinding.pImmutableSamplers = nullptr;
+    void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorBufferInfo* bufferInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
+    {
+        VkDescriptorSetLayoutBinding layoutBinding = {};
+        layoutBinding.binding = binding;
+        layoutBinding.descriptorType = descriptorType;
+        layoutBinding.descriptorCount = 1;
+        layoutBinding.stageFlags = stageFlags;
+        layoutBinding.pImmutableSamplers = nullptr;
 
-		m_bindings.push_back(layoutBinding);
+        m_bindings.push_back(layoutBinding);
 
         ZDescriptorInfo info;
         info.bufferInfo = bufferInfo;
         m_descInfos.push_back(info);
-	}
+    }
 
-	void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
-	{
-		VkDescriptorSetLayoutBinding layoutBinding = {};
-		layoutBinding.binding = binding;
-		layoutBinding.descriptorType = descriptorType;
-		layoutBinding.descriptorCount = 1;
-		layoutBinding.stageFlags = stageFlags;
-		layoutBinding.pImmutableSamplers = nullptr;
+    void ZDescriptorSetLayout::addBinding(uint32_t binding, const VkDescriptorImageInfo* imageInfo, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags)
+    {
+        VkDescriptorSetLayoutBinding layoutBinding = {};
+        layoutBinding.binding = binding;
+        layoutBinding.descriptorType = descriptorType;
+        layoutBinding.descriptorCount = 1;
+        layoutBinding.stageFlags = stageFlags;
+        layoutBinding.pImmutableSamplers = nullptr;
 
-		m_bindings.push_back(layoutBinding);
+        m_bindings.push_back(layoutBinding);
 
         ZDescriptorInfo info;
         info.imageInfo = imageInfo;
         m_descInfos.push_back(info);
-	}
-	
+    }
+    
     void ZDescriptorSetLayout::create()
-	{
-		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-		layoutInfo.bindingCount = m_bindings.size();
-		layoutInfo.pBindings = m_bindings.data();
+    {
+        VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = m_bindings.size();
+        layoutInfo.pBindings = m_bindings.data();
 
-		VkResult res = vkCreateDescriptorSetLayout(ZDevice::getDevice(), &layoutInfo, nullptr, &layout);
+        VkResult res = vkCreateDescriptorSetLayout(ZDevice::getDevice(), &layoutInfo, nullptr, &layout);
 
         if (res != VK_SUCCESS)
             printf("create desc layput ERROR: %d\n", res);
-	}
+    }
 }
 
-#endif // H_DESC_SET_LAYOUT
+#endif // DESC_SET_LAYOUT_H_

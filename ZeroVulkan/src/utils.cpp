@@ -11,8 +11,8 @@
 
 namespace ZeroVulkan 
 {
-    static uint32_t seed = static_cast<uint32_t>(time(nullptr));
-    std::mt19937 gen(seed);
+    static uint32_t s_seed = static_cast<uint32_t>(time(nullptr));
+    static std::mt19937 s_gen(s_seed);
     
     void zassert(bool condition, const char* msg, const char* file, const char* func) {
         if (!condition) {
@@ -152,18 +152,18 @@ namespace ZeroVulkan
     }
 
 
-    float rndFloat() { return gen(); }
+    float rndFloat() { return s_gen(); }
     float rndFloat(float min, float max) {
         std::uniform_real_distribution<float> dist(min, max);
-        return dist(gen);
+        return dist(s_gen);
     }
 
-    int rndInt() { return gen(); }
+    int rndInt() { return s_gen(); }
     int rndInt(int min, int max) {
         std::uniform_int_distribution<int> dist(min, max);
-        return dist(gen);
+        return dist(s_gen);
     }
 
-    uint32_t getRndSeed() { return seed; }
-    void setRndSeed(uint32_t newSeed) { seed = newSeed; }
+    uint32_t getRndSeed() { return s_seed; }
+    void setRndSeed(uint32_t newSeed) { s_seed = newSeed; }
 }

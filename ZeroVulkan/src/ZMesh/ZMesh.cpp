@@ -1,6 +1,11 @@
 #include "ZMesh.h"
+
 #include <cstring>
-#include <vulkan/vulkan_core.h>
+#include <cstdio>
+
+#include "Vulkan/Device.h"
+#include "Vulkan/Buffer.h"
+
 
 namespace ZeroVulkan {
     ZMesh::ZMesh(float* vertices, uint32_t vertices_count, uint32_t* indices, uint32_t indices_count) {

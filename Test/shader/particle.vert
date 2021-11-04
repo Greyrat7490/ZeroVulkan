@@ -4,7 +4,7 @@ layout( location = 0 ) in vec3 inPosition;
 
 layout( location = 0 ) out vec4 outColor;
 
-layout ( binding = 0 ) uniform UBO 
+layout ( binding = 0 ) uniform UBO
 {
 	mat4 projection;
     mat4 view;

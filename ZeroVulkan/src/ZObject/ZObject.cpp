@@ -1,7 +1,5 @@
 #include "ZObject.h"
 #include "ZScene/ZScene.h"
-#include "utils.h"
-#include <functional>
 
 namespace ZeroVulkan {
     ZObject::ZObject(ZShaderSet& shaders, ZMesh& mesh)

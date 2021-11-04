@@ -1,10 +1,12 @@
-#ifndef H_DEVICE
-#define H_DEVICE
+#ifndef DEVICE_H_
+#define DEVICE_H_
 
 #define VK_USE_PLATFORM_XCB_KHR
 #include <vulkan/vulkan.h>
+
 #include <vector>
 #include <stdio.h>
+
 #include "CommandBuffer.h"
 
 
@@ -28,4 +30,4 @@ namespace ZeroVulkan::ZDevice {
     VkSampler& getSampler();
 }
 
-#endif // H_DEVICE
+#endif // DEVICE_H_

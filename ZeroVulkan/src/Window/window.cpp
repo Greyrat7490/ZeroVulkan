@@ -1,29 +1,31 @@
 #include "window.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
-#include <assert.h>
-#include <xcb/xcb.h>
+
 #include <xcb/xproto.h>
+
 #include "ZRenderer/ZRenderer.h"
+
 
 namespace ZeroVulkan::ZWindow
 {
-    xcb_window_t window = 0;
-    xcb_connection_t* connection = nullptr;
-    xcb_intern_atom_reply_t* wm_del_win = nullptr;
+    static xcb_window_t s_window = 0;
+    static xcb_connection_t* s_connection = nullptr;
+    static xcb_intern_atom_reply_t* s_wm_del_win = nullptr;
 
-    xcb_window_t getWindow() { return window; }
-    xcb_connection_t* getConnection() { return connection; }
- 
-    uint16_t width = 0;
-    uint16_t height = 0;
+    static uint16_t s_width = 0;
+    static uint16_t s_height = 0;
+
+    xcb_window_t getWindow() { return s_window; }
+    xcb_connection_t* getConnection() { return s_connection; }
 
     void createWindow() {
-        connection = xcb_connect(nullptr, nullptr);
+        s_connection = xcb_connect(nullptr, nullptr);
 
         // get first screen
-        const xcb_setup_t* setup = xcb_get_setup(connection);
+        const xcb_setup_t* setup = xcb_get_setup(s_connection);
         xcb_screen_iterator_t iter = xcb_setup_roots_iterator(setup);
         xcb_screen_t* screen = iter.data;
 
@@ -34,11 +36,11 @@ namespace ZeroVulkan::ZWindow
         };
 
         // create window
-        window = xcb_generate_id(connection);
+        s_window = xcb_generate_id(s_connection);
         xcb_create_window( 
-            connection, 
+            s_connection, 
             XCB_COPY_FROM_PARENT, 
-            window, 
+            s_window, 
             screen->root, 
             0, 0, 
             800, 600, 
@@ -48,34 +50,34 @@ namespace ZeroVulkan::ZWindow
             win_mask, win_values );
 
         // setup close(delete) event handler
-        xcb_intern_atom_cookie_t protocols_cookie = xcb_intern_atom_unchecked(connection, 1, 12, "WM_PROTOCOLS");
-        xcb_intern_atom_reply_t* protocols_reply = xcb_intern_atom_reply(connection, protocols_cookie, 0);
-        xcb_intern_atom_cookie_t del_win_cookie = xcb_intern_atom_unchecked(connection, 0, 16, "WM_DELETE_WINDOW");
-        wm_del_win = xcb_intern_atom_reply(connection, del_win_cookie, 0);
-        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, protocols_reply->atom, 4, 32, 1, &(wm_del_win->atom));
+        xcb_intern_atom_cookie_t protocols_cookie = xcb_intern_atom_unchecked(s_connection, 1, 12, "WM_PROTOCOLS");
+        xcb_intern_atom_reply_t* protocols_reply = xcb_intern_atom_reply(s_connection, protocols_cookie, 0);
+        xcb_intern_atom_cookie_t del_win_cookie = xcb_intern_atom_unchecked(s_connection, 0, 16, "WM_DELETE_WINDOW");
+        s_wm_del_win = xcb_intern_atom_reply(s_connection, del_win_cookie, 0);
+        xcb_change_property(s_connection, XCB_PROP_MODE_REPLACE, s_window, protocols_reply->atom, 4, 32, 1, &(s_wm_del_win->atom));
         free(protocols_reply);
 
         const char* title = "default title";
-        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, strlen(title), title);
-     
-        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry (connection, window);
-        xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (connection, geomCookie, nullptr);
+        xcb_change_property(s_connection, XCB_PROP_MODE_REPLACE, s_window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, strlen(title), title);
 
-        width = geom->width;
-        height = geom->height;
+        xcb_get_geometry_cookie_t geomCookie = xcb_get_geometry (s_connection, s_window);
+        xcb_get_geometry_reply_t* geom = xcb_get_geometry_reply (s_connection, geomCookie, nullptr);
 
-        xcb_map_window(connection, window);
-        xcb_flush(connection);
+        s_width = geom->width;
+        s_height = geom->height;
+
+        xcb_map_window(s_connection, s_window);
+        xcb_flush(s_connection);
     }
-    
+
     // return true if window is closed
     bool handleEvents() {
         xcb_generic_event_t* e;
 
-        while ( ( e = xcb_poll_for_event(connection) ) ) {
+        while ( ( e = xcb_poll_for_event(s_connection) ) ) {
             switch (e->response_type & ~0x80) {
                 case XCB_CLIENT_MESSAGE:
-                    if ( ( (xcb_client_message_event_t*)e )->data.data32[0] == wm_del_win->atom ) {
+                    if ( ( (xcb_client_message_event_t*)e )->data.data32[0] == s_wm_del_win->atom ) {
                         free(e);
                         return true;
                     }
@@ -89,10 +91,10 @@ namespace ZeroVulkan::ZWindow
                 // resize event
                 case XCB_CONFIGURE_NOTIFY: {
                     xcb_configure_notify_event_t* cfgEvent = (xcb_configure_notify_event_t*) e;
-                    if (cfgEvent->width != width || cfgEvent->height != height) {
+                    if (cfgEvent->width != s_width || cfgEvent->height != s_height) {
                         if (cfgEvent->width && cfgEvent->height) {
-                            width = cfgEvent->width;
-                            height = cfgEvent->height;
+                            s_width = cfgEvent->width;
+                            s_height = cfgEvent->height;
 
                             ZRenderer::resizing();
                         }
@@ -108,23 +110,23 @@ namespace ZeroVulkan::ZWindow
 
         return false;
     }
-    
+
     void clear() {
-        xcb_disconnect(connection);
+        xcb_disconnect(s_connection);
     }
 
     vec2 getSize() {
-        return vec2(width, height);
+        return vec2(s_width, s_height);
     }
 
     void setTitle(const std::string& title) {
-        if (!window || !connection) {
+        if (!s_window || !s_connection) {
             puts("ERROR: no window created (you should create a ZProject object first)");
             return;
         }
 
-        xcb_change_property(connection, XCB_PROP_MODE_REPLACE, window,
+        xcb_change_property(s_connection, XCB_PROP_MODE_REPLACE, s_window,
             XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 8, title.size(), title.data());
-        xcb_flush(connection);
+        xcb_flush(s_connection);
     }
 }

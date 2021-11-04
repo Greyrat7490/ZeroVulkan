@@ -1,17 +1,16 @@
-#ifndef H_SYNC_OBJS
-#define H_SYNC_OBJS
+#ifndef SYNC_OBJS_H_
+#define SYNC_OBJS_H_
 
-#include <stdio.h>
-#include "Device.h"
+#include <vulkan/vulkan_core.h>
 
 // TODO: better sync (use fence)
 namespace ZeroVulkan::SyncObjects
 {
     VkSemaphore* getSemaphoreImgAvailable();
     VkSemaphore* getSemaphoreRenderingDone();
-     
-	void create(uint32_t maxFramesInFlight);
+
+    void create(uint32_t maxFramesInFlight);
     void clear();
 }
 
-#endif // H_SYNC_OBJS
+#endif // SYNC_OBJS_H_

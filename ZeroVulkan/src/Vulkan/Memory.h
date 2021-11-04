@@ -1,9 +1,8 @@
-#ifndef H_MEMORY
-#define H_MEMORY
+#ifndef MEMORY_H_
+#define MEMORY_H_
 
-#define VK_USE_PLATFORM_XCB_KHR
+#include <vulkan/vulkan_core.h>
 #include <stdio.h>
-#include <vulkan/vulkan.h>
 
 namespace ZeroVulkan
 {
@@ -33,4 +32,4 @@ namespace ZeroVulkan
     }
 }
 
-#endif // H_MEMORY
+#endif // MEMORY_H_

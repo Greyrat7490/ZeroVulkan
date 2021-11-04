@@ -4,7 +4,7 @@
 #include "Device.h"
 
 namespace ZeroVulkan::DepthBuffering {
-	void init();
+    void init();
     void clear();
 
     VkFormat getDepthFormat();

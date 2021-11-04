@@ -2,10 +2,12 @@
 #include "utils.h"
 
 #include "Vulkan/Vertex.h"
-#include "Vulkan/StorageBuffer.h"
-#include "Vulkan/ComputeShader.h"
 #include "Vulkan/Pipeline.h"
 #include "Vulkan/Uniform.h"
+#include "Vulkan/StorageBuffer.h"
+
+#include "ZComputeShader/ZComputeShader.h"
+
 
 namespace ZeroVulkan {
     void parseVertexAttr(ZVertexLayout* vertexLayout, const std::string& file) {

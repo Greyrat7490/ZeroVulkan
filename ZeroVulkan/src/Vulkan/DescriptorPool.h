@@ -1,5 +1,5 @@
-#ifndef H_DESC_POOL
-#define H_DESC_POOL
+#ifndef DESC_POOL_H_
+#define DESC_POOL_H_
 
 #include <vector>
 #include "Device.h"
@@ -23,4 +23,4 @@ namespace ZeroVulkan
     };
 }
 
-#endif // H_DESC_POOL
+#endif // DESC_POOL_H_

@@ -1,5 +1,5 @@
-#ifndef H_DESC_SET
-#define H_DESC_SET
+#ifndef DESC_SET_H_
+#define DESC_SET_H_
 
 #include <vector>
 #include "DescriptorSetLayout.h"
@@ -7,18 +7,18 @@
 
 namespace ZeroVulkan
 {
-	class ZDescriptorSet
-	{
-	public:
-		ZDescriptorSet() = default;
+    class ZDescriptorSet
+    {
+    public:
+        ZDescriptorSet() = default;
 
-		VkDescriptorSet descSet = nullptr;
-		
-		void create(const ZDescriptorSetLayout* descLayout, VkDescriptorPool descriptorPool);
-	private:
-		const ZDescriptorSetLayout* m_descLayout = nullptr;
-        std::vector<VkWriteDescriptorSet> writeDescSets;
-	};
+        VkDescriptorSet descSet = nullptr;
+
+        void create(const ZDescriptorSetLayout* descLayout, VkDescriptorPool descriptorPool);
+    private:
+        const ZDescriptorSetLayout* m_descLayout = nullptr;
+        std::vector<VkWriteDescriptorSet> m_writeDescSets;
+    };
 }
 
-#endif // H_DESC_SET
+#endif // DESC_SET_H_

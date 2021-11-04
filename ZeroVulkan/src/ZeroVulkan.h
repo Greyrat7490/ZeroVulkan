@@ -2,12 +2,18 @@
 #define ZERO_VULKAN_H_
 
 #include "Window/window.h"
-#include "ZObject/ZObject.h"
-#include "ZMesh/ZMesh.h"
-#include "ZShaderSet/ZShaderSet.h"
-#include "Vulkan/ComputeShader.h"
-#include "ZScene/ZScene.h"
+
 #include "utils.h"
+#include "ZScene/ZScene.h"
+
+#include "ZMesh/ZMesh.h"
+#include "ZStencil/ZStencil.h"
+#include "ZShaderSet/ZShaderSet.h"
+#include "ZComputeShader/ZComputeShader.h"
+
+#include "ZObject/ZObject.h"
+#include "ZPrimitive/ZPrimitvie.h"
+
 
 namespace ZeroVulkan {
     class ZProject {

@@ -1,6 +1,13 @@
 #include "Pipeline.h"
-#include "Window/window.h"
+
+#include "Device.h"
+#include "Shader.h"
+#include "Vertex.h"
 #include "RenderPass.h"
+#include "DescriptorPool.h"
+
+#include "Window/window.h"
+
 
 namespace ZeroVulkan {
     ZPipeline::ZPipeline() {

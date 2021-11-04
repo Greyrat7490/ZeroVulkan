@@ -1,7 +1,8 @@
 #ifndef ZMESH_H_
 #define ZMESH_H_
 
-#include "Vulkan/Buffer.h"
+#include <vector>
+#include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan {
     class ZMesh {

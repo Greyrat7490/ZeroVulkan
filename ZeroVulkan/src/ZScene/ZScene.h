@@ -2,11 +2,11 @@
 #define ZSCENE_H_
 
 #include <vector>
-#include <functional>
-#include "Vulkan/ComputeShader.h"
 #include "types.h"
+
 #include "ZObject/ZObject.h"
 #include "ZPrimitive/ZPrimitvie.h"
+#include "ZComputeShader/ZComputeShader.h"
 
 namespace ZeroVulkan {
     class ZScene {

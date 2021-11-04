@@ -1,11 +1,13 @@
-#include <cstdint>
-#include <ctime>
-#include <vector>
-#include <vulkan/vulkan_core.h>
-#include "Vulkan/Swapchain.h"
-#include "Window/window.h"
-#include "ZObject/ZObject.h"
 #include "ZRenderer.h"
+
+#include <vector>
+#include <ctime>
+
+#include "Vulkan/Core.h"
+
+#include "Window/window.h"
+#include "ZScene/ZScene.h"
+
 
 namespace ZeroVulkan::ZRenderer {
     VkViewport viewport;
@@ -170,7 +172,7 @@ namespace ZeroVulkan::ZRenderer {
             return;
         }
 
-        res = vkAcquireNextImageKHR(ZDevice::getDevice(), Swapchain::getSwapchain(), UINT64_MAX, *SyncObjects::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
+        res = vkAcquireNextImageKHR(ZDevice::getDevice(), *Swapchain::getSwapchain(), UINT64_MAX, *SyncObjects::getSemaphoreImgAvailable(), VK_NULL_HANDLE, &imgIndex);
 
         // resize errors should be handled at the beginning, so this should catch rather all kinds of errors
         if (res != VK_SUCCESS) {
@@ -205,7 +207,7 @@ namespace ZeroVulkan::ZRenderer {
         presentInfo.waitSemaphoreCount = 1;
         presentInfo.pWaitSemaphores = SyncObjects::getSemaphoreRenderingDone();
         presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = &Swapchain::getSwapchain();
+        presentInfo.pSwapchains = Swapchain::getSwapchain();
         presentInfo.pImageIndices = &imgIndex;
 
         if (vkQueuePresentKHR(ZDevice::getQueue(), &presentInfo) == VK_ERROR_OUT_OF_DATE_KHR)

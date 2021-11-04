@@ -1,6 +1,9 @@
 #include "Shader.h"
 #include "utils.h"
 
+#include <cstdio>
+#include "Device.h"
+
 namespace ZeroVulkan {
     // TODO: only compile if file changed
     std::string compileShader(const std::string& path) {
@@ -49,21 +52,21 @@ namespace ZeroVulkan {
         #endif
     }
     
-	void createShaderModule(const std::string& path, VkShaderModule* shaderModule)
-	{
+    void createShaderModule(const std::string& path, VkShaderModule* shaderModule)
+    {
         std::string source = readFile(compileShader(path));
             
-		VkShaderModuleCreateInfo shaderCreateInfo;
-		shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-		shaderCreateInfo.pNext = nullptr;
-		shaderCreateInfo.flags = 0;
-		shaderCreateInfo.codeSize = source.size();
-		shaderCreateInfo.pCode = (uint32_t*)source.data();
+        VkShaderModuleCreateInfo shaderCreateInfo;
+        shaderCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        shaderCreateInfo.pNext = nullptr;
+        shaderCreateInfo.flags = 0;
+        shaderCreateInfo.codeSize = source.size();
+        shaderCreateInfo.pCode = (uint32_t*)source.data();
 
-		VkResult res = vkCreateShaderModule(ZDevice::getDevice(), &shaderCreateInfo, nullptr, shaderModule);
+        VkResult res = vkCreateShaderModule(ZDevice::getDevice(), &shaderCreateInfo, nullptr, shaderModule);
         if (res != VK_SUCCESS) {
             printf("create shader module ERROR: %d\n", res);
             exit(1);
         }
-	}
+    }
 }

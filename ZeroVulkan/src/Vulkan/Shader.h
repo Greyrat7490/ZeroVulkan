@@ -1,24 +1,13 @@
-#ifndef H_SHADER
-#define H_SHADER
+#ifndef SHADER_H_
+#define SHADER_H_
 
-#include <vector>
-#include <stdio.h>
+#include <vulkan/vulkan_core.h>
 #include <string>
-#include <utils.h>
-#include "Device.h"
 
 namespace ZeroVulkan
 {
-    #define SHADER_TYPE_COUNT 3
-	enum class ZShaderType
-	{
-		VERTEX,
-		FRAGMENT,
-        COMPUTE
-	};
-
     std::string compileShader(const std::string& path);
-	void createShaderModule(const std::string& path, VkShaderModule* shaderModule);
+    void createShaderModule(const std::string& path, VkShaderModule* shaderModule);
 }
 
-#endif // H_SHADER
+#endif // SHADER_H_

@@ -1,12 +1,16 @@
+#include "ZShaderSet.h"
+
 #include <string>
-#include "Vulkan/ComputeShader.h"
+
+#include "utils.h"
+#include "Parser.h"
+
 #include "Vulkan/Device.h"
 #include "Vulkan/Shader.h"
 #include "Vulkan/Uniform.h"
+
 #include "ZRenderer/ZRenderer.h"
-#include "ZShaderSet.h"
-#include "utils.h"
-#include "Parser.h"
+
 
 namespace ZeroVulkan
 {   
@@ -26,8 +30,8 @@ namespace ZeroVulkan
         if (m_computeShader)
             delete m_computeShader;
 
-        if (m_stencilBuffer)
-            delete m_stencilBuffer;
+        if (m_stencil)
+            delete m_stencil;
 
         vkDestroyShaderModule(ZDevice::getDevice(), m_vertShader, nullptr);
         vkDestroyShaderModule(ZDevice::getDevice(), m_fragShader, nullptr);
@@ -45,7 +49,7 @@ namespace ZeroVulkan
 
     ZShaderSet::ZShaderSet(ZShaderSet&& source) {
         m_uniforms.swap(source.m_uniforms);
-        m_stencilBuffer = source.m_stencilBuffer;
+        m_stencil = source.m_stencil;
         m_computeShader = source.m_computeShader;
         pipeline = source.pipeline;
         descPool = source.descPool;
@@ -55,7 +59,7 @@ namespace ZeroVulkan
 
         ready = false;
 
-        source.m_stencilBuffer = nullptr;
+        source.m_stencil = nullptr;
         source.m_computeShader = nullptr;
         source.m_vertShader = nullptr;
         source.m_fragShader = nullptr;
@@ -65,7 +69,7 @@ namespace ZeroVulkan
 
     ZShaderSet& ZShaderSet::operator=(ZShaderSet&& source) {
         m_uniforms.swap(source.m_uniforms);
-        m_stencilBuffer = source.m_stencilBuffer;
+        m_stencil = source.m_stencil;
         m_computeShader = source.m_computeShader;
         pipeline = source.pipeline;
         descPool = source.descPool;
@@ -75,7 +79,7 @@ namespace ZeroVulkan
 
         ready = false;
 
-        source.m_stencilBuffer = nullptr;
+        source.m_stencil = nullptr;
         source.m_computeShader = nullptr;
         source.m_vertShader = nullptr;
         source.m_fragShader = nullptr;
@@ -92,17 +96,17 @@ namespace ZeroVulkan
     }
 
     ZUniform& ZShaderSet::getStencilUniform(size_t index) {
-        ZASSERT_FUNC(m_stencilBuffer, "this ShaderSet has no Stencil");
+        ZASSERT_FUNC(m_stencil, "this ShaderSet has no Stencil");
 
-        return m_stencilBuffer->getUniform(index);
+        return m_stencil->getUniform(index);
     }
 
     void ZShaderSet::create()
     {
-        if (m_stencilBuffer) {
+        if (m_stencil) {
             pipeline.setStencil(true);
 
-            m_stencilBuffer->create(descPool);
+            m_stencil->create(descPool);
             descPool.maxSets++;
         }
 
@@ -114,8 +118,8 @@ namespace ZeroVulkan
         pipeline.create();
         pipeline.createDescSet(descPool);
 
-        if (m_stencilBuffer)
-            m_stencilBuffer->createDescSet(descPool);
+        if (m_stencil)
+            m_stencil->createDescSet(descPool);
 
         ready = true;
         puts("created shaders");
@@ -177,8 +181,8 @@ namespace ZeroVulkan
     }
 
     bool ZShaderSet::bindStencil(VkCommandBuffer& cmdBuffer) {
-        if (m_stencilBuffer) {
-            m_stencilBuffer->bind(cmdBuffer);
+        if (m_stencil) {
+            m_stencil->bind(cmdBuffer);
             return true;
         }
 

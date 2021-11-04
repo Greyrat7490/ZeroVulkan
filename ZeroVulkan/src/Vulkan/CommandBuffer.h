@@ -1,8 +1,7 @@
-#ifndef H_COMMAND_BUFFER
-#define H_COMMAND_BUFFER
+#ifndef COMMAND_BUFFER_H_
+#define COMMAND_BUFFER_H_
 
-#define VK_USE_PLATFORM_XCB_KHR
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 #include <vector>
 
 namespace ZeroVulkan
@@ -25,4 +24,4 @@ namespace ZeroVulkan
     };
 }
 
-#endif // H_COMMAND_BUFFER
+#endif // COMMAND_BUFFER_H_

@@ -1,7 +1,7 @@
-#ifndef H_BUFFER
-#define H_BUFFER
+#ifndef BUFFER_H_
+#define BUFFER_H_
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 #include "Device.h"
 #include "Memory.h"
@@ -84,33 +84,33 @@ namespace ZeroVulkan
         vkFreeMemory(dev, stagingBufferMem, nullptr);
     }
 
-	inline void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int offsetX = 0, int offsetY = 0) {
-		VkCommandBuffer commandBuffer = ZDevice::getCommandPool()->beginCommand();
+    inline void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, int offsetX = 0, int offsetY = 0) {
+        VkCommandBuffer commandBuffer = ZDevice::getCommandPool()->beginCommand();
 
-		VkBufferImageCopy region = {};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
+        VkBufferImageCopy region = {};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
 
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
 
-		region.imageOffset = { offsetX, offsetY, 0 };
-		region.imageExtent = { width, height, 1	};
+        region.imageOffset = { offsetX, offsetY, 0 };
+        region.imageExtent = { width, height, 1 };
 
-		vkCmdCopyBufferToImage(
-			commandBuffer,
-			buffer,
-			image,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			1,
-			&region
-		);
+        vkCmdCopyBufferToImage(
+            commandBuffer,
+            buffer,
+            image,
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &region
+        );
 
         ZDevice::getCommandPool()->endCommand(ZDevice::getQueue(), commandBuffer);
-	}
+    }
 }
 
-#endif // H_BUFFER
+#endif // BUFFER_H_

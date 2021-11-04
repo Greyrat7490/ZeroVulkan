@@ -1,11 +1,13 @@
 #ifndef ZOBJECT_H_
 #define ZOBJECT_H_
 
-#include "ZShaderSet/ZShaderSet.h"
-#include "ZMesh/ZMesh.h"
-#include "types.h"
 #include <initializer_list>
 #include <random>
+#include "types.h"
+
+#include "ZShaderSet/ZShaderSet.h"
+#include "ZMesh/ZMesh.h"
+
 
 namespace ZeroVulkan {
     class ZScene;

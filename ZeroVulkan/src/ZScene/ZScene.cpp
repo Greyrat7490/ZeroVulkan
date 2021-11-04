@@ -1,17 +1,21 @@
-#include <assert.h>
 #include "ZScene.h"
-#include "ZMesh/ZMesh.h"
+
+#include "utils.h"
+
 #include "Window/window.h"
-#include "ZObject/ZObject.h"
 #include "ZRenderer/ZRenderer.h"
+
+#include "ZMesh/ZMesh.h"
+#include "ZObject/ZObject.h"
 #include "ZShaderSet/ZShaderSet.h"
+
 
 namespace ZeroVulkan {
     static std::vector<ZScene*> scenes;
     static size_t currenIdx = 0;
 
     ZScene& ZScene::current() {
-        assert(currenIdx < scenes.size());
+        ZASSERT_FUNC(currenIdx < scenes.size(), "could not get current scene");
         return *scenes[currenIdx];
     }
     

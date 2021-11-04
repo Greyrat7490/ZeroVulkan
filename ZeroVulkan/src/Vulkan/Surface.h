@@ -1,20 +1,20 @@
-#ifndef H_SURFACE
-#define H_SURFACE
+#ifndef SURFACE_H_
+#define SURFACE_H_
 
-#include <stdio.h>
-#include "Device.h"
 #include <xcb/xcb.h>
+#include <vulkan/vulkan_core.h>
 
 namespace ZeroVulkan::Surface {
-    const VkSurfaceKHR& getSurface();
+    VkSurfaceKHR getSurface();
+    VkSurfaceFormatKHR getSurfaceFormat();
     const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities();
-    const VkSurfaceFormatKHR& getSurfaceFormat();
-    
+
+
+    void createXcbSurface(xcb_connection_t* connection, xcb_window_t window);
     void clear();
-    
-	void createXcbSurface(xcb_connection_t* connection, xcb_window_t window);
-	void checkSurfaceSupport();
-	VkExtent2D getCapableExtent(VkExtent2D extent);
+
+    void checkSurfaceSupport();
+    VkExtent2D getCapableExtent(VkExtent2D extent);
 }
 
-#endif // H_SURFACE
+#endif // SURFACE_H_
