@@ -8,19 +8,19 @@
 
 namespace ZeroVulkan {
     uint8_t ZProject::m_counter;
-    
+
     ZProject::ZProject() {
         if (m_counter) {
             puts("ERROR: you can only have one instance of ZProject");
             exit(1);
         }
-        
+
 #ifdef Z_DEBUG
         ZRenderer::printVulkanInfos();
 #endif
         ZWindow::createWindow();
         ZRenderer::initRenderer();
-        
+
         m_counter++;
     }
 
@@ -30,7 +30,7 @@ namespace ZeroVulkan {
 
         puts("successfully cleared!");
     }
- 
+
     void ZProject::run() {
         float drawTimer = 0.f;
         float fixedDeltaTime = 0.002f; // 2ms
@@ -43,27 +43,32 @@ namespace ZeroVulkan {
                  "  use 'ZScene::create<YourZSceneClass>();' to create one");
             return;
         }
-        
+
         ZRenderer::start();
-        
+
+        if (!ZScene::current().hasCam()) {
+            puts("ERROR: current ZScene has no camera\n"
+                 "  use 'ZScene::createLookAtCam();' to create one");
+            return;
+        }
 
         auto last = std::chrono::high_resolution_clock::now();
-        while (!quit) 
+        while (!quit)
         {
             auto current = std::chrono::high_resolution_clock::now();
             float dt = std::chrono::duration_cast<std::chrono::microseconds>(current - last).count() / 1'000'000.f;
             last = current;
             accumulator += dt;
             drawTimer += dt;
-            
+
 
             quit = ZWindow::handleEvents();
-            
+
             while (accumulator >= fixedDeltaTime) {
                 ZRenderer::update(fixedDeltaTime);
                 accumulator -= fixedDeltaTime;
             }
-            
+
             // TODO: maybe non blocking draw (not sure if this is a good idea / do research!)
             ZRenderer::drawFrame();
 
@@ -73,7 +78,7 @@ namespace ZeroVulkan {
                 fps = 0;
                 drawTimer = 0.f;
             }
-        
+
             fps++;
         }
 

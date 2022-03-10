@@ -1,7 +1,9 @@
 #include "scene.h"
 
-void ComputeShaderScene::start() { 
+void ComputeShaderScene::start() {
     puts("compute shader test scene start");
+
+    ZScene::createLookAtCam();
 
     static uint32_t PARTICLE_COUNT = 100'000;
 
@@ -53,8 +55,8 @@ void ComputeShaderScene::start() {
     particleSystem.setTopology(ZTopology::POINT);
     // particleSystem.setTopology(ZTopology::LINE); // this looks really cool
 }
-    
-void ComputeShaderScene::update(float dt) { 
+
+void ComputeShaderScene::update(float dt) {
     psUbo->deltaTime = dt;
 }
 

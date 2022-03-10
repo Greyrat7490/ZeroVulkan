@@ -1,7 +1,12 @@
 #include "scene.h"
 
-void ZObjectScene::start() { 
+void ZObjectScene::start() {
     puts("ZObject test scene start");
+
+    ZLookAtCam& cam = ZScene::createLookAtCam();
+    cam.setPos(vec3(-2.f, 1.f, 0.7f));
+    cam.lookAt(vec3(0.f));
+
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
          0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -52,13 +57,13 @@ void ZObjectScene::start() {
 
     obj.set3DMats(&objUbo->proj, &objUbo->view, &objUbo->model);
 
-    
+
     // if you just want to use the standard shader (phong shader)
     // you can simply use this:
     // createObject(mesh);
 }
-    
-void ZObjectScene::update(float dt) { 
+
+void ZObjectScene::update(float dt) {
     (void) dt;
 }
 

@@ -18,15 +18,15 @@ struct ParticleSystemUBO
     float deltaTime;
 };
 
-class ComputeShaderScene : public ZeroVulkan::ZScene 
+class ComputeShaderScene : public ZeroVulkan::ZScene
 {
 public:
     ComputeShaderScene() = default;
-    
-    virtual void start() override; 
+
+    virtual void start() override;
     virtual void update(float dt) override;
     virtual void end() override;
-    
+
     ParticleSystemUBO* psUbo = nullptr;
 };
 

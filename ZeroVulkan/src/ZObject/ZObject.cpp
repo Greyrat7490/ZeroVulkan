@@ -5,7 +5,7 @@ namespace ZeroVulkan {
     ZObject::ZObject(ZShaderSet& shaders, ZMesh& mesh)
         : m_shaders(std::move(shaders)), m_mesh(std::move(mesh))
     {}
-    
+
     ZObject::ZObject(ZMesh& mesh)
         : m_shaders( ZShaderSet("Test/shader/phong.vert", "Test/shader/phong.frag") ), m_mesh(std::move(mesh))
     {
@@ -20,11 +20,11 @@ namespace ZeroVulkan {
 
     void ZObject::update(ZScene* scene) {
         ZASSERT_FUNC(m_proj && m_view, "matrices for 3D rendering are not provided");
-        
+
         *m_proj = scene->getProjection();
         *m_view = scene->getView();
     }
-    
+
     void ZObject::set3DMats(mat4* proj, mat4* view, mat4* model) {
         m_proj = proj;
         m_view = view;

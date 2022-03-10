@@ -1,8 +1,12 @@
 #ifndef ZSCENE_H_
 #define ZSCENE_H_
 
+#include <cstdint>
 #include <vector>
 #include "types.h"
+
+#include "ZCamera/ZCamera.h"
+#include "ZCamera/ZLookAtCam/ZLookAtCam.h"
 
 #include "ZObject/ZObject.h"
 #include "ZPrimitive/ZPrimitvie.h"
@@ -11,9 +15,8 @@
 namespace ZeroVulkan {
     class ZScene {
     public:
-        ZScene();
         virtual ~ZScene();
- 
+
         template<typename ZSceneClass>
         static ZScene* create();
         static ZScene& current();
@@ -23,32 +26,38 @@ namespace ZeroVulkan {
         virtual void start() = 0;
         virtual void update(float dt) = 0;
         virtual void end() = 0;
-        
+
         void postUpdate();
-        
+
+
+        ZLookAtCam& createLookAtCam();
+
         ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
-        
-        ZRect& createRect(vec2 pos, float width, float height, vec4 color);
-        
-        ZShaderSet& createShaderSet(const std::string& vertShaderPath, const std::string& fragShaderPath);
-        
-        void updateProj();
-        void setView(vec3 origin, vec3 lookAtPos);
 
-        const mat4& getView() const { return view; }
-        const mat4& getProjection() const { return proj; }
+        ZRect& createRect(vec2 pos, float width, float height, vec4 color);
+
+        ZShaderSet& createShaderSet(const std::string& vertShaderPath, const std::string& fragShaderPath);
+
+        void setAspect();
+        void updateProj();
+
+        const mat4& getView() const { return cams[m_mainCam].getView(); }
+        const mat4& getProjection() const { return cams[m_mainCam].getProj(); }
+
+        bool hasCam() const { return !cams.empty(); }
+
 
         void bind(VkCommandBuffer& cmdBuffer);
         void buildComputeShaders();
         void submitComputeShaders();
-    protected:
-        mat4 proj;
-        mat4 view;
     private:
+        std::vector<ZLookAtCam> cams;
         std::vector<ZShaderSet> shaders;
         std::vector<ZObject> objects;
         std::vector<ZRect> rects;
+
+        uint32_t m_mainCam = 0;
         void add();
     };
 

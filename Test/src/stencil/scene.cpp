@@ -1,9 +1,13 @@
 #include "scene.h"
 #include "types.h"
 
-void ZStencilScene::start() { 
-    puts("ZStencilBuffer test scene end");
-    
+void ZStencilScene::start() {
+    puts("ZStencilBuffer test scene start");
+
+    ZLookAtCam& cam = ZScene::createLookAtCam();
+    cam.setPos(vec3(-2.f, 1.f, 0.7f));
+    cam.lookAt(vec3(0.f));
+
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
          0.5f, -0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -41,7 +45,7 @@ void ZStencilScene::start() {
     ZShaderSet shaders("ZeroVulkan/shaders/phong.vert", "ZeroVulkan/shaders/phong.frag");
     ZStencil* stencil = new ZStencil();
     shaders.setStencil(stencil);
-    
+
     ZObject& obj = createObject(shaders, mesh);
 
     objUbo = obj.getUniformStruct<Obj2UBO>(0, {
@@ -58,7 +62,7 @@ void ZStencilScene::start() {
 
     outlineUbo = obj.getStencilUniformStruct<OutlineUBO>(0, { ZType::MAT4, ZType::MAT4, ZType::MAT4 });
 }
-    
+
 void ZStencilScene::update(float dt) {
     (void) dt;
 

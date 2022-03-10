@@ -8,9 +8,9 @@
 int main()
 {
     ZeroVulkan::ZProject test;
-    // ZeroVulkan::ZScene::create<ZStencilScene>();
+    ZeroVulkan::ZScene::create<ZStencilScene>();
     // ZeroVulkan::ZScene::create<ZObjectScene>();
-    ZeroVulkan::ZScene::create<ComputeShaderScene>();
+    // ZeroVulkan::ZScene::create<ComputeShaderScene>();
     // ZeroVulkan::ZScene::create<PrimitivesScene>();
 
     test.run();
