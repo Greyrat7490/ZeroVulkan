@@ -1,36 +1,54 @@
 # ZeroVulkan
 
-## CrossPlatform Render API using Vulkan as backend
+## CrossPlatform Game Engine using Vulkan as backend
 
 ### Goal
-* abstracts the use of vulkan (zero vulkan for the user basicly)
+* simple game engine
+* abstracts the use of vulkan (zero vulkan for the user basically)
 * cross-platform compatible
 * cache friendly
-* for me to learn Vulkan more 
-* to use it later in other projects
+* to learn: Vulkan, Physics and game engines
 
 ### Features
 * [x] Linux support
 * [ ] OSX support
 * [ ] Windows support
-* [ ] Shaders
-  * [x] Vertex
-  * [x] Fragment
-  * [x] Compute
-  * [ ] parse shader (still in work)
-* [ ] create window
-  * [x] on Linux with X11(xcb)
-  * [ ] other platforms 
-* abstraction of renderable objects
-  * [x] ZObject (3D)
-  * [ ] ZObject2D
-  * [ ] FragShader (fullscreen fragment shader)
-  * [ ] Premitives
-    * [ ] line
-    * [x] rect
-    * [ ] circle
-    * [ ] cube
-    * [ ] sphere
+* [ ] Scenes
+  * [x] create scenes
+  * [ ] switch scenes
+* [ ] Input
+  * [ ] Mouse
+  * [x] Keyboard
+* [ ] Camera
+  * [ ] Third Person
+  * [ ] First Person
+* [ ] Renderer
+  * [ ] Shaders
+    * [x] Vertex
+    * [x] Fragment
+    * [x] Compute
+    * [ ] parse shader (still in work)
+  * [ ] create window
+    * [x] on Linux with X11(xcb)
+    * [ ] other platforms 
+  * [ ] abstraction of renderable objects
+    * [x] ZObject (3D)
+    * [ ] ZObject2D
+    * [ ] FragShader (fullscreen fragment shader)
+    * [ ] Premitives
+      * [ ] line
+      * [x] rect
+      * [ ] circle
+      * [ ] cube
+      * [ ] sphere
+ 
+### Requirements
+* vulkan drivers
+* vulkan lib
+* glslang support (to compile shader)
+  
+* Linux:
+  * sudo pacman -S glslang vulkan-headers vulkan-validation-layers
  
 ### Basics
 > Your main.cpp
