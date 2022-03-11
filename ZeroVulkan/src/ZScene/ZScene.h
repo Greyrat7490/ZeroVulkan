@@ -7,6 +7,7 @@
 
 #include "ZCamera/ZCamera.h"
 #include "ZCamera/ZLookAtCam/ZLookAtCam.h"
+#include "ZCamera/ZFirstPersonCam/ZFirstPersonCam.h"
 
 #include "ZObject/ZObject.h"
 #include "ZPrimitive/ZPrimitvie.h"
@@ -29,8 +30,8 @@ namespace ZeroVulkan {
 
         void postUpdate();
 
-
-        ZLookAtCam& createLookAtCam();
+        ZFirstPersonCam* createFirstPersonCam();
+        ZLookAtCam* createLookAtCam();
 
         ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
@@ -42,8 +43,8 @@ namespace ZeroVulkan {
         void setAspect();
         void updateProj();
 
-        const mat4& getView() const { return cams[m_mainCam].getView(); }
-        const mat4& getProjection() const { return cams[m_mainCam].getProj(); }
+        const mat4& getView() const { return cams[m_mainCam]->getView(); }
+        const mat4& getProjection() const { return cams[m_mainCam]->getProj(); }
 
         bool hasCam() const { return !cams.empty(); }
 
@@ -52,7 +53,7 @@ namespace ZeroVulkan {
         void buildComputeShaders();
         void submitComputeShaders();
     private:
-        std::vector<ZLookAtCam> cams;
+        std::vector<ZCamera*> cams;
         std::vector<ZShaderSet> shaders;
         std::vector<ZObject> objects;
         std::vector<ZRect> rects;

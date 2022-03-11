@@ -46,17 +46,23 @@ namespace ZeroVulkan {
 
     void ZScene::updateProj() {
         ZASSERT_FUNC(hasCam(), "current scene has no cameras");
-        cams[m_mainCam].updateProj();
+        cams[m_mainCam]->updateProj();
     }
 
     void ZScene::setAspect() {
         ZASSERT_FUNC(hasCam(), "current scene has no cameras");
-        cams[m_mainCam].setAspect();
+        cams[m_mainCam]->setAspect();
     }
 
-    ZLookAtCam& ZScene::createLookAtCam() {
-        cams.emplace_back();
-        return cams.back();
+    ZLookAtCam* ZScene::createLookAtCam() {
+        ZLookAtCam* cam = new ZLookAtCam();
+        cams.push_back(cam);
+        return cam;
+    }
+    ZFirstPersonCam* ZScene::createFirstPersonCam() {
+        ZFirstPersonCam* cam = new ZFirstPersonCam();
+        cams.push_back(cam);
+        return cam;
     }
 
     ZObject& ZScene::createObject(ZMesh& mesh) {
@@ -64,20 +70,17 @@ namespace ZeroVulkan {
         ZRenderer::record();
         return objects.back();
     }
-
     ZObject& ZScene::createObject(ZShaderSet& shaders, ZMesh& mesh) {
         objects.emplace_back(shaders, mesh);
         ZRenderer::record();
         return objects.back();
     }
 
-
     ZRect& ZScene::createRect(vec2 pos, float width, float height, vec4 color) {
         rects.emplace_back(pos, width, height, color);
         ZRenderer::record();
         return rects.back();
     }
-
 
     ZShaderSet& ZScene::createShaderSet(const std::string& vertShaderPath, const std::string& fragShaderPath) {
         shaders.emplace_back(vertShaderPath, fragShaderPath);

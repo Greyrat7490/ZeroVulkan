@@ -28,6 +28,18 @@ namespace ZeroVulkan
         updateView();
     }
 
+    void ZCamera::setRot(vec2 rot)
+    {
+        m_rot = rot;
+        updateView();
+    }
+
+    void ZCamera::rotate(vec2 rot)
+    {
+        m_rot += rot;
+        updateView();
+    }
+
     void ZCamera::updateProj()
     {
         m_aspect = m_size[0] / m_size[1];

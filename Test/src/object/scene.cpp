@@ -3,9 +3,9 @@
 void ZObjectScene::start() {
     puts("ZObject test scene start");
 
-    ZLookAtCam& cam = ZScene::createLookAtCam();
-    cam.setPos(vec3(-2.f, 1.f, 0.7f));
-    cam.lookAt(vec3(0.f));
+    ZLookAtCam* cam = ZScene::createLookAtCam();
+    cam->setPos(vec3(-2.f, 1.f, 0.7f));
+    cam->lookAt(vec3(0.f));
 
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,

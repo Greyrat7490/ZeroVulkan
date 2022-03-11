@@ -1,12 +1,16 @@
 #include "scene.h"
 #include "types.h"
 
+
+ZFirstPersonCam* cam = nullptr;
+
+
 void ZStencilScene::start() {
     puts("ZStencilBuffer test scene start");
 
-    ZLookAtCam& cam = ZScene::createLookAtCam();
-    cam.setPos(vec3(-2.f, 1.f, 0.7f));
-    cam.lookAt(vec3(0.f));
+    cam = ZScene::createFirstPersonCam();
+    cam->setPos(vec3(-2.f, 1.f, 0.7f));
+    cam->setRot(vec2(2.f, 0.3f));
 
     float vertices[] = {
          0.5f,  0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
@@ -64,11 +68,11 @@ void ZStencilScene::start() {
 }
 
 void ZStencilScene::update(float dt) {
-    (void) dt;
-
     outlineUbo->model = objUbo->model;
     outlineUbo->view = objUbo->view;
     outlineUbo->proj = objUbo->proj;
+
+    cam->rotate(vec2(0.f, 2.f) * dt);
 }
 
 void ZStencilScene::end() {
