@@ -1,6 +1,7 @@
 #ifndef ZERO_VULKAN_H_
 #define ZERO_VULKAN_H_
 
+#include "Input/Input.h"
 #include "Window/window.h"
 
 #include "utils.h"

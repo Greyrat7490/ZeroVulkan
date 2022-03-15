@@ -1,5 +1,6 @@
 #include "window.h"
 
+#include <cstdint>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -7,7 +8,13 @@
 #include <xcb/xproto.h>
 
 #include "ZRenderer/ZRenderer.h"
+#include "Input/Input.h"
 
+
+namespace ZeroVulkan::ZInput {
+    void setKeyState(uint8_t keyIdx, bool released);
+    void updateKeyMap();
+}
 
 namespace ZeroVulkan::ZWindow
 {
@@ -37,16 +44,16 @@ namespace ZeroVulkan::ZWindow
 
         // create window
         s_window = xcb_generate_id(s_connection);
-        xcb_create_window( 
-            s_connection, 
-            XCB_COPY_FROM_PARENT, 
-            s_window, 
-            screen->root, 
-            0, 0, 
-            800, 600, 
-            0, 
-            XCB_WINDOW_CLASS_INPUT_OUTPUT, 
-            screen->root_visual, 
+        xcb_create_window(
+            s_connection,
+            XCB_COPY_FROM_PARENT,
+            s_window,
+            screen->root,
+            0, 0,
+            800, 600,
+            0,
+            XCB_WINDOW_CLASS_INPUT_OUTPUT,
+            screen->root_visual,
             win_mask, win_values );
 
         // setup close(delete) event handler
@@ -72,22 +79,38 @@ namespace ZeroVulkan::ZWindow
 
     // return true if window is closed
     bool handleEvents() {
-        xcb_generic_event_t* e;
+        ZInput::updateKeyMap();
 
-        while ( ( e = xcb_poll_for_event(s_connection) ) ) {
+        xcb_generic_event_t* e;
+        while ((e = xcb_poll_for_event(s_connection))) {
             switch (e->response_type & ~0x80) {
+                case XCB_KEY_RELEASE: {
+                    // if auto repeat is enabled in X11 key holding gets converted to key press and release events
+                    xcb_generic_event_t* ne;
+                    if ((ne = xcb_poll_for_event(s_connection))) {
+                        if ((ne->response_type & ~0x80) == XCB_KEY_PRESS
+                                && ((xcb_key_press_event_t*)ne)->time == ((xcb_key_release_event_t*)e)->time
+                                && ((xcb_key_press_event_t*)ne)->detail == ((xcb_key_release_event_t*)e)->detail) {
+                            // ignore key release event and just handle the key press event
+                            ZInput::setKeyState(((xcb_key_press_event_t*)e)->detail, false);
+                            free(e);
+                            continue;
+                        }
+                    }
+
+                    ZInput::setKeyState(((xcb_key_release_event_t*)e)->detail, true);
+                    break;
+                }
+                case XCB_KEY_PRESS:
+                    ZInput::setKeyState(((xcb_key_press_event_t*)e)->detail, false);
+                    break;
+                // window closed
                 case XCB_CLIENT_MESSAGE:
-                    if ( ( (xcb_client_message_event_t*)e )->data.data32[0] == s_wm_del_win->atom ) {
+                    if (((xcb_client_message_event_t*)e)->data.data32[0] == s_wm_del_win->atom) {
                         free(e);
                         return true;
                     }
                     break;
-                case XCB_KEY_PRESS: {
-                    xcb_key_press_event_t* kp = (xcb_key_press_event_t*)e;
-
-                    printf("Key %d pressed\n", kp->detail);
-                    break;
-                }
                 // resize event
                 case XCB_CONFIGURE_NOTIFY: {
                     xcb_configure_notify_event_t* cfgEvent = (xcb_configure_notify_event_t*) e;
