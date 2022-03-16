@@ -16,6 +16,10 @@ namespace ZeroVulkan::ZInput
     bool isPressed(uint8_t keyIdx);
     bool isHold(uint8_t keyIdx);
     bool isReleased(uint8_t keyIdx);
+
+    bool isMouseMoving();
+    vec2 getMousePos();
+    vec2 getMouseMotion();
 }
 
 #endif // INPUT_H_

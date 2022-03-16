@@ -7,6 +7,7 @@
 #include <sstream>
 #include "utils.h"
 
+// TODO: vec2u (vec2 unsigned int)
 namespace ZeroVulkan 
 {
     #define ZTYPE_COUNT 5

@@ -68,6 +68,11 @@ void ComputeShaderScene::update(float dt) {
     if (ZInput::isReleased(38)) {
         puts("released 'A'");
     }
+
+    if (ZInput::isMouseMoving()) {
+        printf("%d %d\n", (int)ZInput::getMouseMotion()[0], (int)ZInput::getMouseMotion()[1]);
+        // printf("%u %u\n", (uint)ZInput::getMousePos()[0], (uint)ZInput::getMousePos()[1]);
+    }
 }
 
 void ComputeShaderScene::end() {

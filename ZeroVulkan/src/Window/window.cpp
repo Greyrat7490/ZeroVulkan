@@ -13,6 +13,7 @@
 
 namespace ZeroVulkan::ZInput {
     void setKeyState(uint8_t keyIdx, bool released);
+    void setCursorPos(int16_t x, int16_t y);
     void updateKeyMap();
 }
 
@@ -39,7 +40,7 @@ namespace ZeroVulkan::ZWindow
         uint32_t win_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
         uint32_t win_values[2] = {
             screen->black_pixel,
-            XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE
+            XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_POINTER_MOTION
         };
 
         // create window
@@ -104,6 +105,13 @@ namespace ZeroVulkan::ZWindow
                 case XCB_KEY_PRESS:
                     ZInput::setKeyState(((xcb_key_press_event_t*)e)->detail, false);
                     break;
+                case XCB_MOTION_NOTIFY: {
+                    xcb_motion_notify_event_t* me = (xcb_motion_notify_event_t*)e;
+
+                    ZInput::setCursorPos(me->event_x, me->event_y);
+                    break;
+                }
+
                 // window closed
                 case XCB_CLIENT_MESSAGE:
                     if (((xcb_client_message_event_t*)e)->data.data32[0] == s_wm_del_win->atom) {
