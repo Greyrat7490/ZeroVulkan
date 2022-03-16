@@ -40,7 +40,8 @@ namespace ZeroVulkan::ZWindow
         uint32_t win_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
         uint32_t win_values[2] = {
             screen->black_pixel,
-            XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_POINTER_MOTION
+            XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE
+                | XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE
         };
 
         // create window
@@ -102,6 +103,18 @@ namespace ZeroVulkan::ZWindow
                     ZInput::setKeyState(((xcb_key_release_event_t*)e)->detail, true);
                     break;
                 }
+                case XCB_BUTTON_RELEASE:
+                    ZInput::setKeyState(((xcb_button_release_event_t*)e)->detail, true);
+                    break;
+                case XCB_BUTTON_PRESS: {
+                        xcb_button_press_event_t* be = (xcb_button_press_event_t*)e;
+                        ZInput::setKeyState(be->detail, false);
+
+                        if (be->detail == 4 || be->detail == 5) // mouse wheel up or down
+                            return false;
+
+                        break;
+                    }
                 case XCB_KEY_PRESS:
                     ZInput::setKeyState(((xcb_key_press_event_t*)e)->detail, false);
                     break;
@@ -111,7 +124,6 @@ namespace ZeroVulkan::ZWindow
                     ZInput::setCursorPos(me->event_x, me->event_y);
                     break;
                 }
-
                 // window closed
                 case XCB_CLIENT_MESSAGE:
                     if (((xcb_client_message_event_t*)e)->data.data32[0] == s_wm_del_win->atom) {
