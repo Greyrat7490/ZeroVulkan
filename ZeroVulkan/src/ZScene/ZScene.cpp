@@ -64,6 +64,11 @@ namespace ZeroVulkan {
         cams.push_back(cam);
         return cam;
     }
+    ZSandboxCam* ZScene::createSandboxCam() {
+        ZSandboxCam* cam = new ZSandboxCam();
+        cams.push_back(cam);
+        return cam;
+    }
 
     ZObject& ZScene::createObject(ZMesh& mesh) {
         objects.emplace_back(mesh);

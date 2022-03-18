@@ -18,6 +18,7 @@ namespace ZeroVulkan
 
         void setPos(vec3 pos);
         vec3 getPos() const { return m_pos; }
+        void move(vec3 pos);
 
         // in radian
         void setRot(vec2 rot);

@@ -1,14 +1,10 @@
 #include "scene.h"
 #include "types.h"
 
-
-ZFirstPersonCam* cam = nullptr;
-
-
 void ZStencilScene::start() {
     puts("ZStencilBuffer test scene start");
 
-    cam = ZScene::createFirstPersonCam();
+    cam = ZScene::createSandboxCam();
     cam->setPos(vec3(-2.f, 1.f, 0.7f));
     cam->setRot(vec2(2.f, 0.3f));
 
@@ -72,7 +68,7 @@ void ZStencilScene::update(float dt) {
     outlineUbo->view = objUbo->view;
     outlineUbo->proj = objUbo->proj;
 
-    cam->rotate(vec2(0.f, 2.f) * dt);
+    cam->update(dt);
 }
 
 void ZStencilScene::end() {

@@ -27,6 +27,10 @@ namespace ZeroVulkan
         m_pos = pos;
         updateView();
     }
+    void ZCamera::move(vec3 pos) {
+        m_pos += pos;
+        updateView();
+    }
 
     void ZCamera::setRot(vec2 rot)
     {

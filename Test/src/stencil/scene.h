@@ -19,17 +19,18 @@ struct OutlineUBO {
     mat4 model;
 };
 
-class ZStencilScene : public ZeroVulkan::ZScene 
+class ZStencilScene : public ZeroVulkan::ZScene
 {
 public:
     ZStencilScene() = default;
-    
-    virtual void start() override; 
+
+    virtual void start() override;
     virtual void update(float dt) override;
     virtual void end() override;
-    
+
     Obj2UBO* objUbo = nullptr;
     OutlineUBO* outlineUbo = nullptr;
+    ZSandboxCam* cam = nullptr;
 };
 
 #endif // ZSTENCIL_SCENE_H_

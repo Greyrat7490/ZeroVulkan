@@ -7,6 +7,7 @@
 
 #include "ZCamera/ZCamera.h"
 #include "ZCamera/ZLookAtCam/ZLookAtCam.h"
+#include "ZCamera/ZSandboxCam/ZSandboxCam.h"
 #include "ZCamera/ZFirstPersonCam/ZFirstPersonCam.h"
 
 #include "ZObject/ZObject.h"
@@ -32,6 +33,7 @@ namespace ZeroVulkan {
 
         ZFirstPersonCam* createFirstPersonCam();
         ZLookAtCam* createLookAtCam();
+        ZSandboxCam* createSandboxCam();
 
         ZObject& createObject(ZMesh& mesh);
         ZObject& createObject(ZShaderSet& shaders, ZMesh& mesh);
