@@ -58,6 +58,12 @@ namespace ZeroVulkan::ZRenderer {
         ZScene::current().update(dt);
         ZScene::current().postUpdate();
     }
+    void fixedUpdate(float dt) {
+        (void) dt;
+
+        // TODO: later when Entity-Component-System is implemented
+        // update Systems
+    }
 
     void start() {
         ZScene::current().start();
@@ -164,7 +170,7 @@ namespace ZeroVulkan::ZRenderer {
             // TODO is 200ms even on slower machines good
             // only refresh swapchain if the window was not resized for 200ms
             // otherwise would cause serious stuttering and even temporarily freezing of your system
-            if ( ( (float)(clock() - lastResize) / CLOCKS_PER_SEC ) >= 0.2f ) {
+            if (((float)(clock() - lastResize) / CLOCKS_PER_SEC) >= 0.2f) {
                 refresh();
                 resized = true;
             }

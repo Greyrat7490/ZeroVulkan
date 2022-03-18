@@ -58,6 +58,25 @@ void ComputeShaderScene::start() {
 
 void ComputeShaderScene::update(float dt) {
     psUbo->deltaTime = dt;
+
+    if (ZInput::isPressed(38)) // A
+        puts("pressed 'A'");
+
+    if (ZInput::isHold(38))
+        puts("hold 'A'");
+
+    if (ZInput::isReleased(38))
+        puts("released 'A'");
+
+    if (ZInput::isMouseWheelUp())
+        puts("mouse wheel up");
+
+    if (ZInput::isMouseWheelDown())
+        puts("mouse wheel down");
+
+    if (ZInput::isMouseMoving())
+        printf("%d %d\n", (int)ZInput::getMouseMotion()[0], (int)ZInput::getMouseMotion()[1]);
+        // printf("%u %u\n", (uint)ZInput::getMousePos()[0], (uint)ZInput::getMousePos()[1]);
 }
 
 void ComputeShaderScene::end() {

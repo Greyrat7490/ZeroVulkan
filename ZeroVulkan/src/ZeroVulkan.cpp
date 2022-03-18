@@ -64,8 +64,9 @@ namespace ZeroVulkan {
 
             quit = ZWindow::handleEvents();
 
+            ZRenderer::update(dt);
             while (accumulator >= fixedDeltaTime) {
-                ZRenderer::update(fixedDeltaTime);
+                ZRenderer::fixedUpdate(fixedDeltaTime);
                 accumulator -= fixedDeltaTime;
             }
 
