@@ -12,7 +12,7 @@
 namespace ZeroVulkan::ZRenderer {
     VkViewport viewport;
     VkRect2D scissor;
-    
+
     vec2 winSize;
     clock_t lastResize;
     bool resized = true;
@@ -58,6 +58,12 @@ namespace ZeroVulkan::ZRenderer {
         ZScene::current().update(dt);
         ZScene::current().postUpdate();
     }
+    void fixedUpdate(float dt) {
+        (void) dt;
+
+        // TODO: later when Entity-Component-System is implemented
+        // update Systems
+    }
 
     void start() {
         ZScene::current().start();
@@ -67,7 +73,7 @@ namespace ZeroVulkan::ZRenderer {
         if (ZScene::getSceneCount())
             ZScene::current().end();
     }
-    
+
     void record() {
         ZScene::current().buildComputeShaders();
 
@@ -102,7 +108,7 @@ namespace ZeroVulkan::ZRenderer {
         for (VkCommandBuffer cmdBuffer : ZDevice::getCommandPool()->getBuffers())
         {
             renderPassBeginInfo.framebuffer = Swapchain::getSwapchainFramebuffers()[i++];
-            
+
             VkResult res = vkBeginCommandBuffer(cmdBuffer, &commandBufferBeginInfo);
             if (res != VK_SUCCESS)
                 printf("beginn command buffer ERROR: %d\n", res);
@@ -125,7 +131,7 @@ namespace ZeroVulkan::ZRenderer {
 
     void initRenderer() {
         updateWinSize();
-        
+
         ZDevice::init();
         Surface::createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());
         Surface::checkSurfaceSupport();
@@ -142,7 +148,7 @@ namespace ZeroVulkan::ZRenderer {
 
         updateWinSize();
         ZScene::current().updateProj();
-        
+
         vkFreeCommandBuffers(ZDevice::getDevice(), ZDevice::getCommandPool()->getPool(), (uint32_t)ZDevice::getCommandPool()->getBuffers().size(), ZDevice::getCommandPool()->getBuffers().data());
 
         Swapchain::refresh();
@@ -155,11 +161,11 @@ namespace ZeroVulkan::ZRenderer {
         lastResize = clock();
         resized = false;
     }
-    
+
     void drawFrame() {
         uint32_t imgIndex;
         VkResult res;
-        
+
         if (!resized) {
             // TODO is 200ms even on slower machines good
             // only refresh swapchain if the window was not resized for 200ms
@@ -168,7 +174,7 @@ namespace ZeroVulkan::ZRenderer {
                 refresh();
                 resized = true;
             }
-            
+
             return;
         }
 
@@ -179,12 +185,12 @@ namespace ZeroVulkan::ZRenderer {
             // not sure if still resize errors could occure so print if this happens and find out why exactly
             if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
                 printf("\n\nWARNING: still resize error (TODO: find out why)\n\n");
-                
+
             printf("AcquireNextImage ERROR: %d\n", res);
             refresh();
             return;
         }
-                
+
         VkPipelineStageFlags waitStageMask[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
         VkSubmitInfo submitInfo;
@@ -193,7 +199,7 @@ namespace ZeroVulkan::ZRenderer {
         submitInfo.waitSemaphoreCount = 1;
         submitInfo.pWaitSemaphores = SyncObjects::getSemaphoreImgAvailable();
         submitInfo.pWaitDstStageMask = waitStageMask;
-        submitInfo.commandBufferCount = 1; //watch later 
+        submitInfo.commandBufferCount = 1; //watch later
         submitInfo.pCommandBuffers = &ZDevice::getCommandPool()->getBuffers()[imgIndex];
         submitInfo.signalSemaphoreCount = 1;
         submitInfo.pSignalSemaphores = SyncObjects::getSemaphoreRenderingDone();
@@ -201,7 +207,7 @@ namespace ZeroVulkan::ZRenderer {
         res = vkQueueSubmit(ZDevice::getQueue(), 1, &submitInfo, VK_NULL_HANDLE);
         if (res != VK_SUCCESS)
             printf("queue submit ERROR: %d\n", res);
-            
+
         VkPresentInfoKHR presentInfo = {};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         presentInfo.waitSemaphoreCount = 1;
@@ -214,21 +220,21 @@ namespace ZeroVulkan::ZRenderer {
             return;
 
         ZScene::current().submitComputeShaders();
-    
+
         res = vkQueueWaitIdle(ZDevice::getQueue());
         if (res != VK_SUCCESS)
             printf("Queue wait idle ERROR: %d\n", res);
-        
+
         Swapchain::nextFrame();
     }
 
     void updateWinSize() {
         winSize = ZWindow::getSize();
     }
- 
+
     void clear() {
         vkDeviceWaitIdle(ZDevice::getDevice());
-        
+
         ZScene::clear();
         ZDevice::clear();
     }

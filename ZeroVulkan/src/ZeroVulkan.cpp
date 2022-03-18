@@ -59,9 +59,9 @@ namespace ZeroVulkan {
 
             quit = ZWindow::handleEvents();
 
+            ZRenderer::update(dt);
             while (accumulator >= fixedDeltaTime) {
-                // TODO: press and release key are called several times
-                ZRenderer::update(fixedDeltaTime);
+                ZRenderer::fixedUpdate(fixedDeltaTime);
                 accumulator -= fixedDeltaTime;
             }
 

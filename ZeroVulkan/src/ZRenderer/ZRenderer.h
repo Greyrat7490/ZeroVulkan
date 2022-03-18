@@ -3,18 +3,19 @@
 
 namespace ZeroVulkan::ZRenderer {
     void printVulkanInfos();
-   
+
     void record();
 
     void initRenderer();
-   
+
     void resizing();
-    
+
     void drawFrame();
 
     void start();
     void end();
     void update(float dt);
+    void fixedUpdate(float dt);
 
     void clear();
 
