@@ -19,9 +19,10 @@
 * [ ] Input
   * [ ] Mouse
   * [x] Keyboard
-* [ ] Camera
-  * [ ] Third Person
-  * [ ] First Person
+* [x] Camera
+  * [x] Third Person
+  * [x] First Person
+  * [x] Sandbox Camera
 * [ ] Renderer
   * [ ] Shaders
     * [x] Vertex
