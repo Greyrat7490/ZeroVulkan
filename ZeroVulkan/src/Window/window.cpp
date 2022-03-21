@@ -1,6 +1,5 @@
 #include "window.h"
 
-#include <cstdint>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -30,6 +29,8 @@ namespace ZeroVulkan::ZWindow
     xcb_connection_t* getConnection() { return s_connection; }
 
     void createWindow() {
+        ZInput::initKeymap();
+
         s_connection = xcb_connect(nullptr, nullptr);
 
         // get first screen

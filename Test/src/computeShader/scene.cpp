@@ -59,14 +59,16 @@ void ComputeShaderScene::start() {
 void ComputeShaderScene::update(float dt) {
     psUbo->deltaTime = dt;
 
-    if (ZInput::isPressed(38)) // A
-        puts("pressed 'A'");
+    ZKey key = ZKey::LEFT_BUTTON;
 
-    if (ZInput::isHold(38))
-        puts("hold 'A'");
+    if (ZInput::isPressed(key))
+        puts("pressed");
 
-    if (ZInput::isReleased(38))
-        puts("released 'A'");
+    if (ZInput::isHold(key))
+        puts("hold");
+
+    if (ZInput::isReleased(key))
+        puts("released");
 
     if (ZInput::isMouseWheelUp())
         puts("mouse wheel up");

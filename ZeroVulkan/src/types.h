@@ -10,6 +10,86 @@
 // TODO: vec2u (vec2 unsigned int)
 namespace ZeroVulkan 
 {
+    enum class ZKey {
+        LEFT_BUTTON,
+        MIDDLE_BUTTON,
+        RIGHT_BUTTON,
+        MOUSE_WHEEL_UP,
+        MOUSE_WHEEL_DOWN,
+
+        BACKSPACE = 8, // same as ascii
+        TAB,           // same as ascii
+        // 10 - 12 undefined
+        ENTER = 13,    // same as ascii
+        SHIFT_L,
+        SHIFT_R,
+        CAPS,
+        CTRL_L,
+        CTRL_R,
+        ALT,
+        ALT_GR,
+        WIN_L,
+        WIN_R,
+        MENU,
+        ESC = 27,       // same as ascii
+
+        // 28 - 31 undefined
+
+        // same as ascii
+        SPACE = 32,
+        // 33 - 41 undefined
+        ASTERISK = 42,
+        PLUS,
+        COMMA,
+        MINUS,
+        POINT,
+        SLASH,
+
+        // same as ascii
+        KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9,
+        
+        // 58 - 64 undefined
+
+        // same as ascii
+        A = 65,
+        B, C, D, E, F, G, H, I, J, K, L, M, N,
+        O, P, Q, R, S, T, U, V, W, X, Y, Z,
+
+        OEM_1,         // ger layout: ü
+        OEM_2,         // ger layout: #
+        OEM_3,         // ger layout: ö
+        OEM_4,         // ger layout: ß
+        OEM_5,         // ger layout: ^
+        OEM_6,         // ger layout: ´
+        OEM_7,         // ger layout: ä
+        OEM_8,
+        OEM_102,       // ger layout: <
+
+        OEM_PLUS,
+        OEM_COMMA,
+        OEM_MINUS,
+        OEM_POINT,
+
+        F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,
+        F13, F14, F15, F16, F17, F18, F19, F20, F21, F22, F23, F24,
+
+        NUM,
+        SCROLL,
+        PAUSE,
+
+        INSERT,
+        DELETE,
+        POS_1,
+        END,
+        PAGE_UP,
+        PAGE_DOWN,
+        
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    };
+    
     #define ZTYPE_COUNT 5
     enum class ZType
         : uint32_t

@@ -5,17 +5,11 @@
 
 namespace ZeroVulkan::ZInput
 {
-    enum class ZKeyState {
-        NONE,
-        RELEASED,
-        PRESSED,
-        TO_HOLD,
-        HOLD
-    };
+    void initKeymap();
 
-    bool isPressed(uint8_t keyIdx);
-    bool isHold(uint8_t keyIdx);
-    bool isReleased(uint8_t keyIdx);
+    bool isPressed(ZKey key);
+    bool isHold(ZKey key);
+    bool isReleased(ZKey key);
 
     bool isMouseWheelUp();
     bool isMouseWheelDown();
