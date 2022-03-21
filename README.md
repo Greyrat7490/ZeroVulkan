@@ -30,7 +30,7 @@
     * [x] Compute
     * [ ] parse shader (still in work)
   * [ ] create window
-    * [x] on Linux with X11(xcb)
+    * [x] on Linux with X11(Xlib)
     * [ ] other platforms 
   * [ ] abstraction of renderable objects
     * [x] ZObject (3D)
