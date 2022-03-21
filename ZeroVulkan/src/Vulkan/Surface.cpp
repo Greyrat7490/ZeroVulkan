@@ -6,21 +6,21 @@ namespace ZeroVulkan::Surface {
     static VkSurfaceKHR s_surface;
     static VkSurfaceFormatKHR s_surfaceFormat;
     static VkSurfaceCapabilitiesKHR s_surfaceCapabilities;
-    
+
 
     VkSurfaceKHR getSurface() { return s_surface; }
     VkSurfaceFormatKHR getSurfaceFormat() { return s_surfaceFormat; }
     const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities() { return s_surfaceCapabilities; }
 
 
-    void createXcbSurface(xcb_connection_t* connection, xcb_window_t window)
+    void createXlibSurface(Display* dpy, Window window)
     {
-        VkXcbSurfaceCreateInfoKHR info = {};
-        info.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-        info.connection = connection;
+        VkXlibSurfaceCreateInfoKHR info = {};
+        info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
+        info.dpy = dpy;
         info.window = window;
-        
-        vkCreateXcbSurfaceKHR(ZDevice::getInstance(), &info, nullptr, &s_surface);
+
+        vkCreateXlibSurfaceKHR(ZDevice::getInstance(), &info, nullptr, &s_surface);
     }
 
     void chooseSurfaceFormat() {
@@ -34,7 +34,7 @@ namespace ZeroVulkan::Surface {
             availableFormats.resize(formatCount);
             vkGetPhysicalDeviceSurfaceFormatsKHR(ZDevice::getPhysicalDev()[0], s_surface, &formatCount, availableFormats.data());
         }
-        
+
         for (const auto& availableFormat : availableFormats)
         {
             if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
@@ -60,10 +60,10 @@ namespace ZeroVulkan::Surface {
             printf("Surface is supported!\n");
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(ZDevice::getPhysicalDev()[0], s_surface, &s_surfaceCapabilities);
-        
+
         chooseSurfaceFormat();
     }
-    
+
     VkExtent2D getCapableExtent(VkExtent2D extent)
     {
         VkExtent2D res;

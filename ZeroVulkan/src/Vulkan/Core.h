@@ -1,7 +1,7 @@
 #ifndef CORE_H_
 #define CORE_H_
 
-#define VK_USE_PLATFORM_XCB_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <vulkan/vulkan.h>
 
 #include <chrono>

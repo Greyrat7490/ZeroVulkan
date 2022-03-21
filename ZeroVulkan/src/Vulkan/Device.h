@@ -1,7 +1,7 @@
 #ifndef DEVICE_H_
 #define DEVICE_H_
 
-#define VK_USE_PLATFORM_XCB_KHR
+#define VK_USE_PLATFORM_XLIB_KHR
 #include <vulkan/vulkan.h>
 
 #include <vector>
@@ -20,7 +20,7 @@
 namespace ZeroVulkan::ZDevice {
     void init();
     void clear();
-    
+
     VkDevice getDevice();
     VkInstance getInstance();
     VkPhysicalDevice* getPhysicalDev();

@@ -1,7 +1,7 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include <xcb/xcb.h>
+#include <X11/Xlib.h>
 #include <string>
 #include "types.h"
 
@@ -11,9 +11,9 @@ namespace ZeroVulkan::ZWindow {
     bool handleEvents();
     vec2 getSize();
     void setTitle(const std::string& title);
-    
-    xcb_window_t getWindow();
-    xcb_connection_t* getConnection();
+
+    Window getWindow();
+    Display* getDisplay();
 }
 
 #endif // WINDOW_H_

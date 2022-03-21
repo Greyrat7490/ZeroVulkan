@@ -30,10 +30,10 @@ namespace ZeroVulkan::ZDevice {
 
     VkSampler& getSampler() { return s_sampler; }
     ZCommandPool* getCommandPool() { return s_commandPool; }
-    
+
     void clear() {
         vkDeviceWaitIdle(s_dev);
- 
+
         SyncObjects::clear();
 
         delete s_commandPool;
@@ -42,7 +42,7 @@ namespace ZeroVulkan::ZDevice {
 
         Swapchain::clear();
         Surface::clear();
-        
+
         vkDestroyDevice(s_dev, nullptr);
         vkDestroyInstance(s_instance, nullptr);
 
@@ -51,7 +51,7 @@ namespace ZeroVulkan::ZDevice {
 
     void createInstance();
     void getPhysicalDevices();
-    
+
     void init()
     {
         createInstance();
@@ -122,13 +122,12 @@ namespace ZeroVulkan::ZDevice {
 #endif
 
         const char* KHRSurfaceExtension[2] = {
-            "VK_KHR_surface", "VK_KHR_xcb_surface"
+            "VK_KHR_surface", "VK_KHR_xlib_surface"
         };
 
         VkApplicationInfo appInfo = {};
-
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "first App";
+        appInfo.pApplicationName = "App";
         appInfo.applicationVersion = VK_MAKE_VERSION( 0, 0, 1 );
         appInfo.pEngineName = "ZeroVulkan";
         appInfo.engineVersion = VK_MAKE_VERSION( 0, 0, 1 );

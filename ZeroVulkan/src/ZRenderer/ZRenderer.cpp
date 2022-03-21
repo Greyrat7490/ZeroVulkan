@@ -133,7 +133,7 @@ namespace ZeroVulkan::ZRenderer {
         updateWinSize();
 
         ZDevice::init();
-        Surface::createXcbSurface(ZWindow::getConnection(), ZWindow::getWindow());
+        Surface::createXlibSurface(ZWindow::getDisplay(), ZWindow::getWindow());
         Surface::checkSurfaceSupport();
         Swapchain::create(winSize[0], winSize[1]);
         ZDevice::getCommandPool()->createCommandBuffers(static_cast<uint32_t>(Swapchain::getSwapchainImages().size()));

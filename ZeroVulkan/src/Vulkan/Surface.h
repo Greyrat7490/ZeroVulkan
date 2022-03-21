@@ -1,8 +1,8 @@
 #ifndef SURFACE_H_
 #define SURFACE_H_
 
-#include <xcb/xcb.h>
 #include <vulkan/vulkan_core.h>
+#include <X11/Xlib.h>
 
 namespace ZeroVulkan::Surface {
     VkSurfaceKHR getSurface();
@@ -10,7 +10,7 @@ namespace ZeroVulkan::Surface {
     const VkSurfaceCapabilitiesKHR& getSurfaceCapabilities();
 
 
-    void createXcbSurface(xcb_connection_t* connection, xcb_window_t window);
+    void createXlibSurface(Display* dpy, Window window);
     void clear();
 
     void checkSurfaceSupport();

@@ -4,14 +4,13 @@ out_name = Test
 lib_folder = $(lib_name)/src
 out_folder = $(out_name)/src
 
-LIB_LIBS = -lpthread -lX11 -lxcb -lvulkan
-OUT_LIBS = -lpthread -lX11 -lxcb -lvulkan # lib will be added later so it will automatically choose release/debug
+LIBS = -lpthread -lX11 -lvulkan
 
 CPPFLAGS = -Wall -Wextra -pedantic -std=c++17 -MD
 CPPFLAGS += -I/usr/local/include -I/usr/include -L/usr/local/lib
 
-LIB_CPPFLAGS = $(CPPFLAGS) -I$(lib_folder) $(LIB_LIBS)
-OUT_CPPFLAGS = $(CPPFLAGS) -I$(lib_folder) -I$(out_folder) $(OUT_LIBS)
+LIB_CPPFLAGS = $(CPPFLAGS) -I$(lib_folder) $(LIBS)
+OUT_CPPFLAGS = $(CPPFLAGS) -I$(lib_folder) -I$(out_folder) $(LIBS)
 
 
 out_release = build/release/$(out_name)
