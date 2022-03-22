@@ -16,13 +16,20 @@
 * [ ] Scenes
   * [x] create scenes
   * [ ] switch scenes
-* [ ] Input
-  * [ ] Mouse
+* [x] Input
+  * [x] Mouse
   * [x] Keyboard
 * [x] Camera
   * [x] Third Person
   * [x] First Person
   * [x] Sandbox Camera
+* [ ] Physics
+  * [ ] RigidBody
+  * [ ] friction
+* [ ] Collision Detection
+  * [ ] Bounding Box
+  * [ ] Box
+  * [ ] Sphere
 * [ ] Renderer
   * [ ] Shaders
     * [x] Vertex
@@ -31,10 +38,13 @@
     * [ ] parse shader (still in work)
   * [ ] create window
     * [x] on Linux with X11(Xlib)
-    * [ ] other platforms 
+    * [ ] other platforms
+  * [ ] Texture
   * [ ] abstraction of renderable objects
     * [x] ZObject (3D)
     * [ ] ZObject2D
+    * [ ] ParticalSystem
+    * [ ] Text
     * [ ] FragShader (fullscreen fragment shader)
     * [ ] Premitives
       * [ ] line
@@ -42,15 +52,15 @@
       * [ ] circle
       * [ ] cube
       * [ ] sphere
- 
+
 ### Requirements
 * vulkan drivers
 * vulkan lib
 * glslang support (to compile shader)
-  
+
 * Linux:
   * sudo pacman -S glslang vulkan-headers vulkan-validation-layers
- 
+
 ### Basics
 > Your main.cpp
 ```cpp
@@ -63,12 +73,12 @@ int main () {
 ```
 > create a scene
 ```cpp
-class TestScene : public ZeroVulkan::ZScene 
+class TestScene : public ZeroVulkan::ZScene
 {
 public:
     TestScene();
-    
-    virtual void start() override; 
+
+    virtual void start() override;
     virtual void update(float dt) override;
     virtual void end() override;
 };
@@ -99,7 +109,7 @@ void TestScene::start() {
       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f
    };
-        
+
    uint32_t indices[] = {
       0, 1, 2,
       2, 3, 0,
@@ -119,7 +129,7 @@ void TestScene::start() {
       4, 7, 6,
       6, 5, 4
    };
-    
+
    ZMesh mesh(vertices, sizeof(vertices)/sizeof(float), indices, sizeof(indices)/sizeof(uint32_t));
 // ...
 }
